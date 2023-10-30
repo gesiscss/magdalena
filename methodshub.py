@@ -16,6 +16,7 @@ class MethodsHubContent:
             git_repository_url = f"{git_repository_url}.git"
 
         self.git_repository_url = git_repository_url
+        self.http_to_git_repository = self.git_repository_url.replace(".git", "")
         self.filename = filename
 
         regex_match = re.match("https?://(.*)/(.*)/(.*).git", self.git_repository_url)
@@ -26,3 +27,16 @@ class MethodsHubContent:
             self.repository_name = regex_match.group(3)
         else:
             raise ValueError("Git repository URL is invalid!")
+        
+        self.tmp_path = f"_{self.domain}/{self.user_name}/{self.repository_name}"
+
+        self.filename_extension = self.filename.split(".")[-1]
+        assert self.filename_extension in (
+            "md",
+            "qmd",
+            "Rmd",
+            "ipynb",
+            "docx",
+        ), "File format not supported!"
+
+
