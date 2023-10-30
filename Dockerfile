@@ -23,6 +23,6 @@ EXPOSE 5000
 
 FROM dev AS prod
 
-COPY LICENSE README.md app.py templates ./
+COPY LICENSE README.md app.py methodshub.py templates ./
 
 CMD flask run --host 0.0.0.0 --port 5000 --no-reload  --no-debug --no-debugger
