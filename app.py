@@ -17,5 +17,6 @@ def build():
     methods_hub_content = MethodsHubContent(
         request.form["git_repository_url"], request.form["filename"]
     )
+    assert methods_hub_content.clone_or_pull() == True
 
     return "<p>Hello, World!</p>"
