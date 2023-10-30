@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS dev
+FROM ubuntu:22.04 AS basic
 
 RUN apt-get update \
     && apt-get -y upgrade \
@@ -20,6 +20,15 @@ RUN python3 -m pip install \
 CMD flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
 
 EXPOSE 5000
+
+FROM basic AS dev
+
+RUN python3 -m pip install \
+    --requirement requirements.dev.txt \
+    --no-cache-dir \
+    --progress-bar off \
+    --no-input \
+    --no-color
 
 FROM dev AS prod
 
