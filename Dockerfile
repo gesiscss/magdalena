@@ -2,7 +2,10 @@ FROM ubuntu:22.04 AS basic
 
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get install -y python3 python3-pip \
+    && apt-get install -y \
+    python3 \
+    python3-pip \
+    git \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /var/magdalena
 
