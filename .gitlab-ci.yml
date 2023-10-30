@@ -1,0 +1,44 @@
+stages:
+  - config
+  - prepare
+  - test
+
+Assign Docker image tag:
+  stage: config
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - Dockerfile
+      variables:
+        DOCKER_IMAGE_TAG: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      variables:
+        DOCKER_IMAGE_TAG: latest
+    - if:  ($CI_PIPELINE_SOURCE != "merge_request_event" && $CI_COMMIT_BRANCH == 'main')
+      variables:
+        DOCKER_IMAGE_TAG: latest
+  script:
+    - echo "DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}" >> docker.env
+  artifacts:
+    reports:
+      dotenv: docker.env
+
+Build dev container:
+  stage: prepare
+  rules:
+    - if: ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main') || $CI_PIPELINE_SOURCE == 'merge_request_event'
+      changes:
+        - Dockerfile
+  image: docker-private.gesis.intra/gesis/dc:5.7
+  services:
+    - name:  docker-private.gesis.intra/gesis/dind:5.5
+      alias: docker
+  variables:
+    target: dev
+  script:
+    - docker build --target ${target} --no-cache --pull -t docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/${target}:${DOCKER_IMAGE_TAG} .
+    - docker push docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/${target}:${DOCKER_IMAGE_TAG}
+
+
+
+
