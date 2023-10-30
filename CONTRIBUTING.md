@@ -10,8 +10,14 @@ Export the environment configuration using
 micromamba env export -n magdalena > environment.yml
 ```
 
-and
+```bash
+micromamba env export -n magdalena > environment.dev.yml
+```
 
 ```bash
 pip list --format=freeze > requirements.txt
+```
+
+```bash
+pip list --format=freeze > requirements.dev.txt
 ```
