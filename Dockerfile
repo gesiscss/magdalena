@@ -18,7 +18,8 @@ RUN python3 -m pip install \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
-    --no-color
+    --no-color \
+    && rm requirements.txt
 
 CMD flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
 
@@ -26,12 +27,15 @@ EXPOSE 5000
 
 FROM basic AS dev
 
+COPY requirements.dev.txt ./
+
 RUN python3 -m pip install \
     --requirement requirements.dev.txt \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
-    --no-color
+    --no-color \
+    && rm requirements.dev.txt
 
 FROM dev AS prod
 
