@@ -13,7 +13,7 @@ class MethodsHubContent:
         assert len(filename) != 0, "filename can NOT be empty string"
 
         if not git_repository_url.endswith(".git"):
-            logging.info("Git repository URL does NOT ends with '.git")
+            logging.info("Git repository URL does NOT ends with '.git'")
             git_repository_url = f"{git_repository_url}.git"
 
         self.git_repository_url = git_repository_url
