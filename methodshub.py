@@ -1,6 +1,7 @@
 import logging
-
+import os.path
 import re
+import subprocess
 
 
 class MethodsHubContent:
@@ -38,3 +39,11 @@ class MethodsHubContent:
             "ipynb",
             "docx",
         ), "File format not supported!"
+
+    def clone_or_pull(self):
+        if os.path.exists(self.tmp_path):
+            subprocess.run(["git", "pull", "origin"], cwd=self.tmp_path)
+        else:
+            subprocess.run(["git", "clone", self.git_repository_url, self.tmp_path])
+
+        return True
