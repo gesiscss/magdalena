@@ -42,8 +42,10 @@ class MethodsHubContent:
 
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
+            logging.info("Running git pull")
             subprocess.run(["git", "pull", "origin"], cwd=self.tmp_path)
         else:
+            logging.info("Running git clone")
             subprocess.run(["git", "clone", self.git_repository_url, self.tmp_path])
 
         return True
