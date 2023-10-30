@@ -39,6 +39,22 @@ Build dev container:
     - docker build --target ${target} --no-cache --pull -t docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/${target}:${DOCKER_IMAGE_TAG} .
     - docker push docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/${target}:${DOCKER_IMAGE_TAG}
 
+Verify code style:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
+      changes:
+        - '**/*.py'
+  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev
+  script:
+    - black .
 
-
-
+Run test:
+  stage: test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
+      changes:
+        - '**/*.py'
+  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev
+  script:
+    - pytest .
