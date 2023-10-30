@@ -1,0 +1,14 @@
+services:
+  magdalena:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - type: bind
+        source: app.py
+        target: /var/magdalena/app.py
+    expose:
+      - "5000"
+    ports:
+      - "5000:5000"
+    command: flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
