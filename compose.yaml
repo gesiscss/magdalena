@@ -7,6 +7,9 @@ services:
       - type: bind
         source: app.py
         target: /var/magdalena/app.py
+      - type: bind
+        source: templates
+        target: /var/magdalena/templates
     expose:
       - "5000"
     ports:
