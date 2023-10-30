@@ -45,7 +45,7 @@ Verify code style:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       changes:
         - '**/*.py'
-  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev
+  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev:${DOCKER_IMAGE_TAG}
   script:
     - black .
 
@@ -55,6 +55,6 @@ Run test:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       changes:
         - '**/*.py'
-  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev
+  image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev:${DOCKER_IMAGE_TAG}
   script:
     - pytest .
