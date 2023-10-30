@@ -5,6 +5,12 @@ import re
 
 class MethodsHubContent:
     def __init__(self, git_repository_url, filename):
+        assert git_repository_url is not None, "Git repository can NOT be None"
+        assert filename is not None, "filename can NOT be None"
+
+        assert len(git_repository_url) != 0, "Git repository can NOT be empty string"
+        assert len(filename) != 0, "filename can NOT be empty string"
+
         if not git_repository_url.endswith(".git"):
             logging.info("Git repository URL does NOT ends with '.git")
             git_repository_url = f"{git_repository_url}.git"
