@@ -27,7 +27,7 @@ class MethodsHubContent:
             self.repository_name = regex_match.group(3)
         else:
             raise ValueError("Git repository URL is invalid!")
-        
+
         self.tmp_path = f"_{self.domain}/{self.user_name}/{self.repository_name}"
 
         self.filename_extension = self.filename.split(".")[-1]
@@ -38,5 +38,3 @@ class MethodsHubContent:
             "ipynb",
             "docx",
         ), "File format not supported!"
-
-
