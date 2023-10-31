@@ -60,4 +60,17 @@ class MethodsHubContent:
         
         return True
 
+    def create_container(self):
+        self.docker_repository = f"magdalena/{self.domain}-{self.user_name}-{self.repository_name}"
+        
+        if self.git_commit_id is None:
+            self.clone_or_pull()
+            assert self.git_commit_id is not None, "Can NOT create Docker container if Git commit ID is None"
+        
+        self.docker_image_name = f"{self.docker_repository}:{self.git_commit_id}"
+        
+        # Check if container already exists
+
+        # Create container
+
         return True
