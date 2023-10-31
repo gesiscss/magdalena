@@ -54,7 +54,7 @@ class MethodsHubContent:
             git_clone_subprocess = subprocess.run(["git", "clone", self.git_repository_url, self.tmp_path])
             assert git_clone_subprocess.returncode == 0, "Fail to clone Git repository"
 
-        git_get_id_subprocess = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.tmp_path, , capture_output=True)
+        git_get_id_subprocess = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.tmp_path, capture_output=True)
         assert git_get_id_subprocess.returncode == 0, "Fail to retrieve Git commit ID"
         self.git_commit_id = git_get_id_subprocess.stdout.decode()
         
