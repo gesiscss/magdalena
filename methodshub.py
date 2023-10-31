@@ -41,6 +41,9 @@ class MethodsHubContent:
             "docx",
         ), "File format not supported!"
 
+        self.docker_repository = None
+        self.docker_image_name = None
+
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
             logging.info("Running git pull")
