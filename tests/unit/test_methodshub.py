@@ -32,6 +32,11 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
@@ -46,6 +51,11 @@ class TestMethodsHubContent:
         assert (
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
+        )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
         )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
@@ -62,6 +72,11 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://gitlab.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "gitlab.com"
         assert methods_hub_content.user_name == "lorem"
@@ -76,6 +91,11 @@ class TestMethodsHubContent:
         assert (
             methods_hub_content.git_repository_url
             == "https://gitlab.com/lorem/ipsum.git"
+        )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://gitlab.com/lorem/ipsum"
         )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "gitlab.com"
@@ -98,6 +118,11 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
@@ -112,6 +137,11 @@ class TestMethodsHubContent:
         assert (
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
+        )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
         )
         assert methods_hub_content.filename == "lorem-ipsum.qmd"
         assert methods_hub_content.domain == "github.com"
