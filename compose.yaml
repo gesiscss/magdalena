@@ -13,6 +13,9 @@ services:
       - type: bind
         source: templates
         target: /var/magdalena/templates
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
     expose:
       - "5000"
     ports:

@@ -32,12 +32,19 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_github.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_with_github_git(self):
         methods_hub_content = methodshub.MethodsHubContent(
@@ -47,12 +54,19 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_github.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab(self):
         methods_hub_content = methodshub.MethodsHubContent(
@@ -62,12 +76,19 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://gitlab.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "gitlab.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_gitlab.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab_git(self):
         methods_hub_content = methodshub.MethodsHubContent(
@@ -77,12 +98,19 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://gitlab.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "gitlab.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_gitlab.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_filename_extension_txt(self):
         with pytest.raises(AssertionError):
@@ -98,12 +126,19 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.md"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_github.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_filename_extension_qmd(self):
         methods_hub_content = methodshub.MethodsHubContent(
@@ -113,9 +148,16 @@ class TestMethodsHubContent:
             methods_hub_content.git_repository_url
             == "https://github.com/lorem/ipsum.git"
         )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename == "lorem-ipsum.qmd"
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
         assert methods_hub_content.tmp_path == "_github.com/lorem/ipsum"
         assert methods_hub_content.filename_extension == "qmd"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
