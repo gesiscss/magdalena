@@ -47,9 +47,17 @@ class MethodsHubContent:
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
             logging.info("Running git pull")
-            subprocess.run(["git", "pull", "origin"], cwd=self.tmp_path)
+            git_pull_subprocess = gitsubprocess.run(["git", "pull", "origin"], cwd=self.tmp_path)
+            assert git_pull_subprocess.returncode == 0, "Fail to update Git repository"
         else:
             logging.info("Running git clone")
-            subprocess.run(["git", "clone", self.git_repository_url, self.tmp_path])
+            git_clone_subprocess = subprocess.run(["git", "clone", self.git_repository_url, self.tmp_path])
+            assert git_clone_subprocess.returncode == 0, "Fail to clone Git repository"
+
+        git_get_id_subprocess = subprocess.run(["git", "rev-parse", "HEAD"], cwd=self.tmp_path, , capture_output=True)
+        assert git_get_id_subprocess.returncode == 0, "Fail to retrieve Git commit ID"
+        self.git_commit_id = git_get_id_subprocess.stdout.decode()
+        
+        return True
 
         return True
