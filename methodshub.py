@@ -17,6 +17,7 @@ class MethodsHubContent:
             git_repository_url = f"{git_repository_url}.git"
 
         self.git_repository_url = git_repository_url
+        self.git_commit_id = None
         self.http_to_git_repository = self.git_repository_url.replace(".git", "")
         self.filename = filename
 
