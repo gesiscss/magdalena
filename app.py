@@ -17,6 +17,7 @@ def build():
     methods_hub_content = MethodsHubContent(
         request.form["git_repository_url"], request.form["filename"]
     )
-    assert methods_hub_content.clone_or_pull() == True
+    assert methods_hub_content.clone_or_pull(), "Fail on clone or pull"
+    assert methods_hub_content.create_container(), "Fail on container creation"
 
     return "<p>Hello, World!</p>"

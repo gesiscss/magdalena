@@ -3,6 +3,9 @@ import os.path
 import re
 import subprocess
 
+import docker
+import repo2docker
+
 
 class MethodsHubContent:
     def __init__(self, git_repository_url, filename):
@@ -47,7 +50,7 @@ class MethodsHubContent:
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
             logging.info("Running git pull")
-            git_pull_subprocess = gitsubprocess.run(
+            git_pull_subprocess = subprocess.run(
                 ["git", "pull", "origin"], cwd=self.tmp_path
             )
             assert git_pull_subprocess.returncode == 0, "Fail to update Git repository"
@@ -80,7 +83,26 @@ class MethodsHubContent:
         self.docker_image_name = f"{self.docker_repository}:{self.git_commit_id}"
 
         # Check if container already exists
+        docker_client = docker.from_env()
+        for docker_image in docker_client.images.list():
+            for docker_image_tag in docker_image.tags:
+                if docker_image_tag == self.docker_image_name:
+                    logging.info("Docker image found. Skipping build.")
+                    return True
 
         # Create container
+        r2d = repo2docker.Repo2Docker()
+        r2d.log_level = logging.DEBUG
+        r2d.run = False
+        r2d.push = False
+        r2d.user_name = "magdalena"
+        r2d.user_id = 1000  # This is the first user in Ubuntu
+        r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
+        r2d.repo = self.git_repository_url
+        r2d.image_name = self.docker_image_name
+        try:
+            r2d.start()
+        except:
+            return False
 
         return True
