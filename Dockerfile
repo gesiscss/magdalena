@@ -53,6 +53,13 @@ RUN python3 -m pip install \
 
 FROM dev AS prod
 
-COPY LICENSE README.md app.py methodshub.py templates ./
+RUN python3 -m pip install \
+    gunicorn \
+    --no-cache-dir \
+    --progress-bar off \
+    --no-input \
+    --no-color
 
-CMD flask run --host 0.0.0.0 --port 5000 --no-reload  --no-debug --no-debugger
+COPY LICENSE README.md app.py methodshub.py wsgi.py templates ./
+
+CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'
