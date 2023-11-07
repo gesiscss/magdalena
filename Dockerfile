@@ -60,6 +60,6 @@ RUN python3 -m pip install \
     --no-input \
     --no-color
 
-COPY LICENSE README.md app.py methodshub.py wsgi.py templates ./
+COPY LICENSE README.md *.py templates docker-scripts pandoc-filters ./
 
 CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'

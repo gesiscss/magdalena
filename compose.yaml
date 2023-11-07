@@ -5,14 +5,8 @@ services:
       target: dev
     volumes:
       - type: bind
-        source: app.py
-        target: /var/magdalena/app.py
-      - type: bind
-        source: methodshub.py
-        target: /var/magdalena/methodshub.py
-      - type: bind
-        source: templates
-        target: /var/magdalena/templates
+        source: .
+        target: /var/magdalena
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
