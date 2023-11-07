@@ -19,5 +19,6 @@ def build():
     )
     assert methods_hub_content.clone_or_pull(), "Fail on clone or pull"
     assert methods_hub_content.create_container(), "Fail on container creation"
+    assert methods_hub_content.render_all_formats(), "Fail on render contributions"
 
     return "<p>Hello, World!</p>"

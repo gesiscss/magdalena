@@ -106,3 +106,35 @@ class MethodsHubContent:
             return False
 
         return True
+
+    def render_all_formats(self):
+        RENDER_MATRIX = {
+            "md": (
+                "md2md.sh",
+                "md2qmd.sh",
+                "md2ipynb.sh"
+            ),
+            "qmd": (
+                "qmd2md.sh",
+                "qmd2qmd.sh",
+                "qmd2ipynb.sh"
+            ),
+            "Rmd": (
+                "Rmd2md.sh",
+                "Rmd2qmd.sh",
+                "Rmd2ipynb.sh"
+            ),
+            "ipynb": (
+                "ipynb2md.sh",
+                "ipynb2qmd.sh",
+                "ipynb2ipynb.sh"
+            ),
+            "docx": (
+                "docx2md.sh"
+            )
+        }
+
+        if self.filename_extension not in RENDER_MATRIX:
+            raise ValueError("File extension not supported!")
+
+        return True
