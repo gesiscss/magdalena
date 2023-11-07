@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template
 
-from methodshub import MethodsHubContent
+from .methodshub import MethodsHubContent
 
 app = Flask(__name__)
 
