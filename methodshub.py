@@ -101,7 +101,7 @@ class MethodsHubContent:
         r2d.user_id = 1000  # This is the first user in Ubuntu
         r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
         r2d.repo = self.git_repository_url
-        r2d.image_name = self.docker_image_name
+        r2d.output_image_spec = self.docker_image_name
         try:
             logger.info("Repository: %s", r2d.repo)
             logger.info("Docker image name: %s", r2d.output_image_spec)
