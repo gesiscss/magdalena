@@ -8,7 +8,7 @@ def app():
     app.config.update({
         "TESTING": True,
     })
-    yield 
+    yield app
 
 @pytest.fixture()
 def client(app):
