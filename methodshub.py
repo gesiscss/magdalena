@@ -3,7 +3,7 @@ import os
 import os.path
 import re
 import subprocess
-from zipfile import ZipFile 
+from zipfile import ZipFile
 
 import docker
 import repo2docker
@@ -62,7 +62,7 @@ class MethodsHubContent:
         self.output_location = f"{self.docker_shared_dir}/{self.domain}/{self.user_name}/{self.repository_name}/{self.filename}"
         os.makedirs(self.output_location, exist_ok=True)
 
-        self.zip_filename = f"{self.domain}-{self.user_name}-{self.repository_name}-{self.filename}.zip"
+        self.zip_file_path = f"{self.docker_shared_dir}/{self.domain}-{self.user_name}-{self.repository_name}-{self.filename}.zip"
 
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
@@ -180,7 +180,8 @@ class MethodsHubContent:
 --env output_location={output_location_in_container} \\
 {self.docker_image_name} \\
 /bin/bash -c '{self.home_dir_at_docker}/_docker-scripts/{script}'""",
-capture_output=True, shell=True
+                capture_output=True,
+                shell=True,
             )
 
             assert render_content_subprocess.returncode == 0, "Fail to render content"
@@ -188,7 +189,11 @@ capture_output=True, shell=True
         return True
 
     def zip_all_formats(self):
-        with ZipFile(self.zip_filename, 'w') as zip_with_all_formats:
-            zip_with_all_formats.write(os.path.join(self.output_location, 'index.html'))
+        with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
+            # FIXME The 'index' directory is being created in the Shell script
+            zip_with_all_formats.write(
+                os.path.join(self.output_location, "index", "index.html"),
+                arcname="index.html",
+            )
 
         return True

@@ -38,5 +38,7 @@ def build():
     assert methods_hub_content.zip_all_formats(), "Fail on zip formats"
 
     return send_file(
-        methods_hub_content.zip_filename, mimetype="application/zip", as_attachment=True
+        methods_hub_content.zip_file_path,
+        mimetype="application/zip",
+        as_attachment=True,
     )
