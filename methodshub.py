@@ -6,6 +6,8 @@ import subprocess
 import docker
 import repo2docker
 
+logger = logging.getLogger("magdalena.app")
+
 
 class MethodsHubContent:
     def __init__(self, git_repository_url, filename):
@@ -16,7 +18,7 @@ class MethodsHubContent:
         assert len(filename) != 0, "filename can NOT be empty string"
 
         if not git_repository_url.endswith(".git"):
-            logging.info("Git repository URL does NOT ends with '.git'")
+            logger.info("Git repository URL does NOT ends with '.git'")
             git_repository_url = f"{git_repository_url}.git"
 
         self.git_repository_url = git_repository_url
@@ -49,13 +51,13 @@ class MethodsHubContent:
 
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
-            logging.info("Running git pull")
+            logger.info("Running git pull")
             git_pull_subprocess = subprocess.run(
                 ["git", "pull", "origin"], cwd=self.tmp_path
             )
             assert git_pull_subprocess.returncode == 0, "Fail to update Git repository"
         else:
-            logging.info("Running git clone")
+            logger.info("Running git clone")
             git_clone_subprocess = subprocess.run(
                 ["git", "clone", self.git_repository_url, self.tmp_path]
             )
@@ -87,7 +89,7 @@ class MethodsHubContent:
         for docker_image in docker_client.images.list():
             for docker_image_tag in docker_image.tags:
                 if docker_image_tag == self.docker_image_name:
-                    logging.info("Docker image found. Skipping build.")
+                    logger.info("Docker image found. Skipping build.")
                     return True
 
         # Create container
@@ -101,8 +103,11 @@ class MethodsHubContent:
         r2d.repo = self.git_repository_url
         r2d.image_name = self.docker_image_name
         try:
+            logger.info("Repository: %s", r2d.repo)
+            logger.info("Docker image name: %s", r2d.output_image_spec)
             r2d.start()
-        except:
+        except Exception as err:
+            logger.error(err)
             return False
 
         return True
