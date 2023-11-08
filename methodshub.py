@@ -75,6 +75,7 @@ class MethodsHubContent:
         self.docker_repository = (
             f"magdalena/{self.domain}/{self.user_name}/{self.repository_name}"
         )
+        self.docker_repository = self.docker_repository.lower()
 
         if self.git_commit_id is None:
             self.clone_or_pull()
@@ -101,6 +102,7 @@ class MethodsHubContent:
         r2d.user_id = 1000  # This is the first user in Ubuntu
         r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
         r2d.repo = self.git_repository_url
+        # assert self.docker_image_name == 'magdalena/github.com/GESIS-Methods-Hub/minimal-example-ipynb-python:93a3b377f042298a65811a17356e25f30b276456'
         r2d.output_image_spec = self.docker_image_name
         try:
             logger.info("Repository: %s", r2d.repo)
