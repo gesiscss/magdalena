@@ -3,6 +3,8 @@ services:
     build:
       context: .
       target: dev
+    environment:
+      MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
     volumes:
       - type: bind
         source: .
@@ -11,6 +13,8 @@ services:
         source: /var/run/docker.sock
         target: /var/run/docker.sock
       - type: bind
+        # This must be the same as MAGDALENA_SHARED_DIR
+        # because of Docker outside of Docker
         source: /tmp/magdalena-shared-volume
         target: /tmp/magdalena-shared-volume
     expose:
