@@ -73,7 +73,7 @@ class MethodsHubContent:
 
     def create_container(self):
         self.docker_repository = (
-            f"magdalena/{self.domain}-{self.user_name}-{self.repository_name}"
+            f"magdalena/{self.domain}/{self.user_name}/{self.repository_name}"
         )
 
         if self.git_commit_id is None:
