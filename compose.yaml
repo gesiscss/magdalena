@@ -10,6 +10,9 @@ services:
       - type: bind
         source: /var/run/docker.sock
         target: /var/run/docker.sock
+      - type: bind
+        source: /tmp/magdalena-shared-volume
+        target: /tmp/magdalena-shared-volume
     expose:
       - "5000"
     ports:
