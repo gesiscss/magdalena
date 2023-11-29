@@ -33,7 +33,7 @@ def build():
 
     if (
             'github.com' in request.form["source_url"] or
-            'gitlab.com' in request.form["source_url"] or
+            'gitlab.com' in request.form["source_url"]
     ):
         assert "filename" in request.form, "Field filename missing in form"
         methods_hub_content = MethodsHubHTTPContent(
