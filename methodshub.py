@@ -77,7 +77,7 @@ class MethodsHubHTTPContent(MethodsHubContent):
     def __init__(self, source_url, filename=None):
         MethodsHubContent.__init__(self, source_url)
 
-        regex_match_http = re.match("https?://(.+)/(.+)", self.source_url)
+        regex_match_http = re.match("https?://(.+?)/(.+)", self.source_url)
 
         assert regex_match_http is not None, "Source URL is invalid!"
         self.domain = regex_match_http.group(1)
@@ -86,14 +86,14 @@ class MethodsHubHTTPContent(MethodsHubContent):
             self.domain == 'gesisev.sharepoint.com' or
             'sharepoint' in self.domain
         ):
-            self.source_url = self.source_url if self.source_url.endswith("&download=1") else "{self.source_url}&download=1"
+            self.source_url = self.source_url if self.source_url.endswith("&download=1") else f"{self.source_url}&download=1"
         
         if (
             self.domain == 'gesisbox.gesis.org' or
             'nextcloud' in self.domain or
             'ownCloud' in self.domain
         ):
-            self.source_url = self.source_url if self.source_url.endswith("/download") else "{self.source_url}/download"
+            self.source_url = self.source_url if self.source_url.endswith("/download") else f"{self.source_url}/download"
 
         if filename is None:
             request = urllib.request.urlopen(self.source_url)
@@ -137,7 +137,7 @@ class MethodsHubGitContent(MethodsHubContent):
         self.http_to_git_repository = self.source_url.replace(".git", "")
         self.filename = filename
 
-        regex_match = re.match("https?://(.+)/(.+)/(.+).git", self.source_url)
+        regex_match = re.match("https?://(.+?)/(.+?)/(.+?).git", self.source_url)
 
         assert regex_match is not None, "Git repository URL is invalid!"
         self.domain = regex_match.group(1)

@@ -1,4 +1,5 @@
 import urllib.request
+import uuid
 
 import pytest
 
@@ -18,7 +19,13 @@ def mock_urlopen_with_200(url):
 
 class Mock404HTTPResponse:
     status = 404
-    
+
+def mock_urlopen_with_404(url):
+    return Mock404HTTPResponse()
+
+def mock_uuid4():
+    return "123-456-789"
+
 class TestMethodsHubHTTPContent:
     def test_init_without_url(self):
         with pytest.raises(AssertionError):
@@ -28,16 +35,51 @@ class TestMethodsHubHTTPContent:
         monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
 
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", None)
+            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum", None)
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent("", "lorem-ipsum.md")
+            assert methodshub.MethodsHubHTTPContent("", "lorem-ipsum.md")
 
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "")
+            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum", "")
 
+    def test_init_with_nextcloud(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisbox.gesis.org/lorem/ipsum"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisbox.gesis.org"
+        assert methods_hub_content.tmp_path == "_gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_init_with_nextcloud_complete(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisbox.gesis.org"
+        assert methods_hub_content.tmp_path == "_gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
 
 class TestMethodsHubGitContent:
