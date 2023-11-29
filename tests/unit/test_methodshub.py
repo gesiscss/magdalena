@@ -1,3 +1,4 @@
+import os.path
 import urllib.request
 import uuid
 
@@ -13,6 +14,13 @@ class Mock200HTTPResponse:
         return {
             'Content-Disposition': 'filename="mock-file.docx"'
         }
+
+    @staticmethod
+    def read():
+        with open(os.path.join(os.path.dirname(__file__), "..", "assets", "minimal.docx"), "rb") as _file:
+            docx = _file.read()
+
+        return docx
 
 def mock_urlopen_with_200(url):
     return Mock200HTTPResponse()
@@ -34,8 +42,7 @@ class TestMethodsHubHTTPContent:
     def test_init_without_filename(self, monkeypatch):
         monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
 
-        with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum", None)
+        assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum/123", None)
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
@@ -43,7 +50,7 @@ class TestMethodsHubHTTPContent:
 
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum", "")
+            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum/123", "")
 
     def test_init_with_nextcloud(self, monkeypatch):
         monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
@@ -117,6 +124,27 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
+    def test_clone_or_pull(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "http://lorem.ipsum/123"
+        )
+        methods_hub_content.clone_or_pull()
+        assert os.path.isfile(os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)), "Local copy of file not created."
+
+    # def test_render_format_docx_to_md(self, monkeypatch):
+    #     monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    #     monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+    #     methods_hub_content = methodshub.MethodsHubHTTPContent(
+    #         "http://lorem.ipsum"
+    #     )
+    #     methods_hub_content.clone_or_pull()
+    #     methods_hub_content.create_container()
+    #     methods_hub_content.render_format("md")
+
 class TestMethodsHubGitContent:
     def test_init_without_url(self):
         with pytest.raises(AssertionError):
@@ -124,7 +152,7 @@ class TestMethodsHubGitContent:
 
     def test_init_without_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", None)
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum/123/456", None)
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
@@ -132,7 +160,7 @@ class TestMethodsHubGitContent:
 
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "")
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum/123/456", "")
 
     def test_init_with_invalid_url(self):
         with pytest.raises(AssertionError):

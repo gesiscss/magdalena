@@ -93,11 +93,11 @@ class MethodsHubContent:
 
         volumes = {
             docker_scripts_location: {
-                "bind": f"{self.home_dir_at_docker}/_docker-scripts",
+                "bind": os.path.join(self.home_dir_at_docker, "_docker-scripts"),
                 'mode': 'ro'
             },
             pandoc_filters_location: {
-                "bind": f"{self.home_dir_at_docker}/_pandoc-filters",
+                "bind": os.path.join(self.home_dir_at_docker, "_pandoc-filters"),
                 'mode': 'ro'
             },
             self.output_location: {
@@ -105,10 +105,14 @@ class MethodsHubContent:
                 'mode': 'rw'
             },
         }
+        if self.mount_file:
+            volumes[os.path.join(self.tmp_path, self.filename)] = {
+                "bind": os.path.join(self.home_dir_at_docker, self.filename),
+                'mode': 'ro'
+            }
 
-        self.environment_for_container["output_location"] = output_location
+        self.environment_for_container["output_location"] = self.output_location
         self.environment_for_container["docker_script_root"] = f"{self.home_dir_at_docker}/_docker-scripts"
-
 
         logger.info("Running %s ...", script)
         client = docker.from_env()
@@ -183,6 +187,8 @@ class MethodsHubHTTPContent(MethodsHubContent):
         self.zip_file_path = f"{self.docker_shared_dir}/{self.domain}-{self.filename}.zip"
 
     def clone_or_pull(self):
+        os.makedirs(self.tmp_path, exist_ok=True)
+
         request = urllib.request.urlopen(self.source_url)
         assert request.status == 200, "Fail to stablish connection"
         with open(os.path.join(self.tmp_path, self.filename), "wb") as _file:
