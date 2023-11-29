@@ -18,28 +18,7 @@ def mock_urlopen_with_200(url):
 
 class Mock404HTTPResponse:
     status = 404
-
-def mock_urlopen_with_404(url):
-    return Mock404HTTPResponse()
-
-class MockGesisBoxHTTPResponse:
-    status = 200
-
-    @staticmethod
-    def info():
-        return {
-            'Content-Disposition': 'filename="mock-file.docx"'
-        }
     
-def mock_urlopen_to_gesis_box(url):
-    return MockGesisBoxHTTPResponse()
-
-class MockGesisSharePointHTTPResponse:
-    status = 200
-
-def mock_urlopen_to_share_point(url):
-    return MockGesisSharePointHTTPResponse()
-
 class TestMethodsHubHTTPContent:
     def test_init_without_url(self):
         with pytest.raises(AssertionError):
