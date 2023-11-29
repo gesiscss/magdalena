@@ -1,6 +1,64 @@
+import urllib.request
+
 import pytest
 
 from ... import methodshub
+
+class Mock200HTTPResponse:
+    status = 200
+
+    @staticmethod
+    def info():
+        return {
+            'Content-Disposition': 'filename="mock-file.docx"'
+        }
+
+def mock_urlopen_with_200(url):
+    return Mock200HTTPResponse()
+
+class Mock404HTTPResponse:
+    status = 404
+
+def mock_urlopen_with_404(url):
+    return Mock404HTTPResponse()
+
+class MockGesisBoxHTTPResponse:
+    status = 200
+
+    @staticmethod
+    def info():
+        return {
+            'Content-Disposition': 'filename="mock-file.docx"'
+        }
+    
+def mock_urlopen_to_gesis_box(url):
+    return MockGesisBoxHTTPResponse()
+
+class MockGesisSharePointHTTPResponse:
+    status = 200
+
+def mock_urlopen_to_share_point(url):
+    return MockGesisSharePointHTTPResponse()
+
+class TestMethodsHubHTTPContent:
+    def test_init_without_url(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubHTTPContent(None, "lorem-ipsum.docx")
+
+    def test_init_without_filename(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", None)
+
+    def test_init_with_empty_url(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("", "lorem-ipsum.md")
+
+    def test_init_with_empty_filename(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "")
+
 
 
 class TestMethodsHubGitContent:
@@ -21,7 +79,7 @@ class TestMethodsHubGitContent:
             assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "")
 
     def test_init_with_invalid_url(self):
-        with pytest.raises(ValueError):
+        with pytest.raises(AssertionError):
             assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "lorem-ipsum.md")
 
     def test_init_with_github(self):
@@ -29,7 +87,7 @@ class TestMethodsHubGitContent:
             "https://github.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -51,7 +109,7 @@ class TestMethodsHubGitContent:
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -73,7 +131,7 @@ class TestMethodsHubGitContent:
             "https://gitlab.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -95,7 +153,7 @@ class TestMethodsHubGitContent:
             "https://gitlab.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -123,7 +181,7 @@ class TestMethodsHubGitContent:
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -145,7 +203,7 @@ class TestMethodsHubGitContent:
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.qmd"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
