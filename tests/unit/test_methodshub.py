@@ -81,6 +81,41 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
+    def test_init_with_sharepoint(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisev.sharepoint.com/lorem/ipsum"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisev.sharepoint.com"
+        assert methods_hub_content.tmp_path == "_gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_init_with_sharepoint_complete(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisev.sharepoint.com"
+        assert methods_hub_content.tmp_path == "_gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
 class TestMethodsHubGitContent:
     def test_init_without_url(self):
