@@ -45,7 +45,7 @@ class MethodsHubContent:
         assert len(source_url) != 0, "Source URL can NOT be empty string"
         self.source_url = source_url
 
-                self.docker_repository = None
+        self.docker_repository = None
         self.docker_image_name = None
         self.docker_user_name = "magdalena"
         self.docker_user_id = 1000  # This is the first user in Ubuntu
