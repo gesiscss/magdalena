@@ -29,13 +29,27 @@ def hello_world():
 def build():
     app.logger.info("Form content is %s", request.form)
 
-    methods_hub_content = MethodsHubContent(
-        request.form["git_repository_url"], request.form["filename"]
-    )
-    assert methods_hub_content.clone_or_pull(), "Fail on clone or pull"
-    assert methods_hub_content.create_container(), "Fail on container creation"
-    assert methods_hub_content.render_all_formats(), "Fail on render contributions"
-    assert methods_hub_content.zip_all_formats(), "Fail on zip formats"
+    assert "source_url" in request.form, "Field source_url missing in form"
+
+    if (
+            'github.com' in request.form["source_url"] or
+            'gitlab.com' in request.form["source_url"] or
+    ):
+        assert "filename" in request.form, "Field filename missing in form"
+        methods_hub_content = MethodsHubHTTPContent(
+            request.form["source_url"], request.form["filename"]
+        )
+    else:
+        
+        methods_hub_content = MethodsHubContent(
+            request.form["source_url"],
+            request.form["filename"] if "filename" in request.form else None
+        )
+
+    assert methods_hub_content.clone_or_pull() is not None, "Fail on clone or pull"
+    assert methods_hub_content.create_container() is not None, "Fail on container creation"
+    assert methods_hub_content.render_all_formats() is not None, "Fail on render contributions"
+    assert methods_hub_content.zip_all_formats() is not None, "Fail on zip formats"
 
     return send_file(
         methods_hub_content.zip_file_path,

@@ -3,29 +3,29 @@ import pytest
 from ... import methodshub
 
 
-class TestMethodsHubContent:
+class TestMethodsHubGitContent:
     def test_init_without_url(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent(None, "lorem-ipsum.md")
+            assert methodshub.MethodsHubGitContent(None, "lorem-ipsum.md")
 
     def test_init_without_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", None)
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", None)
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("", "lorem-ipsum.md")
+            assert methodshub.MethodsHubGitContent("", "lorem-ipsum.md")
 
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", "")
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "")
 
     def test_init_with_invalid_url(self):
         with pytest.raises(ValueError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", "lorem-ipsum.md")
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "lorem-ipsum.md")
 
     def test_init_with_github(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
@@ -47,7 +47,7 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_github_git(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
@@ -69,7 +69,7 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://gitlab.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
@@ -91,7 +91,7 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab_git(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://gitlab.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
@@ -114,12 +114,12 @@ class TestMethodsHubContent:
 
     def test_init_filename_extension_txt(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent(
+            assert methodshub.MethodsHubGitContent(
                 "https://github.com/lorem/ipsum.git", "lorem-ipsum.txt"
             )
 
     def test_init_filename_extension_md(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
@@ -141,7 +141,7 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_filename_extension_qmd(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.qmd"
         )
         assert (
