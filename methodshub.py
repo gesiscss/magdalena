@@ -45,10 +45,16 @@ class MethodsHubContent:
         assert len(source_url) != 0, "Source URL can NOT be empty string"
         self.source_url = source_url
 
+        self.http_to_git_repository = None
+        self.user_name = None
+
+
         self.docker_repository = None
         self.docker_image_name = None
         self.docker_user_name = "magdalena"
         self.docker_user_id = 1000  # This is the first user in Ubuntu
+
+        self.environment_for_container = {}
 
         self.docker_shared_dir = os.getenv("MAGDALENA_SHARED_DIR")
         assert self.docker_shared_dir is not None
@@ -64,13 +70,74 @@ class MethodsHubContent:
         raise NotImplementedError
     
     def render_format(self, target_format):
-        raise NotImplementedError
-    
+        assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
+        assert target_format in self.RENDER_MATRIX[self.filename_extension], "Target format not supported!"
+
+        script = self.RENDER_MATRIX[self.filename_extension][target_format]
+        docker_scripts_location = os.path.join(self.docker_shared_dir, "docker-scripts")
+        pandoc_filters_location = os.path.join(self.docker_shared_dir, "pandoc-filters")
+        output_location_in_container = self.docker_shared_dir
+
+        logger.info("Location of docker_scripts directory: %s", docker_scripts_location)
+        logger.info("Location of pandoc_filters directory: %s", pandoc_filters_location)
+        logger.info("Location of output directory: %s", self.output_location)
+        logger.info(
+            "Location of output directory in the sibling container: %s",
+            output_location_in_container,
+        )
+        
+        assert os.path.isfile(os.path.join(docker_scripts_location, script)), "Script %s not found! Skipping execution." % script
+
+        host_user_id = os.getuid()
+        host_group_id = os.getgid()
+
+        volumes = {
+            docker_scripts_location: {
+                "bind": f"{self.home_dir_at_docker}/_docker-scripts",
+                'mode': 'ro'
+            },
+            pandoc_filters_location: {
+                "bind": f"{self.home_dir_at_docker}/_pandoc-filters",
+                'mode': 'ro'
+            },
+            self.output_location: {
+                "bind": output_location_in_container,
+                'mode': 'rw'
+            },
+        }
+
+        self.environment_for_container["output_location"] = output_location
+        self.environment_for_container["docker_script_root"] = f"{self.home_dir_at_docker}/_docker-scripts"
+
+
+        logger.info("Running %s ...", script)
+        client = docker.from_env()
+        container = client.containers.run(
+            self.docker_image_name,
+            command=f'{self.home_dir_at_docker}/_docker-scripts/{script}',
+            user=host_user_id,
+            volumes=volumes,
+            environment=self.environment_for_container,
+            detach=True
+        )
+        result = container.wait()
+        container.remove()
+
+        assert result.StatusCode == 0, "Fail to render content"
+
     def render_all_formats(self):
-        raise NotImplementedError
-    
+        assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
+
+        for targe_format in self.RENDER_MATRIX[self.filename_extension]:
+            self.render_format(targe_format)
+            
     def zip_all_formats(self):
-        raise NotImplementedError
+        with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
+            # FIXME The 'index' directory is being created in the Shell script
+            zip_with_all_formats.write(
+                os.path.join(self.output_location, "index", "index.html"),
+                arcname="index.html",
+            )
 
 
 class MethodsHubHTTPContent(MethodsHubContent):
@@ -118,8 +185,13 @@ class MethodsHubHTTPContent(MethodsHubContent):
     def clone_or_pull(self):
         request = urllib.request.urlopen(self.source_url)
         assert request.status == 200, "Fail to stablish connection"
-        with open(self.filename, "wb") as _file:
+        with open(os.path.join(self.tmp_path, self.filename), "wb") as _file:
             _file.write(request.read())
+
+    def create_container(self):
+        self.docker_repository = "magdalena/pandoc"
+        self.docker_image_name = f"{self.docker_repository}:latest"
+        logger.info("Defined Docker image name: %s", self.docker_image_name)
 
 class MethodsHubGitContent(MethodsHubContent):
     def __init__(self, source_url, filename):
@@ -154,6 +226,11 @@ class MethodsHubGitContent(MethodsHubContent):
 
         self.zip_file_path = f"{self.docker_shared_dir}/{self.domain}-{self.user_name}-{self.repository_name}-{self.filename}.zip"
 
+        self.environment_for_container["github_https"] = self.http_to_git_repository
+        self.environment_for_container["github_user_name"] = self.user_name
+        self.environment_for_container["github_repository_name"] = self.repository_name
+        self.environment_for_container["file2render"] = self.filename
+
     def clone_or_pull(self):
         if os.path.exists(self.tmp_path):
             logger.info("Running git pull")
@@ -187,6 +264,7 @@ class MethodsHubGitContent(MethodsHubContent):
             ), "Can NOT create Docker container if Git commit ID is None"
 
         self.docker_image_name = f"{self.docker_repository}:{self.git_commit_id}"
+        self.environment_for_container["docker_image_name"] = self.docker_image_name
         logger.info("Defined Docker image name: %s", self.docker_image_name)
 
         # Check if container already exists
@@ -206,7 +284,6 @@ class MethodsHubGitContent(MethodsHubContent):
         r2d.user_id = self.docker_user_id
         r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
         r2d.repo = self.source_url
-        # assert self.docker_image_name == 'magdalena/github.com/GESIS-Methods-Hub/minimal-example-ipynb-python:93a3b377f042298a65811a17356e25f30b276456'
         r2d.output_image_spec = self.docker_image_name
         try:
             logger.info("Repository: %s", r2d.repo)
@@ -215,59 +292,3 @@ class MethodsHubGitContent(MethodsHubContent):
         except Exception as err:
             logger.error(err)
             return False
-
-    def render_all_formats(self):
-        if self.filename_extension not in self.RENDER_MATRIX:
-            raise ValueError("File extension not supported!")
-
-        docker_scripts_location = os.path.join(self.docker_shared_dir, "docker-scripts")
-        pandoc_filters_location = os.path.join(self.docker_shared_dir, "pandoc-filters")
-        output_location_in_container = self.docker_shared_dir
-
-        logger.info("Location of docker_scripts directory: %s", docker_scripts_location)
-        logger.info("Location of pandoc_filters directory: %s", pandoc_filters_location)
-        logger.info("Location of output directory: %s", self.output_location)
-        logger.info(
-            "Location of output directory in the sibling container: %s",
-            output_location_in_container,
-        )
-
-        host_user_id = os.getuid()
-        host_group_id = os.getgid()
-        mount_input_file = ""
-
-        for script in self.RENDER_MATRIX[self.filename_extension]:
-            if not os.path.isfile(os.path.join(docker_scripts_location, script)):
-                logger.error("Script %s not found! Skipping execution.", script)
-                continue
-
-            logger.info("Running %s ...", script)
-            render_content_subprocess = subprocess.run(
-                f"""docker run \\
---user={host_user_id}:{host_group_id} \\
-{mount_input_file} \\
---mount type=bind,source={docker_scripts_location},target={self.home_dir_at_docker}/_docker-scripts \\
---env docker_script_root={self.home_dir_at_docker}/_docker-scripts \\
---mount type=bind,source={pandoc_filters_location},target={self.home_dir_at_docker}/_pandoc-filters \\
---mount type=bind,source={self.output_location},target={output_location_in_container} \\
---env github_https={self.http_to_git_repository} \\
---env github_user_name={self.user_name} \\
---env github_repository_name={self.repository_name} \\
---env file2render={self.filename} \\
---env docker_image={self.docker_image_name} \\
---env output_location={output_location_in_container} \\
-{self.docker_image_name} \\
-/bin/bash -c '{self.home_dir_at_docker}/_docker-scripts/{script}'""",
-                capture_output=True,
-                shell=True,
-            )
-
-            assert render_content_subprocess.returncode == 0, "Fail to render content"
-
-    def zip_all_formats(self):
-        with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
-            # FIXME The 'index' directory is being created in the Shell script
-            zip_with_all_formats.write(
-                os.path.join(self.output_location, "index", "index.html"),
-                arcname="index.html",
-            )
