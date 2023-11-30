@@ -42,7 +42,7 @@ def build():
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.form["source_url"],
-            request.form["filename"] if "filename" in request.form else None
+            request.form["filename"] if ("filename" in request.form and len(request.form["filename"])) else None
         )
 
     assert methods_hub_content.clone_or_pull() is not None, "Fail on clone or pull"

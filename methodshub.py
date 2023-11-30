@@ -42,7 +42,7 @@ class MethodsHubContent:
     
     def __init__(self, source_url):
         assert source_url is not None, "Source URL can NOT be None"
-        assert len(source_url) != 0, "Source URL can NOT be empty string"
+        assert len(source_url), "Source URL can NOT be empty string"
         self.source_url = source_url
 
         self.http_to_git_repository = None
@@ -167,13 +167,14 @@ class MethodsHubHTTPContent(MethodsHubContent):
         ):
             self.source_url = self.source_url if self.source_url.endswith("/download") else f"{self.source_url}/download"
 
+        logger.info("Filename is %s", filename)
         if filename is None:
             request = urllib.request.urlopen(self.source_url)
             assert request.status == 200, "Fail to stablish connection"
             regex_match_filename = re.search(r'filename="(.+)"', request.info()['Content-Disposition'])
             assert regex_match_filename is not None, "Unable to extract filename from HTTP request" 
             filename = regex_match_filename.group(1)
-        assert len(filename) != 0, "filename can NOT be empty"
+        assert len(filename), "filename can NOT be empty"
 
         self.filename = filename
         self.mount_file = True
@@ -206,7 +207,7 @@ class MethodsHubGitContent(MethodsHubContent):
         MethodsHubContent.__init__(self, source_url)
 
         assert filename is not None, "filename can NOT be None"
-        assert len(filename) != 0, "filename can NOT be empty"
+        assert len(filename), "filename can NOT be empty"
 
         if not source_url.endswith(".git"):
             logger.info("Git repository URL does NOT ends with '.git'")
