@@ -45,10 +45,10 @@ def build():
             request.form["filename"] if ("filename" in request.form and len(request.form["filename"])) else None
         )
 
-    assert methods_hub_content.clone_or_pull() is not None, "Fail on clone or pull"
-    assert methods_hub_content.create_container() is not None, "Fail on container creation"
-    assert methods_hub_content.render_all_formats() is not None, "Fail on render contributions"
-    assert methods_hub_content.zip_all_formats() is not None, "Fail on zip formats"
+    assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
+    assert methods_hub_content.create_container() is None, "Fail on container creation"
+    assert methods_hub_content.render_all_formats() is None, "Fail on render contributions"
+    assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
     return send_file(
         methods_hub_content.zip_file_path,
