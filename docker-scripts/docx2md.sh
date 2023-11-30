@@ -16,25 +16,16 @@ fi
 dirname2render=$(dirname ${file2render})
 basename2render=$(basename ${file2render})
 
-output_dirname=$output_location/$dirname2render/${basename2render%.*}
+output_dirname=$output_location
 output_basename=index.md
 
 mkdir --parents $output_dirname
-
-git --version
-
-git_hash=$(git rev-parse HEAD)
-
-# If git > 2.25
-# git_date=$(git log -1 --format="%as")
-# else
-git_date=$(git log -1 --format=format:%ad --date=format:%Y-%m-%d)
 
 pandoc_version=$(${PANDOC} --version | head -n 1 | awk '{print $2}')
 quarto_version=$(quarto --version)
 
 cd $dirname2render
-pwd
+
 cover_filename=$(find . -name 'cover*' | head -n 1)
 
 if [ -z "$cover_filename" ]
@@ -56,6 +47,10 @@ fi
 # Links can be very long and exceed the fixed length of lines. This creates many problems.
 # Placing all the links at the end of the document, we avoid some of the problems.
 
+ls
+echo "File to render" ${file2render}
+echo  ${basename2render}
+
 ${PANDOC} \
     --from docx+styles \
     --to markdown+multiline_tables \
@@ -67,11 +62,6 @@ ${PANDOC} \
     ${cover_metadata:+"--metadata" "$cover_metadata"} \
     --metadata "guide:true" \
     --metadata "citation:true" \
-    --metadata "github_https:${github_https}" \
-    --metadata "github_user_name:${github_user_name}" \
-    --metadata "github_repository_name:${github_repository_name}" \
-    --metadata "git_hash:${git_hash}" \
-    --metadata "git_date:${git_date}" \
     --metadata "date:${git_date}" \
     --metadata "info_pandoc_version:${pandoc_version}" \
     --metadata "source_filename:${file2render}" \
