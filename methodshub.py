@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import os.path
@@ -36,7 +37,6 @@ class MethodsHubContent:
         },
         "docx": {
             "md": "docx2md.sh",
-            "html": "docx2html.sh",
         },
     }
     
@@ -55,7 +55,6 @@ class MethodsHubContent:
         self.docker_user_id = 1000  # This is the first user in Ubuntu
 
         self.environment_for_container = {}
-        self.mount_file = False
 
         self.docker_shared_dir = os.getenv("MAGDALENA_SHARED_DIR")
         assert self.docker_shared_dir is not None
@@ -67,6 +66,25 @@ class MethodsHubContent:
     def clone_or_pull(self):
         raise NotImplementedError
     
+    def _start_repo2docker(self, repo):
+                # Create container
+        r2d = repo2docker.Repo2Docker()
+        r2d.log_level = logging.DEBUG
+        r2d.run = False
+        r2d.push = False
+        r2d.user_name = self.docker_user_name
+        r2d.user_id = self.docker_user_id
+        r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
+        r2d.repo = repo
+        r2d.output_image_spec = self.docker_image_name
+        try:
+            logger.info("Repository: %s", r2d.repo)
+            logger.info("Docker image name: %s", r2d.output_image_spec)
+            r2d.start()
+        except Exception as err:
+            logger.error(err)
+            return False
+
     def create_container(self):
         raise NotImplementedError
     
@@ -106,14 +124,17 @@ class MethodsHubContent:
                 'mode': 'rw'
             },
         }
-        if self.mount_file:
-            volumes[os.path.join(self.tmp_path, self.filename)] = {
-                "bind": os.path.join(self.home_dir_at_docker, self.filename),
-                'mode': 'ro'
-            }
+        logger.info(
+            "Volumes the sibling container: %s",
+            volumes,
+        )
 
-        self.environment_for_container["output_location"] = self.output_location
+        self.environment_for_container["output_location"] = output_location_in_container
         self.environment_for_container["docker_script_root"] = f"{self.home_dir_at_docker}/_docker-scripts"
+        logger.info(
+            "Environment variables the sibling container: %s",
+            self.environment_for_container,
+        )
 
         logger.info("Running %s ...", script)
         client = docker.from_env()
@@ -126,9 +147,10 @@ class MethodsHubContent:
             detach=True
         )
         result = container.wait()
+        logger.info(container.logs())
         container.remove()
 
-        assert result.StatusCode == 0, "Fail to render content"
+        assert result["StatusCode"] == 0, "Fail to render content"
 
     def render_all_formats(self):
         assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
@@ -137,12 +159,15 @@ class MethodsHubContent:
             self.render_format(targe_format)
             
     def zip_all_formats(self):
+        assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
+
         with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
-            # FIXME The 'index' directory is being created in the Shell script
-            zip_with_all_formats.write(
-                os.path.join(self.output_location, "index", "index.html"),
-                arcname="index.html",
-            )
+            for targe_format in self.RENDER_MATRIX[self.filename_extension]:
+                filename2zip = f"index.{targe_format}"
+                zip_with_all_formats.write(
+                    os.path.join(self.output_location, filename2zip),
+                    arcname=filename2zip,
+                )
 
 
 class MethodsHubHTTPContent(MethodsHubContent):
@@ -176,7 +201,7 @@ class MethodsHubHTTPContent(MethodsHubContent):
         assert len(filename), "filename can NOT be empty"
 
         self.filename = filename
-        self.mount_file = True
+        self.environment_for_container["file2render"] = self.filename
         
         self.tmp_path = f"_{self.domain}/{uuid.uuid4()}"
 
@@ -197,9 +222,26 @@ class MethodsHubHTTPContent(MethodsHubContent):
             _file.write(request.read())
 
     def create_container(self):
-        self.docker_repository = "registry.gitlab.com/quarto-forge/docker/quarto"
-        self.docker_image_name = f"{self.docker_repository}:latest"
+        self.docker_repository = (
+            f"magdalena/{self.domain}/{self.filename}"
+        )
+        self.docker_repository = self.docker_repository.lower().replace(' ', '')
+
+        with open(os.path.join(self.tmp_path, self.filename), "rb") as _file:
+            hash = hashlib.md5(_file.read())
+        
+        self.docker_image_name = f"{self.docker_repository}:{hash.hexdigest()}"
         logger.info("Defined Docker image name: %s", self.docker_image_name)
+
+        # Check if container already exists
+        docker_client = docker.from_env()
+        for docker_image in docker_client.images.list():
+            for docker_image_tag in docker_image.tags:
+                if docker_image_tag == self.docker_image_name:
+                    logger.info("Docker image found. Skipping build.")
+                    return
+
+        self._start_repo2docker(self.tmp_path)
 
 class MethodsHubGitContent(MethodsHubContent):
     def __init__(self, source_url, filename):
@@ -263,7 +305,7 @@ class MethodsHubGitContent(MethodsHubContent):
         self.docker_repository = (
             f"magdalena/{self.domain}/{self.user_name}/{self.repository_name}"
         )
-        self.docker_repository = self.docker_repository.lower()
+        self.docker_repository = self.docker_repository.lower().replace(' ', '')
 
         if self.git_commit_id is None:
             self.clone_or_pull()
@@ -281,22 +323,7 @@ class MethodsHubGitContent(MethodsHubContent):
             for docker_image_tag in docker_image.tags:
                 if docker_image_tag == self.docker_image_name:
                     logger.info("Docker image found. Skipping build.")
-                    return True
-
+                    return
+                
         # Create container
-        r2d = repo2docker.Repo2Docker()
-        r2d.log_level = logging.DEBUG
-        r2d.run = False
-        r2d.push = False
-        r2d.user_name = self.docker_user_name
-        r2d.user_id = self.docker_user_id
-        r2d.base_image = "gesiscss/repo2docker_base_image_with_quarto:v1.4.330"
-        r2d.repo = self.source_url
-        r2d.output_image_spec = self.docker_image_name
-        try:
-            logger.info("Repository: %s", r2d.repo)
-            logger.info("Docker image name: %s", r2d.output_image_spec)
-            r2d.start()
-        except Exception as err:
-            logger.error(err)
-            return False
+        self._start_repo2docker(self.source_url)
