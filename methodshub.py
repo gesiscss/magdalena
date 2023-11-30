@@ -167,7 +167,6 @@ class MethodsHubHTTPContent(MethodsHubContent):
         ):
             self.source_url = self.source_url if self.source_url.endswith("/download") else f"{self.source_url}/download"
 
-        logger.info("Filename is %s", filename)
         if filename is None:
             request = urllib.request.urlopen(self.source_url)
             assert request.status == 200, "Fail to stablish connection"
