@@ -125,23 +125,27 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_clone_or_pull(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
-        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+        with monkeypatch.context() as mock:
+            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+            mock.setattr(uuid, "uuid4", mock_uuid4)
 
-        methods_hub_content = methodshub.MethodsHubHTTPContent(
-            "http://lorem.ipsum/123"
-        )
-        methods_hub_content.clone_or_pull()
+            methods_hub_content = methodshub.MethodsHubHTTPContent(
+                "http://lorem.ipsum/123"
+            )
+            methods_hub_content.clone_or_pull()
+        
         assert os.path.isfile(os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)), "Local copy of file not created."
 
     def test_render_format_docx_to_md(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
-        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+        with monkeypatch.context() as mock:
+            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+            mock.setattr(uuid, "uuid4", mock_uuid4)
 
-        methods_hub_content = methodshub.MethodsHubHTTPContent(
-            "http://lorem.ipsum/123"
-        )
-        methods_hub_content.clone_or_pull()
+            methods_hub_content = methodshub.MethodsHubHTTPContent(
+                "http://lorem.ipsum/123"
+            )
+            methods_hub_content.clone_or_pull()
+        
         methods_hub_content.create_container()
         methods_hub_content.render_format("md")
 
