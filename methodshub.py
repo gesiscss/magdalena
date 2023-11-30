@@ -197,7 +197,7 @@ class MethodsHubHTTPContent(MethodsHubContent):
             _file.write(request.read())
 
     def create_container(self):
-        self.docker_repository = "magdalena/pandoc"
+        self.docker_repository = "registry.gitlab.com/quarto-forge/docker/quarto"
         self.docker_image_name = f"{self.docker_repository}:latest"
         logger.info("Defined Docker image name: %s", self.docker_image_name)
 
