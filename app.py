@@ -3,7 +3,7 @@ import shutil
 
 from flask import Flask, request, render_template, send_file
 
-from .methodshub import MethodsHubContent
+from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
 app = Flask(__name__)
 
@@ -36,12 +36,11 @@ def build():
             'gitlab.com' in request.form["source_url"]
     ):
         assert "filename" in request.form, "Field filename missing in form"
-        methods_hub_content = MethodsHubHTTPContent(
+        methods_hub_content = MethodsHubGitContent(
             request.form["source_url"], request.form["filename"]
         )
     else:
-        
-        methods_hub_content = MethodsHubContent(
+        methods_hub_content = MethodsHubHTTPContent(
             request.form["source_url"],
             request.form["filename"] if "filename" in request.form else None
         )
