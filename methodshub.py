@@ -55,6 +55,7 @@ class MethodsHubContent:
         self.docker_user_id = 1000  # This is the first user in Ubuntu
 
         self.environment_for_container = {}
+        self.mount_file = False
 
         self.docker_shared_dir = os.getenv("MAGDALENA_SHARED_DIR")
         assert self.docker_shared_dir is not None
@@ -175,6 +176,7 @@ class MethodsHubHTTPContent(MethodsHubContent):
         assert len(filename) != 0, "filename can NOT be empty"
 
         self.filename = filename
+        self.mount_file = True
         
         self.tmp_path = f"_{self.domain}/{uuid.uuid4()}"
 
