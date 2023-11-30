@@ -8,11 +8,27 @@
         <form action="" method="post">
             <div>
                 <label for="source_url">Source URL:</label><br>
-                <input type="text" id="source_url" name="source_url">
+                <input type="text" id="source_url" name="source_url" required>
             </div>
             <div>
-                <label for="filename">File in Git repository:</label><br>
+                <label for="filename">File in source:</label><br>
                 <input type="text" id="filename" name="filename">
+            </div>
+            <div>
+                <label for="target_format">Select target format:</label><br>
+                <select  id="target_format" name="target_format" multiple size="4" required>
+                    <option value="md" selected>Markdown</option>
+                    <option value="html">HTML</option>
+                    <option value="qmd">Quarto</option>
+                    <option value="ipynb">Jupyter Notebook</option>
+                </select>
+            </div>
+            <div>
+                <label for="response">Select response format:</label><br>
+                <select  id="response" name="response" multiple size="2" required>
+                    <option value="md" selected>Download</option>
+                    <option value="forward" disabled>Forward</option>
+                </select>
             </div>
             <input type="submit" value="Submit">
         </form>
