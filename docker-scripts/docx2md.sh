@@ -65,8 +65,15 @@ ${PANDOC} \
     --metadata "date:${git_date}" \
     --metadata "info_pandoc_version:${pandoc_version}" \
     --metadata "source_filename:${file2render}" \
-    --lua-filter=_pandoc-filters/remove-toc.lua \
-    --lua-filter=_pandoc-filters/remove-hyperlink-custom-style.lua \
+    --lua-filter=pandoc-filters/remove-toc.lua \
+    --lua-filter=pandoc-filters/remove-hyperlink-custom-style.lua \
+    --lua-filter=pandoc-filters/custom-style-to-class.lua \
+    --lua-filter=pandoc-filters/merge-div.lua \
+    --lua-filter=pandoc-filters/class-to-heading.lua \
+    --lua-filter=pandoc-filters/class-to-blockquote.lua \
+    --lua-filter=pandoc-filters/remove-extras.lua \
+    --lua-filter=pandoc-filters/populate-yaml-header.lua \
+    --lua-filter=pandoc-filters/class-to-keywords.lua \
     --output index.md \
     ${basename2render} && \
     cp index.md $output_dirname/$output_basename && \
