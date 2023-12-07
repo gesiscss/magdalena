@@ -57,5 +57,8 @@ Run test:
       changes:
         - '**/*.py'
   image: docker-private-snapshots.gesis.intra/gesis/methods-hub/magdalena/dev:${DOCKER_IMAGE_TAG}
+  variables:
+    MAGDALENA_SHARED_DIR: /builds/methods-hub/magdalena/shared-dir
   script:
+    - mkdir $MAGDALENA_SHARED_DIR
     - pytest .
