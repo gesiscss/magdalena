@@ -5,16 +5,67 @@
     </head>
     <body>
         <h1>magdalena</h1>
-        <form action="" method="post">
+        <form action="" method="post" id="form">
             <div>
-                <label for="git_repository_url">Git repository URL:</label><br>
-                <input type="text" id="git_repository_url" name="git_repository_url">
+                <label for="source_url">Source URL:</label><br>
+                <input type="text" id="source_url" name="source_url" required>
             </div>
             <div>
-                <label for="filename">File in Git repository:</label><br>
+                <label for="filename">File in source:</label><br>
                 <input type="text" id="filename" name="filename">
             </div>
-            <input type="submit" value="Submit">
+            <div>
+                <label for="target_format">Select target format:</label><br>
+                <select  id="target_format" name="target_format" multiple size="4" required>
+                    <option value="md" selected>Markdown</option>
+                    <option value="html">HTML</option>
+                    <option value="qmd">Quarto</option>
+                    <option value="ipynb">Jupyter Notebook</option>
+                </select>
+            </div>
+            <div>
+                <label for="response">Select response format:</label><br>
+                <select  id="response" name="response" multiple size="2" required>
+                    <option value="md" selected>Download</option>
+                    <option value="forward" disabled>Forward</option>
+                </select>
+            </div>
+            <input type="submit" value="Submit" id="submit">
         </form>
     </body>
+    <script>
+        function submit(event) {
+            console.log("Submit");
+            let html_form = document.getElementById('form');
+            let form_data = new FormData(html_form);
+            let form_json = {
+                "source_url": form_data.get("source_url"),
+                "filename": form_data.get("filename"),
+                "response": form_data.get("response")
+            };
+            for (let key of ["target_format"]) {
+                form_json[key] = form_data.getAll(key);
+            }
+
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(form_json)
+            }).then(
+                res => res.blob()
+            ).then(
+                blob => {
+                    var file = window.URL.createObjectURL(blob);
+                    window.location.assign(file);
+                }
+            );
+
+            event.preventDefault();
+        }
+        
+        let html_form = document.getElementById('form');
+        html_form.addEventListener("submit", submit);
+    </script>
 </html>

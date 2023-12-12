@@ -1,35 +1,181 @@
+import os.path
+import urllib.request
+import uuid
+
 import pytest
 
 from ... import methodshub
 
+class Mock200HTTPResponse:
+    status = 200
 
-class TestMethodsHubContent:
+    @staticmethod
+    def info():
+        return {
+            'Content-Disposition': 'filename="mock-file.docx"'
+        }
+
+    @staticmethod
+    def read():
+        with open(os.path.join(os.path.dirname(__file__), "..", "assets", "minimal.docx"), "rb") as _file:
+            docx = _file.read()
+
+        return docx
+
+def mock_urlopen_with_200(url):
+    return Mock200HTTPResponse()
+
+class Mock404HTTPResponse:
+    status = 404
+
+def mock_urlopen_with_404(url):
+    return Mock404HTTPResponse()
+
+def mock_uuid4():
+    return "123-456-789"
+
+class TestMethodsHubHTTPContent:
     def test_init_without_url(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent(None, "lorem-ipsum.md")
+            assert methodshub.MethodsHubHTTPContent(None, "lorem-ipsum.docx")
 
-    def test_init_without_filename(self):
-        with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", None)
+    def test_init_without_filename(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+
+        assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum/123", None)
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("", "lorem-ipsum.md")
+            assert methodshub.MethodsHubHTTPContent("", "lorem-ipsum.md")
 
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", "")
+            assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum/123", "")
+
+    def test_init_with_nextcloud(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisbox.gesis.org/lorem/ipsum"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisbox.gesis.org"
+        assert methods_hub_content.tmp_path == "_gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_init_with_nextcloud_complete(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisbox.gesis.org/lorem/ipsum/download"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisbox.gesis.org"
+        assert methods_hub_content.tmp_path == "_gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_init_with_sharepoint(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisev.sharepoint.com/lorem/ipsum"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisev.sharepoint.com"
+        assert methods_hub_content.tmp_path == "_gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_init_with_sharepoint_complete(self, monkeypatch):
+        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+        monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
+
+        methods_hub_content = methodshub.MethodsHubHTTPContent(
+            "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://gesisev.sharepoint.com/lorem/ipsum&download=1"
+        )
+        assert methods_hub_content.filename == "mock-file.docx"
+        assert methods_hub_content.domain == "gesisev.sharepoint.com"
+        assert methods_hub_content.tmp_path == "_gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.filename_extension == "docx"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+    def test_clone_or_pull(self, monkeypatch):
+        with monkeypatch.context() as mock:
+            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+            mock.setattr(uuid, "uuid4", mock_uuid4)
+
+            methods_hub_content = methodshub.MethodsHubHTTPContent(
+                "http://lorem.ipsum/123"
+            )
+            methods_hub_content.clone_or_pull()
+        
+        assert os.path.isfile(os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)), "Local copy of file not created."
+
+    def test_render_format_docx_to_md(self, monkeypatch):
+        with monkeypatch.context() as mock:
+            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+            mock.setattr(uuid, "uuid4", mock_uuid4)
+
+            methods_hub_content = methodshub.MethodsHubHTTPContent(
+                "http://lorem.ipsum/123"
+            )
+            methods_hub_content.clone_or_pull()
+        
+        methods_hub_content.create_container()
+        methods_hub_content.render_format("md")
+
+class TestMethodsHubGitContent:
+    def test_init_without_url(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent(None, "lorem-ipsum.md")
+
+    def test_init_without_filename(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum/123/456", None)
+
+    def test_init_with_empty_url(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("", "lorem-ipsum.md")
+
+    def test_init_with_empty_filename(self):
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum/123/456", "")
 
     def test_init_with_invalid_url(self):
-        with pytest.raises(ValueError):
-            assert methodshub.MethodsHubContent("http://lorem.ipsum", "lorem-ipsum.md")
+        with pytest.raises(AssertionError):
+            assert methodshub.MethodsHubGitContent("http://lorem.ipsum", "lorem-ipsum.md")
 
     def test_init_with_github(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -47,11 +193,11 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_github_git(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -69,11 +215,11 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://gitlab.com/lorem/ipsum", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -91,11 +237,11 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_with_gitlab_git(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://gitlab.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://gitlab.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -114,16 +260,16 @@ class TestMethodsHubContent:
 
     def test_init_filename_extension_txt(self):
         with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubContent(
+            assert methodshub.MethodsHubGitContent(
                 "https://github.com/lorem/ipsum.git", "lorem-ipsum.txt"
             )
 
     def test_init_filename_extension_md(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.md"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
@@ -141,11 +287,11 @@ class TestMethodsHubContent:
         assert methods_hub_content.docker_image_name is None
 
     def test_init_filename_extension_qmd(self):
-        methods_hub_content = methodshub.MethodsHubContent(
+        methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/lorem/ipsum.git", "lorem-ipsum.qmd"
         )
         assert (
-            methods_hub_content.git_repository_url
+            methods_hub_content.source_url
             == "https://github.com/lorem/ipsum.git"
         )
         assert methods_hub_content.git_commit_id is None
