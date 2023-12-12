@@ -88,7 +88,7 @@ class MethodsHubContent:
     def create_container(self):
         raise NotImplementedError
     
-    def render_format(self, target_format):
+    def _render_format(self, target_format):
         assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
         assert target_format in self.RENDER_MATRIX[self.filename_extension], "Target format not supported!"
 
@@ -152,13 +152,23 @@ class MethodsHubContent:
 
         assert result["StatusCode"] == 0, "Fail to render content"
 
-    def render_all_formats(self):
+    def _render_all_formats(self):
         assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
 
         for targe_format in self.RENDER_MATRIX[self.filename_extension]:
             self.render_format(targe_format)
-            
-    def zip_all_formats(self):
+
+    def render_formats(self, formats):
+        assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
+
+        for targe_format in formats:
+            self._render_format(targe_format)
+
+    def rendered_file(self, format):
+        filename = f"index.{format}"
+        return os.path.join(self.output_location, filename)
+    
+    def _zip_all_formats(self):
         assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
 
         with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
@@ -168,6 +178,18 @@ class MethodsHubContent:
                     os.path.join(self.output_location, filename2zip),
                     arcname=filename2zip,
                 )
+
+    def zip_formats(self, formats):
+        assert self.filename_extension in self.RENDER_MATRIX, "File extension not supported!"
+
+        with ZipFile(self.zip_file_path, "w") as zip_output:
+            for targe_format in formats:
+                filename2zip = f"index.{targe_format}"
+                zip_output.write(
+                    os.path.join(self.output_location, filename2zip),
+                    arcname=filename2zip,
+                )
+
 
 
 class MethodsHubHTTPContent(MethodsHubContent):

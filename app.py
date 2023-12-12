@@ -47,12 +47,19 @@ def build():
 
     assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
     assert methods_hub_content.create_container() is None, "Fail on container creation"
-    assert methods_hub_content.render_all_formats() is None, "Fail on render contributions"
+    assert methods_hub_content.render_formats(request.json["target_format"]) is None, "Fail on render contributions"
 
-    assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
+    if len(request.json["target_format"]) == 1:
+        return send_file(
+            methods_hub_content.rendered_file(request.json["target_format"][0]),
+            mimetype="text/plain",
+            as_attachment=True,
+        )
+    else:
+        assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
-    return send_file(
-        methods_hub_content.zip_file_path,
-        mimetype="application/zip",
-        as_attachment=True,
-    )
+        return send_file(
+            methods_hub_content.zip_file_path,
+            mimetype="application/zip",
+            as_attachment=True,
+        )
