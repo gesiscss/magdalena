@@ -9,6 +9,7 @@ def test_post_ipynb_to_md(client):
         },
     )
 
+
 def test_post_docx_to_md(client):
     response = client.post(
         "/",
@@ -30,6 +31,7 @@ source_filename: lorem-ipsum.docx
 Lorem ipsum.
 """
     assert response.data == expected_markdown
+
 
 def test_post_docx_to_md_with_filename(client):
     response = client.post(

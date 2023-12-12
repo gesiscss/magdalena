@@ -32,8 +32,8 @@ def build():
     assert "source_url" in request.json, "Field source_url missing in form"
 
     if (
-            'github.com' in request.json["source_url"] or
-            'gitlab.com' in request.json["source_url"]
+        "github.com" in request.json["source_url"]
+        or "gitlab.com" in request.json["source_url"]
     ):
         assert "filename" in request.form, "Field filename missing in form"
         methods_hub_content = MethodsHubGitContent(
@@ -42,12 +42,16 @@ def build():
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.json["source_url"],
-            request.json["filename"] if ("filename" in request.json and len(request.json["filename"])) else None
+            request.json["filename"]
+            if ("filename" in request.json and len(request.json["filename"]))
+            else None,
         )
 
     assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
     assert methods_hub_content.create_container() is None, "Fail on container creation"
-    assert methods_hub_content.render_formats(request.json["target_format"]) is None, "Fail on render contributions"
+    assert (
+        methods_hub_content.render_formats(request.json["target_format"]) is None
+    ), "Fail on render contributions"
 
     if len(request.json["target_format"]) == 1:
         return send_file(
