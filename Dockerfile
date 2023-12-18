@@ -56,12 +56,12 @@ FROM basic AS prod
 COPY requirements.txt ./
 
 RUN python3 -m pip install \
-    --requirement requirements.dev.txt \
+    --requirement requirements.txt \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
     --no-color \
-    && rm requirements.dev.txt \
+    && rm requirements.txt \
     && python3 -m pip install \
     gunicorn \
     --no-cache-dir \
