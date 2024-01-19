@@ -1,0 +1,43 @@
+CONTRIBUTING.md
+README.md
+
+# Conda related files
+environment.dev.yml
+environment.yml
+
+# EditorConfig related files
+.editorconfig
+
+# Git related files
+.git
+.gitignore
+
+# GitLab related files
+.gitlab-ci.yml
+
+# Docker related files
+.dockerignore
+Dockerfile
+compose.yaml
+
+# Python related files
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
