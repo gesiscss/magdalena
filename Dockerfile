@@ -53,7 +53,9 @@ RUN python3 -m pip install \
 
 FROM basic AS prod
 
-COPY requirements.txt ./
+# COPY source directory itself isn't copied, only its contents.
+# See .dockerignore for files that are not copied.
+COPY . ./
 
 RUN python3 -m pip install \
     --requirement requirements.txt \
@@ -61,14 +63,12 @@ RUN python3 -m pip install \
     --progress-bar off \
     --no-input \
     --no-color \
-    && rm requirements.txt \
+    && rm requirements*.txt \
     && python3 -m pip install \
     gunicorn \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
     --no-color
-
-COPY LICENSE README.md *.py templates docker-scripts pandoc-filters ./
 
 CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'
