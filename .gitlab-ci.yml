@@ -98,8 +98,8 @@ Verify code style:
 
 Run test:
   tags:
-    - docker
     - methodshub
+    - stage 
   stage: test
   rules:
     - if: ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main') || $CI_PIPELINE_SOURCE == 'merge_request_event'
