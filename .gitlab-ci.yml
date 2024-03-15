@@ -40,7 +40,7 @@ Assign Docker image tag:
 
 build documentation:
   image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
-  stage: build
+  stage: prepare
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
@@ -54,7 +54,7 @@ build documentation:
       - docs/build
 
 pages:
-  stage: deploy
+  stage: .post
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
   dependencies:
