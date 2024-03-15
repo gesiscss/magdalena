@@ -12,7 +12,14 @@ Development Environment
 
 .. code:: bash
 
-    poetry run flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
+    poetry run \
+    flask \
+    run \
+    --host 0.0.0.0 \
+    --port 5000 \
+    --reload \
+    --debug \
+    --debugger
 
 Production Environment
 ----------------------
@@ -23,7 +30,11 @@ Production Environment
 
 .. code:: bash
 
-    poetry run gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'
+    poetry run \
+    gunicorn \
+    --workers=2 \
+    --bind 0.0.0.0:5000 \
+    'wsgi:app'
 
 Documentation Environment
 -------------------------
