@@ -10,7 +10,7 @@ app = Flask(__name__)
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
         app.logger.warn("MAGDALENA_SHARED_DIR is not defined! Using default.")
-        os.putenv("MAGDALENA_SHARED_DIR", "/tmp/magdalena-shared-volume")
+        os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
     shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
     app.logger.info("Shared directory is %s", shared_root_dir)
     for dir_name in ("docker-scripts", "pandoc-filters"):
