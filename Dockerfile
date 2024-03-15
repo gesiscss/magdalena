@@ -33,7 +33,6 @@ RUN python3 -m pip install poetry \
     --no-input \
     --no-color \
     && poetry config virtualenvs.create false \
-    && poetry config experimental.new-installer false \
     && poetry install \
     --without dev \
     --no-interaction \
@@ -47,7 +46,6 @@ EXPOSE 5000
 FROM basic AS dev
 
 RUN poetry config virtualenvs.create false \
-    && poetry config experimental.new-installer false \
     && poetry install \
     --with dev \
     --no-interaction \
