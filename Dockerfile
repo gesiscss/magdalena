@@ -1,5 +1,7 @@
 FROM ubuntu:22.04 AS basic
 
+WORKDIR /var/magdalena
+
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get -y install \
@@ -23,17 +25,21 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /var/magdalena
 
-WORKDIR /var/magdalena
+COPY pyproject.toml ./
+COPY poetry.lock ./
 
-COPY requirements.txt ./
-
-RUN python3 -m pip install \
-    --requirement requirements.txt \
+RUN python3 -m pip install poetry \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
     --no-color \
-    && rm requirements.txt
+    && poetry config virtualenvs.create false \
+    && poetry config experimental.new-installer false \
+    && poetry install \
+    --without dev \
+    --no-interaction \
+    --no-ansi \
+    && pip cache purge
 
 CMD flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
 
@@ -41,34 +47,25 @@ EXPOSE 5000
 
 FROM basic AS dev
 
-COPY requirements.dev.txt ./
-
-RUN python3 -m pip install \
-    --requirement requirements.dev.txt \
-    --no-cache-dir \
-    --progress-bar off \
-    --no-input \
-    --no-color \
-    && rm requirements.dev.txt
+RUN poetry config virtualenvs.create false \
+    && poetry config experimental.new-installer false \
+    && poetry install \
+    --with dev \
+    --no-interaction \
+    --no-ansi \
+    && pip cache purge
 
 FROM basic AS prod
 
-# COPY source directory itself isn't copied, only its contents.
-# See .dockerignore for files that are not copied.
-COPY . ./
-
 RUN python3 -m pip install \
-    --requirement requirements.txt \
-    --no-cache-dir \
-    --progress-bar off \
-    --no-input \
-    --no-color \
-    && rm requirements*.txt \
-    && python3 -m pip install \
     gunicorn \
     --no-cache-dir \
     --progress-bar off \
     --no-input \
     --no-color
+
+# COPY source directory itself isn't copied, only its contents.
+# See .dockerignore for files that are not copied.
+COPY . ./
 
 CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'
