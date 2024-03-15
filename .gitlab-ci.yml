@@ -63,7 +63,7 @@ pages:
     - build documentation
   script:
     - mkdir -p public
-    - mv build/html/* public
+    - mv docs/build/html/* public
   artifacts:
     paths:
       - public
