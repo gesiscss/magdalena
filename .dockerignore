@@ -1,10 +1,6 @@
 CONTRIBUTING.md
 README.md
 
-# Conda related files
-environment.dev.yml
-environment.yml
-
 # EditorConfig related files
 .editorconfig
 
