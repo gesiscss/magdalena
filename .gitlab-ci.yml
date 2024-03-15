@@ -30,9 +30,10 @@ Assign Docker image tag:
         DOCKER_TARGET: dev
         DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
   script:
+    - rm -f docker.env
     - echo "DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}" >> docker.env
-    - echo "DOCKER_TARGET=${DOCKER_TARGET}" > docker.env
-    - echo "DOCKER_REGISTRY=${DOCKER_REGISTRY}" > docker.env
+    - echo "DOCKER_TARGET=${DOCKER_TARGET}" >> docker.env
+    - echo "DOCKER_REGISTRY=${DOCKER_REGISTRY}" >> docker.env
   artifacts:
     reports:
       dotenv: docker.env

@@ -1,0 +1,21 @@
+[tool.poetry]
+package-mode = false
+name = "magdalena"
+version = "0.2.3"
+description = "Microservice to convert Quarto documents into output formats such as HTML and PDF."
+authors = ["Raniere Silva <Raniere.CostadaSilva@gesis.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.0.2"
+docker = "^7.0.0"
+jupyter-repo2docker = "^2023.6.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.2.0"
+pytest = "^8.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
