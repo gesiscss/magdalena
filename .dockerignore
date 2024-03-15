@@ -16,6 +16,9 @@ README.md
 Dockerfile
 compose.yaml
 
+# Documentation
+docs
+
 # Python related files
 __pycache__
 *.pyc
