@@ -1,10 +1,6 @@
 CONTRIBUTING.md
 README.md
 
-# Conda related files
-environment.dev.yml
-environment.yml
-
 # EditorConfig related files
 .editorconfig
 
@@ -19,6 +15,9 @@ environment.yml
 .dockerignore
 Dockerfile
 compose.yaml
+
+# Documentation
+docs
 
 # Python related files
 __pycache__
@@ -37,7 +36,6 @@ nosetests.xml
 coverage.xml
 *.cover
 *.log
-.git
 .mypy_cache
 .pytest_cache
 .hypothesis

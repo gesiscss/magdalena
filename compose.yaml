@@ -1,4 +1,16 @@
 services:
+
+  sphinx:
+    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
+    volumes:
+      - type: bind
+        source: docs/source
+        target: /docs/source
+    expose:
+      - "8000"
+    ports:
+      - "8000:8000"
+
   magdalena:
     build:
       context: .
