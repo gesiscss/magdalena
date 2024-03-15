@@ -22,8 +22,7 @@ RUN apt-get update \
     containerd.io \
     docker-buildx-plugin \
     docker-compose-plugin \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir /var/magdalena
+    && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml ./
 COPY poetry.lock ./
