@@ -3,6 +3,8 @@ stages:
   - prepare
   - test
   - release
+  - stage-deploy
+  - production-deploy
 
 Assign Docker image tag:
   stage: config
@@ -111,3 +113,27 @@ Run test:
   script:
     - mkdir $MAGDALENA_SHARED_DIR
     - pytest .
+
+.Deploy new version downstream:
+  trigger:
+    project: methods-hub/methodshub.gesis.org
+    branch: main
+    strategy: depend
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
+
+Deploy stage new version downstream:
+  extends: .Deploy new version downstream
+  stage: stage-deploy
+  variables:
+    UPSTREAM_PROJECT_NAMESPACE: $CI_PROJECT_NAMESPACE
+    UPSTREAM_PROJECT_NAME: $CI_PROJECT_NAME
+    TARGET_ENVIRONMENT: stage
+
+Deploy production new version downstream:
+  extends: .Deploy new version downstream
+  stage: production-deploy
+  variables:
+    UPSTREAM_PROJECT_NAMESPACE: $CI_PROJECT_NAMESPACE
+    UPSTREAM_PROJECT_NAME: $CI_PROJECT_NAME
+    TARGET_ENVIRONMENT: production
