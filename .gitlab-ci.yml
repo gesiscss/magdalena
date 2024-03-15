@@ -38,6 +38,34 @@ Assign Docker image tag:
     reports:
       dotenv: docker.env
 
+build documentation:
+  image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
+  stage: build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - docs/source/**/*
+  script:
+    - cd docs
+    - make html
+  artifacts:
+    paths:
+      - docs/build
+
+pages:
+  stage: deploy
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
+  dependencies:
+    - build documentation
+  script:
+    - mkdir -p public
+    - mv build/html/* public
+  artifacts:
+    paths:
+      - public
+
 Build container:
   stage: prepare
   rules:
