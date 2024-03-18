@@ -17,6 +17,7 @@ services:
       target: dev
     environment:
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
+      LOG_LEVEL: debug
     volumes:
       - type: bind
         source: .

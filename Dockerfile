@@ -68,4 +68,4 @@ RUN python3 -m pip install \
 # See .dockerignore for files that are not copied.
 COPY . ./
 
-CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app'
+CMD gunicorn --workers=2 --bind 0.0.0.0:5000 'wsgi:app' --log-level ${LOG_LEVEL:=warning}
