@@ -283,6 +283,17 @@ files = [
 ]
 
 [[package]]
+name = "cssselect"
+version = "1.2.0"
+description = "cssselect parses CSS3 Selectors and translates them to XPath 1.0"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "cssselect-1.2.0-py2.py3-none-any.whl", hash = "sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e"},
+    {file = "cssselect-1.2.0.tar.gz", hash = "sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc"},
+]
+
+[[package]]
 name = "docker"
 version = "7.0.0"
 description = "A Python library for the Docker Engine API."
@@ -1524,4 +1535,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f2f47e639e469c6d2fdae1789cbee1901fe3353f847ca66443783a14ff5368ae"
+content-hash = "ea50628f195c7cc576ccdeed8cc9e348932fc9424e2b3abadc49d150a61d75e2"
