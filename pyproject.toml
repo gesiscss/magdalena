@@ -18,6 +18,7 @@ optional = true
 [tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
 pytest = "^8.1.1"
+beautifulsoup4 = "^4.12.3"
 
 [tool.poetry.group.docs]
 optional = true
