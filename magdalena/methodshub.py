@@ -33,6 +33,15 @@ GRAPHQL_TRANSPORT = RequestsHTTPTransport(
 GRAPHQL_CLIENT = Client(transport=GRAPHQL_TRANSPORT, fetch_schema_from_transport=True)
 
 
+def extract_content_from_html(raw_html):
+    """
+    Extract content from html created by Quarto.
+    """
+    html = etree.fromstring(raw_html, etree.HTMLParser())
+    selector = CSSSelector("main")
+    return etree.tostring(selector(html)[0], with_tail=False)
+
+
 class MethodsHubContent:
     RENDER_MATRIX = {
         "md": {
@@ -243,10 +252,7 @@ class MethodsHubContent:
         if target_format != "html":
             file_base64 = base64.b64encode(file_as_binary)
         else:
-            file_as_html = etree.fromstring(file_as_binary, etree.HTMLParser())
-            selector = CSSSelector("section#quarto")
-            file_section = selector(file_as_html)[0]
-            file_base64 = base64.b64encode(file_as_binary)
+            file_base64 = base64.b64encode(extract_content_from_html(file_as_binary))
 
         variables = {
             input: {
