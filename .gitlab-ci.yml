@@ -12,29 +12,24 @@ Assign Docker image tag:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
       variables:
         DOCKER_IMAGE_TAG: $CI_COMMIT_TAG
-        DOCKER_TARGET: prod
         DOCKER_REGISTRY: docker-private-releases.gesis.intra/gesis
     - if:  $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       variables:
         DOCKER_IMAGE_TAG: latest
-        DOCKER_TARGET: dev
         DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         - Dockerfile
       variables:
         DOCKER_IMAGE_TAG: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-        DOCKER_TARGET: dev
         DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       variables:
         DOCKER_IMAGE_TAG: latest
-        DOCKER_TARGET: dev
         DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
   script:
     - rm -f docker.env
     - echo "DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}" >> docker.env
-    - echo "DOCKER_TARGET=${DOCKER_TARGET}" >> docker.env
     - echo "DOCKER_REGISTRY=${DOCKER_REGISTRY}" >> docker.env
   artifacts:
     reports:
@@ -68,8 +63,33 @@ pages:
     paths:
       - public
 
-Build container:
+.Build container:
   stage: prepare
+  image: docker-private.gesis.intra/gesis/dc:5.7
+  services:
+    - name:  docker-private.gesis.intra/gesis/dind:5.5
+      alias: docker
+  variables:
+    DOCKER_TARGET: target
+    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/target
+  script:
+    - |
+      docker \
+      build \
+      --no-cache \
+      --pull \
+      --target ${DOCKER_TARGET} \
+      --tag ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG} \
+      --tag ${DOCKER_CONTAINER_NAME}:latest \
+      .
+    - |
+      docker \
+      push \
+      --all-tags \
+      ${DOCKER_CONTAINER_NAME}
+
+Build dev container:
+  extends: .Build container
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
@@ -82,13 +102,18 @@ Build container:
         - Dockerfile
         - pyproject.toml
         - poetry.lock
-  image: docker-private.gesis.intra/gesis/dc:5.7
-  services:
-    - name:  docker-private.gesis.intra/gesis/dind:5.5
-      alias: docker
-  script:
-    - docker build --target ${DOCKER_TARGET} --no-cache --pull -t ${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${DOCKER_TARGET}:${DOCKER_IMAGE_TAG} .
-    - docker push ${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${DOCKER_TARGET}:${DOCKER_IMAGE_TAG}
+  variables:
+    DOCKER_TARGET: dev
+    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/dev
+
+Build prod container:
+  extends: .Build container
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
+  variables:
+    DOCKER_TARGET: prod
+    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/prod
 
 Verify code style:
   stage: test
