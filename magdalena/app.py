@@ -16,7 +16,9 @@ with app.app_context():
     for dir_name in ("docker-scripts", "pandoc-filters"):
         app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
         shutil.copytree(
-            dir_name, os.path.join(shared_root_dir, dir_name), dirs_exist_ok=True
+            os.path.join("magdalena", dir_name),
+            os.path.join(shared_root_dir, dir_name),
+            dirs_exist_ok=True,
         )
 
 
