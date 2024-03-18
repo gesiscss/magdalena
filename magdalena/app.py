@@ -16,7 +16,9 @@ with app.app_context():
     for dir_name in ("docker-scripts", "pandoc-filters"):
         app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
         shutil.copytree(
-            dir_name, os.path.join(shared_root_dir, dir_name), dirs_exist_ok=True
+            os.path.join("magdalena", dir_name),
+            os.path.join(shared_root_dir, dir_name),
+            dirs_exist_ok=True,
         )
 
 
@@ -42,9 +44,11 @@ def build():
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.json["source_url"],
-            request.json["filename"]
-            if ("filename" in request.json and len(request.json["filename"]))
-            else None,
+            (
+                request.json["filename"]
+                if ("filename" in request.json and len(request.json["filename"]))
+                else None
+            ),
         )
 
     assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
