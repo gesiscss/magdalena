@@ -11,6 +11,7 @@ python = "^3.10"
 flask = "^3.0.2"
 docker = "^7.0.0"
 jupyter-repo2docker = "^2023.6.0"
+gql = {extras = ["requests"], version = "^3.5.0"}
 
 [tool.poetry.group.dev]
 optional = true
