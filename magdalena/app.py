@@ -37,7 +37,7 @@ def build():
         "github.com" in request.json["source_url"]
         or "gitlab.com" in request.json["source_url"]
     ):
-        assert "filename" in request.form, "Field filename missing in form"
+        assert "filename" in request.json, "Field filename missing in form"
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"], request.json["filename"]
         )
