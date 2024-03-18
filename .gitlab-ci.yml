@@ -75,11 +75,13 @@ Build container:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       changes:
         - Dockerfile
-        - requirements*.txt
+        - pyproject.toml
+        - poetry.lock
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
         - Dockerfile
-        - requirements*.txt
+        - pyproject.toml
+        - poetry.lock
   image: docker-private.gesis.intra/gesis/dc:5.7
   services:
     - name:  docker-private.gesis.intra/gesis/dind:5.5
