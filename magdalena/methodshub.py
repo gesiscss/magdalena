@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import logging
 import os
@@ -8,10 +9,28 @@ import urllib.request
 import uuid
 from zipfile import ZipFile
 
+from lxml import etree
+from lxml.cssselect import CSSSelector
+
 import docker
 import repo2docker
 
+from gql import Client, gql
+from gql.transport.requests import RequestsHTTPTransport
+
 logger = logging.getLogger("magdalena.app")
+
+if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
+    logger.warn("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
+    os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
+
+GRAPHQL_TRANSPORT = RequestsHTTPTransport(
+    url=os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"),
+    verify=True,
+    retries=3,
+)
+
+GRAPHQL_CLIENT = Client(transport=GRAPHQL_TRANSPORT, fetch_schema_from_transport=True)
 
 
 class MethodsHubContent:
@@ -41,10 +60,12 @@ class MethodsHubContent:
         },
     }
 
-    def __init__(self, source_url):
+    def __init__(self, source_url, id_for_graphql=None):
         assert source_url is not None, "Source URL can NOT be None"
         assert len(source_url), "Source URL can NOT be empty string"
         self.source_url = source_url
+
+        self.id_for_graphql = id_for_graphql
 
         self.http_to_git_repository = None
         self.user_name = None
@@ -177,7 +198,7 @@ class MethodsHubContent:
         filename = f"index.{format}"
         return os.path.join(self.output_location, filename)
 
-    def _zip_all_formats(self):
+    def zip_all_formats(self):
         assert (
             self.filename_extension in self.RENDER_MATRIX
         ), "File extension not supported!"
@@ -203,10 +224,62 @@ class MethodsHubContent:
                     arcname=filename2zip,
                 )
 
+    def _push_rendered_format(self, target_format):
+        mutation = gql(
+            """
+            mutation Mutation($input: CreateFileInput!) {
+                createFile(input: $input) {
+                    id
+                }
+            }
+        """
+        )
+
+        filename2push = f"index.{target_format}"
+
+        with open(filename2push, "rb") as _file:
+            file_as_binary = b"".join(_file.readlines())
+
+        if target_format != "html":
+            file_base64 = base64.b64encode(file_as_binary)
+        else:
+            file_as_html = etree.fromstring(file_as_binary, etree.HTMLParser())
+            selector = CSSSelector("section#quarto")
+            file_section = selector(file_as_html)[0]
+            file_base64 = base64.b64encode(file_as_binary)
+
+        variables = {
+            input: {
+                "binary": file_base64,
+                "fileExtension": target_format,
+                "name": filename2push,
+                "content": {"id": self.id_for_graphql},
+            }
+        }
+
+        result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
+        print(result)
+
+    def push_all_rendered_formats(self):
+        assert (
+            self.filename_extension in self.RENDER_MATRIX
+        ), "File extension not supported!"
+
+        for target_format in self.RENDER_MATRIX[self.filename_extension]:
+            self._push_rendered_format(target_format)
+
+    def push_rendered_formats(self, formats):
+        assert (
+            self.filename_extension in self.RENDER_MATRIX
+        ), "File extension not supported!"
+
+        for target_format in formats:
+            self._push_rendered_format(target_format)
+
 
 class MethodsHubHTTPContent(MethodsHubContent):
-    def __init__(self, source_url, filename=None):
-        MethodsHubContent.__init__(self, source_url)
+    def __init__(self, source_url, id_for_graphql=None, filename=None):
+        MethodsHubContent.__init__(self, source_url, id_for_graphql)
 
         regex_match_http = re.match("https?://(.+?)/(.+)", self.source_url)
 
@@ -290,8 +363,8 @@ class MethodsHubHTTPContent(MethodsHubContent):
 
 
 class MethodsHubGitContent(MethodsHubContent):
-    def __init__(self, source_url, filename):
-        MethodsHubContent.__init__(self, source_url)
+    def __init__(self, source_url, filename, id_for_graphql=None):
+        MethodsHubContent.__init__(self, source_url, id_for_graphql)
 
         assert filename is not None, "filename can NOT be None"
         assert len(filename), "filename can NOT be empty"
