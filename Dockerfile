@@ -5,7 +5,10 @@ WORKDIR /var/magdalena
 RUN apt-get update \
     && apt-get -y upgrade \
     && apt-get -y install \
+    libxml2-dev \
+    libxslt-dev \
     python3 \
+    python3-dev \
     python3-pip \
     git \
     ca-certificates \
