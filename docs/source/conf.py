@@ -6,10 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'magadalena'
-copyright = '2024, Raniere Gaia Costa da Silva'
-author = 'Raniere Gaia Costa da Silva'
-release = '0.1.0'
+project = "magadalena"
+copyright = "2024, Raniere Gaia Costa da Silva"
+author = "Raniere Gaia Costa da Silva"
+release = "0.1.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -20,9 +20,8 @@ extensions = [
     "sphinxcontrib.mermaid",
 ]
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
-
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -30,7 +29,7 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"  # Documentation at https://sphinx-rtd-theme.readthedocs.io/en/stable/index.html
 
-html_baseurl = '/magdalena/'
+html_baseurl = "/magdalena/"
 
 html_copy_source = False
 
@@ -50,4 +49,4 @@ html_context = {
     "conf_py_path": "/docs/source/",
 }
 
-html_static_path = ['_static']
+html_static_path = ["_static"]
