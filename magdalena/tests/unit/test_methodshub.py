@@ -156,7 +156,7 @@ class TestMethodsHubHTTPContent:
             methods_hub_content.clone_or_pull()
 
         methods_hub_content.create_container()
-        methods_hub_content.render_format("md")
+        methods_hub_content._render_format("md")
 
 
 class TestMethodsHubGitContent:
