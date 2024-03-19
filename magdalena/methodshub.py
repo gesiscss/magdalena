@@ -197,7 +197,7 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         for targe_format in self.RENDER_MATRIX[self.filename_extension]:
-            self.render_format(targe_format)
+            self._render_format(targe_format)
 
     def render_formats(self, formats):
         assert (
