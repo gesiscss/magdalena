@@ -54,26 +54,22 @@ class MethodsHubContent:
     RENDER_MATRIX = {
         "md": {
             "html": "md2html.sh",
-            "qmd": "md2qmd.sh",
             "ipynb": "md2ipynb.sh",
         },
         "qmd": {
             "html": "qmd2html.sh",
-            "qmd": "qmd2qmd.sh",
             "ipynb": "qmd2ipynb.sh",
         },
         "Rmd": {
             "html": "Rmd2html.sh",
-            "qmd": "Rmd2qmd.sh",
             "ipynb": "Rmd2ipynb.sh",
         },
         "ipynb": {
             "html": "ipynb2html.sh",
-            "qmd": "ipynb2qmd.sh",
             "ipynb": "ipynb2ipynb.sh",
         },
         "docx": {
-            "md": "docx2md.sh",
+            "html": "docx2html.sh",
         },
     }
 
