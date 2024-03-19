@@ -370,10 +370,13 @@ class MethodsHubHTTPContent(MethodsHubContent):
 
 
 class MethodsHubGitContent(MethodsHubContent):
-    def __init__(self, source_url, filename, id_for_graphql=None):
+    def __init__(self, source_url, id_for_graphql=None, filename=None):
         MethodsHubContent.__init__(self, source_url, id_for_graphql)
 
-        assert filename is not None, "filename can NOT be None"
+        if filename is None:
+            logger.info("Filename is None. Using README.md.")
+            filename = "README.md"
+
         assert len(filename), "filename can NOT be empty"
 
         if not source_url.endswith(".git"):
