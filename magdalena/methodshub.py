@@ -40,7 +40,14 @@ def extract_content_from_html(raw_html):
     """
     html = etree.fromstring(raw_html, etree.HTMLParser())
     selector = CSSSelector("main")
-    return etree.tostring(selector(html)[0], with_tail=False)
+    selection = selector(html)
+
+    assert len(selection) > 0, "HTML document does NOT have <main>!"
+
+    selection = selection[0]
+    selection.tag = "div"
+
+    return etree.tostring(selection, with_tail=False)
 
 
 class MethodsHubContent:
