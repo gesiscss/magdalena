@@ -329,7 +329,9 @@ class MethodsHubHTTPContent(MethodsHubContent):
         self.filename = filename
         self.environment_for_container["file2render"] = self.filename
 
-        self.tmp_path = f"_{self.domain}/{uuid.uuid4()}"
+        self.tmp_path = os.path.join(
+            os.getenv("MAGDALENA_TMP", "/tmp"), self.domain, uuid.uuid4()
+        )
 
         self.filename_extension = self.filename.split(".")[-1]
         assert (
@@ -398,7 +400,12 @@ class MethodsHubGitContent(MethodsHubContent):
         self.user_name = regex_match.group(2)
         self.repository_name = regex_match.group(3)
 
-        self.tmp_path = f"_{self.domain}/{self.user_name}/{self.repository_name}"
+        self.tmp_path = os.path.join(
+            os.getenv("MAGDALENA_TMP", "/tmp"),
+            self.domain,
+            self.user_name,
+            self.repository_name,
+        )
 
         self.filename_extension = self.filename.split(".")[-1]
         assert (
