@@ -135,12 +135,11 @@ Run test:
     - if: ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main') || $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
         - '**/*.py'
-  image: ${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/dev:${DOCKER_IMAGE_TAG}
   variables:
     MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
   script:
-    - mkdir -p $MAGDALENA_SHARED_DIR
-    - pytest .
+    - poetry install --with dev
+    - poetry run pytest .
 
 .Deploy new version downstream:
   trigger:
