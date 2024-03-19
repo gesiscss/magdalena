@@ -167,9 +167,9 @@ class MethodsHubContent:
         )
 
         self.environment_for_container["output_location"] = output_location_in_container
-        self.environment_for_container["docker_script_root"] = (
-            f"{self.home_dir_at_docker}/_docker-scripts"
-        )
+        self.environment_for_container[
+            "docker_script_root"
+        ] = f"{self.home_dir_at_docker}/_docker-scripts"
         logger.info(
             "Environment variables the sibling container: %s",
             self.environment_for_container,
