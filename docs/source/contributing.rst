@@ -6,9 +6,25 @@ We use `poetry <https://python-poetry.org>`_ as dependence manager.
 Development Environment
 -----------------------
 
+With Docker Compose
+^^^^^^^^^^^^^^^^^^^
+
+Start the container by running
+
+.. code:: bash
+
+    docker compose up magdalena
+
+Without Docker Compose
+^^^^^^^^^^^^^^^^^^^^^^
+
+Install the dependencies by running
+
 .. code:: bash
 
     poetry install --with dev
+
+and start the server by running
 
 .. code:: bash
 
@@ -20,28 +36,6 @@ Development Environment
     --reload \
     --debug \
     --debugger
-
-Production Environment
-----------------------
-
-.. code:: bash
-
-    poetry install --with prod
-
-.. code:: bash
-
-    poetry run \
-    gunicorn \
-    --workers=2 \
-    --bind 0.0.0.0:5000 \
-    'wsgi:app'
-
-Documentation Environment
--------------------------
-
-.. code:: bash
-
-    poetry install --only docs
 
 Continous Integration Test
 --------------------------
@@ -74,3 +68,61 @@ Run
    docker compose up
 
 and open http://localhost:5000 with your web browser.
+
+Production Environment
+----------------------
+
+With Docker Compose
+^^^^^^^^^^^^^^^^^^^
+
+Not supported.
+
+Without Docker Compose
+^^^^^^^^^^^^^^^^^^^^^^
+
+Install the dependencies by running
+
+.. code:: bash
+
+    poetry install --with prod
+
+and start the server by running
+
+.. code:: bash
+
+    poetry run \
+    gunicorn \
+    --workers=2 \
+    --bind 0.0.0.0:5000 \
+    'wsgi:app'
+
+Documentation Environment
+-------------------------
+
+With Docker Compose
+^^^^^^^^^^^^^^^^^^^
+
+Start the container by running
+
+.. code:: bash
+
+    docker compose up sphinx
+
+Without Docker Compose
+^^^^^^^^^^^^^^^^^^^^^^
+
+Install the dependencies by running
+
+.. code:: bash
+
+    poetry install --only docs
+
+and start the server by running
+
+.. code:: bash
+
+    poetry run \
+    sphinx-autobuild \
+    --host 0.0.0.0 \
+    docs/source \
+    docs/build
