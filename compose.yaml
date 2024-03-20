@@ -1,7 +1,7 @@
 services:
 
   sphinx:
-    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
+    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx:7.2.6-make
     command: sphinx-autobuild --host 0.0.0.0 source build
     volumes:
       - type: bind
