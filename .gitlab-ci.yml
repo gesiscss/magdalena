@@ -36,7 +36,7 @@ Assign Docker image tag:
       dotenv: docker.env
 
 build documentation:
-  image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
+  image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx:7.2.6-make
   stage: release
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
