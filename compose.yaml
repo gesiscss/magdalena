@@ -12,6 +12,19 @@ services:
     ports:
       - "8000:8000"
 
+  swagger-editor:
+    image: swaggerapi/swagger-editor:v4.12.1
+    environment:
+      SWAGGER_FILE: /var/magdalena/openapi/magdalena.yaml
+    volumes:
+      - type: bind
+        source: docs/source/_static/openapi
+        target: /var/magdalena/openapi
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+
   magdalena:
     build:
       context: .

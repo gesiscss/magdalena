@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: magdalena - OpenAPI 3.0
+  description: |-
+    magdalena OpenAPI 3.0 specification.
+  contact:
+    email: Raniere.CostadaSilva@gesis.org
+  license:
+    name: Creative Commons Attribution 4.0 International
+    url: https://creativecommons.org/licenses/by/4.0/legalcode
+  version: 1.0.0
+servers:
+  - url: https://localhost:5000
+  - url: https://methodshub.gesis.org/magdalena
+tags:
+  - name: document
+    description: Everything about your document
+paths:
+  /:
+    post:
+      tags:
+        - document
+      summary: Render a document
+      description: Render a user provided document to the user defined target format.
+      operationId: renderDocument
+      requestBody:
+        description: Render a document
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_url:
+                  type: string
+                  example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
