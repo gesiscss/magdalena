@@ -1,4 +1,4 @@
-openapi: 3.0.3
+swagger: "2.0"
 info:
   title: magdalena - OpenAPI 3.0
   description: |-
@@ -8,43 +8,69 @@ info:
   license:
     name: Creative Commons Attribution 4.0 International
     url: https://creativecommons.org/licenses/by/4.0/legalcode
-  version: 1.0.0
-servers:
-  - url: https://localhost:5000
-  - url: https://methodshub.gesis.org/magdalena
-tags:
-  - name: document
-    description: Everything about your document
+  version: 9.0.0
+
+host: methodshub.gesis.org
+basePath: /magdalena
+schemes:
+  - https
+
 paths:
   /:
     post:
-      tags:
-        - document
       summary: Render a document
       description: Render a user provided document to the user defined target format.
-      operationId: renderDocument
-      requestBody:
-        description: Render a document
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                source_url:
-                  type: string
-                  example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
-        required: true
+      parameters:
+        - name: evidence
+          in: body
+          schema:
+            $ref: '#/definitions/Document'
       responses:
         '200':
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: The status of the render request.
+                enum:
+                  - OK
+                  - FAIL
         '400':
           description: Invalid input
         '422':
           description: Validation exception
+definitions:
+  Document:
+    type: object
+    required:
+      - source_url
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: Identifier of Document.
+      source_url:
+        type: string
+        description: Source URL
+        example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
+      filename:
+        type: string
+        description: File in source
+        example: index.ipynb
+      target_format:
+        type: array
+        description: Target formats
+        items:
+          type: string
+        example:
+          - md
+          - ipynb
+      response:
+        type: string
+        description: Type of response
+        example: download
+        enum:
+          - download
+          - forward
