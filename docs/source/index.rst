@@ -15,6 +15,8 @@ HTML and PDF **for GESIS’ MethodsHub**. ``magdalena`` is the successor of ``an
    :caption: Contents:
 
    architecture
+   faq
+   contributing
 
 Indices and tables
 ==================
