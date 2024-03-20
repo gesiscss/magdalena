@@ -15,6 +15,8 @@ Start the container by running
 
     docker compose up magdalena
 
+and open http://localhost:5000 with your web browser.
+
 Without Docker Compose
 ^^^^^^^^^^^^^^^^^^^^^^
 
@@ -37,8 +39,10 @@ and start the server by running
     --debug \
     --debugger
 
-Continous Integration Test
---------------------------
+and open http://localhost:5000 with your web browser.
+
+Running the Test Collection
+----------------------------
 
 We recommend to run the continous integration test in the Docker
 container.
@@ -47,27 +51,13 @@ Run
 
 .. code:: bash
 
-   docker compose up
+   docker compose up magdalena
 
 and, in another terminal, run
 
 .. code:: bash
 
    docker exec magdalena-magdalena-1 -- pytest .
-
-User Experience Test
---------------------
-
-We recommend to run the continous integration test in the Docker
-container.
-
-Run
-
-.. code:: bash
-
-   docker compose up
-
-and open http://localhost:5000 with your web browser.
 
 Production Environment
 ----------------------
@@ -95,6 +85,8 @@ and start the server by running
     --workers=2 \
     --bind 0.0.0.0:5000 \
     'wsgi:app'
+
+and open http://localhost:5000 with your web browser.
 
 Documentation Environment
 -------------------------
