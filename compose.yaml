@@ -1,7 +1,7 @@
 services:
 
   sphinx:
-    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx
+    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx:7.2.6-make
     command: sphinx-autobuild --host 0.0.0.0 source build
     volumes:
       - type: bind
@@ -11,6 +11,19 @@ services:
       - "8000"
     ports:
       - "8000:8000"
+
+  swagger-editor:
+    image: swaggerapi/swagger-editor:v4.12.1
+    environment:
+      SWAGGER_FILE: /var/magdalena/openapi/magdalena.yaml
+    volumes:
+      - type: bind
+        source: docs/source/_static/openapi
+        target: /var/magdalena/openapi
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
 
   magdalena:
     build:

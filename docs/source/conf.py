@@ -15,8 +15,9 @@ release = "0.1.0"
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinx_rtd_theme",
+    "sphinxcontrib.openapi",
     "sphinx_copybutton",
+    "sphinx_rtd_theme",
     "sphinxcontrib.mermaid",
 ]
 
