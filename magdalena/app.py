@@ -64,18 +64,24 @@ def build():
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")
         if len(request.json["target_format"]) == 1:
-            return send_file(
-                methods_hub_content.rendered_file(request.json["target_format"][0]),
-                mimetype="text/plain",
-                as_attachment=True,
+            return (
+                send_file(
+                    methods_hub_content.rendered_file(request.json["target_format"][0]),
+                    mimetype="text/plain",
+                    as_attachment=True,
+                ),
+                201,
             )
         else:
             assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
-            return send_file(
-                methods_hub_content.zip_file_path,
-                mimetype="application/zip",
-                as_attachment=True,
+            return (
+                send_file(
+                    methods_hub_content.zip_file_path,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                ),
+                201,
             )
 
     if request.json["response"] == "forward":
@@ -88,4 +94,4 @@ def build():
         else:
             methods_hub_content.push_all_rendered_formats()
 
-        return {"status": "OK"}
+        return {"status": "OK"}, 201
