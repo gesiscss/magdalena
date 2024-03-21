@@ -16,6 +16,8 @@ MAGDALENA_SHARED_DIR = None
 def pytest_configure(config):
     dir_name = uuid.uuid4().hex
     dir_path = os.path.join("/tmp/", dir_name)
+
+    print("Setting MAGDALENA_SHARED_DIR to %s" % dir_path)
     os.makedirs(dir_path, exist_ok=True)
     MAGDALENA_SHARED_DIR = os.getenv("MAGDALENA_SHARED_DIR", None)
     os.environ["MAGDALENA_SHARED_DIR"] = dir_path
