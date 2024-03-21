@@ -279,7 +279,7 @@ class MethodsHubContent:
         }
 
         result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
-        print(result)
+        logger.info("GraphQL call resulted in %s", result)
 
     def push_all_rendered_formats(self):
         assert (
