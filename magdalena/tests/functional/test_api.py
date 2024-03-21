@@ -2,7 +2,7 @@ from lxml import etree
 from lxml.cssselect import CSSSelector
 
 
-def test_post_ipynb_to_md(client):
+def test_post_ipynb_to_html(client):
     response = client.post(
         "/",
         json={
@@ -21,7 +21,7 @@ def test_post_ipynb_to_md(client):
     assert len(selection) > 0, "HTML document does NOT have <main>!"
 
 
-def test_post_docx_to_md(client):
+def test_post_docx_to_html(client):
     response = client.post(
         "/",
         json={
@@ -39,7 +39,7 @@ def test_post_docx_to_md(client):
     assert len(selection) > 0, "HTML document does NOT have <main>!"
 
 
-def test_post_docx_to_md_with_filename(client):
+def test_post_docx_to_html_with_filename(client):
     response = client.post(
         "/",
         json={
