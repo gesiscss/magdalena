@@ -9,7 +9,7 @@
 dirname2render=$(dirname ${file2render})
 basename2render=$(basename ${file2render})
 
-output_dirname=$output_location/$dirname2render/${basename2render%.*}
+output_dirname=$output_location/$dirname2render
 output_basename=index.html
 
 mkdir --parents $output_dirname
