@@ -21,7 +21,7 @@ from gql.transport.requests import RequestsHTTPTransport
 logger = logging.getLogger("magdalena.app")
 
 if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
-    logger.warn("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
+    logger.warning("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
     os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
 
 GRAPHQL_TRANSPORT = RequestsHTTPTransport(
