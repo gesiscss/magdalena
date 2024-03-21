@@ -13,13 +13,6 @@ with app.app_context():
         os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
     shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
     app.logger.info("Shared directory is %s", shared_root_dir)
-    for dir_name in ("docker-scripts", "pandoc-filters"):
-        app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
-        shutil.copytree(
-            os.path.join("magdalena", dir_name),
-            os.path.join(shared_root_dir, dir_name),
-            dirs_exist_ok=True,
-        )
 
 
 @app.get("/")

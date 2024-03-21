@@ -131,8 +131,12 @@ class MethodsHubContent:
         ), "Target format not supported!"
 
         script = self.RENDER_MATRIX[self.filename_extension][target_format]
-        docker_scripts_location = os.path.join(self.docker_shared_dir, "docker-scripts")
-        pandoc_filters_location = os.path.join(self.docker_shared_dir, "pandoc-filters")
+        docker_scripts_location = os.path.join(
+            os.path.dirname(__file__), "docker-scripts"
+        )
+        pandoc_filters_location = os.path.join(
+            os.path.dirname(__file__), "pandoc-filters"
+        )
         output_location_in_container = self.docker_shared_dir
 
         logger.info("Location of docker_scripts directory: %s", docker_scripts_location)
