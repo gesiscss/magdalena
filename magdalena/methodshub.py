@@ -42,7 +42,14 @@ def extract_content_from_html(raw_html):
     selector = CSSSelector("main")
     selection = selector(html)
 
-    assert len(selection) > 0, "HTML document does NOT have <main>!"
+    if len(selection) > 0:
+        logger.info("<main> was not found. Using <body> instead.")
+        selector = CSSSelector("body")
+        selection = selector(html)
+
+    assert (
+        len(selection) > 0
+    ), "Selection from HTML document is empty. HTML document does NOT have <main> or <body>!"
 
     selection = selection[0]
     selection.tag = "div"
