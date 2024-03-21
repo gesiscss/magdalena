@@ -16,7 +16,7 @@ with app.app_context():
 
 
 @app.get("/")
-def hello_world():
+def index():
     return render_template("index.html")
 
 
