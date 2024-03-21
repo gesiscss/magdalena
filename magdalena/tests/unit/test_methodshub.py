@@ -81,7 +81,9 @@ class TestMethodsHubHTTPContent:
         )
         assert methods_hub_content.filename == "mock-file.docx"
         assert methods_hub_content.domain == "gesisbox.gesis.org"
-        assert methods_hub_content.tmp_path == "/tmp/gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gesisbox.gesis.org/123-456-789"
+        )
         assert methods_hub_content.filename_extension == "docx"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -99,7 +101,9 @@ class TestMethodsHubHTTPContent:
         )
         assert methods_hub_content.filename == "mock-file.docx"
         assert methods_hub_content.domain == "gesisbox.gesis.org"
-        assert methods_hub_content.tmp_path == "/tmp/gesisbox.gesis.org/123-456-789"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gesisbox.gesis.org/123-456-789"
+        )
         assert methods_hub_content.filename_extension == "docx"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -117,7 +121,9 @@ class TestMethodsHubHTTPContent:
         )
         assert methods_hub_content.filename == "mock-file.docx"
         assert methods_hub_content.domain == "gesisev.sharepoint.com"
-        assert methods_hub_content.tmp_path == "/tmp/gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gesisev.sharepoint.com/123-456-789"
+        )
         assert methods_hub_content.filename_extension == "docx"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -135,7 +141,9 @@ class TestMethodsHubHTTPContent:
         )
         assert methods_hub_content.filename == "mock-file.docx"
         assert methods_hub_content.domain == "gesisev.sharepoint.com"
-        assert methods_hub_content.tmp_path == "/tmp/gesisev.sharepoint.com/123-456-789"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gesisev.sharepoint.com/123-456-789"
+        )
         assert methods_hub_content.filename_extension == "docx"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -187,7 +195,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -222,7 +232,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -241,7 +253,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -260,7 +274,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "gitlab.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/gitlab.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gitlab.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -279,7 +295,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "gitlab.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/gitlab.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "gitlab.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -304,7 +322,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "md"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
@@ -323,7 +343,9 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.domain == "github.com"
         assert methods_hub_content.user_name == "lorem"
         assert methods_hub_content.repository_name == "ipsum"
-        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"), "github.com/lorem/ipsum"
+        )
         assert methods_hub_content.filename_extension == "qmd"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
