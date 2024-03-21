@@ -13,4 +13,4 @@ mv ${md2render} ${qmd2render}
 
 export file2render=${qmd2render}
 
-./qmd2html.sh
+$( dirname -- "${BASH_SOURCE[0]}" )/qmd2html.sh
