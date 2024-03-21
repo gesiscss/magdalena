@@ -9,21 +9,14 @@ app = Flask(__name__)
 
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
-        app.logger.warn("MAGDALENA_SHARED_DIR is not defined! Using default.")
+        app.logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
         os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
     shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
     app.logger.info("Shared directory is %s", shared_root_dir)
-    for dir_name in ("docker-scripts", "pandoc-filters"):
-        app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
-        shutil.copytree(
-            os.path.join("magdalena", dir_name),
-            os.path.join(shared_root_dir, dir_name),
-            dirs_exist_ok=True,
-        )
 
 
 @app.get("/")
-def hello_world():
+def index():
     return render_template("index.html")
 
 
@@ -71,18 +64,24 @@ def build():
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")
         if len(request.json["target_format"]) == 1:
-            return send_file(
-                methods_hub_content.rendered_file(request.json["target_format"][0]),
-                mimetype="text/plain",
-                as_attachment=True,
+            return (
+                send_file(
+                    methods_hub_content.rendered_file(request.json["target_format"][0]),
+                    mimetype="text/plain",
+                    as_attachment=True,
+                ),
+                201,
             )
         else:
             assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
-            return send_file(
-                methods_hub_content.zip_file_path,
-                mimetype="application/zip",
-                as_attachment=True,
+            return (
+                send_file(
+                    methods_hub_content.zip_file_path,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                ),
+                201,
             )
 
     if request.json["response"] == "forward":
@@ -95,4 +94,4 @@ def build():
         else:
             methods_hub_content.push_all_rendered_formats()
 
-        return {"status": "OK"}
+        return {"status": "OK"}, 201

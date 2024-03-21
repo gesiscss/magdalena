@@ -21,7 +21,7 @@ from gql.transport.requests import RequestsHTTPTransport
 logger = logging.getLogger("magdalena.app")
 
 if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
-    logger.warn("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
+    logger.warning("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
     os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
 
 GRAPHQL_TRANSPORT = RequestsHTTPTransport(
@@ -42,7 +42,14 @@ def extract_content_from_html(raw_html):
     selector = CSSSelector("main")
     selection = selector(html)
 
-    assert len(selection) > 0, "HTML document does NOT have <main>!"
+    if len(selection) > 0:
+        logger.info("<main> was not found. Using <body> instead.")
+        selector = CSSSelector("body")
+        selection = selector(html)
+
+    assert (
+        len(selection) > 0
+    ), "Selection from HTML document is empty. HTML document does NOT have <main> or <body>!"
 
     selection = selection[0]
     selection.tag = "div"
@@ -54,26 +61,22 @@ class MethodsHubContent:
     RENDER_MATRIX = {
         "md": {
             "html": "md2html.sh",
-            "qmd": "md2qmd.sh",
             "ipynb": "md2ipynb.sh",
         },
         "qmd": {
             "html": "qmd2html.sh",
-            "qmd": "qmd2qmd.sh",
             "ipynb": "qmd2ipynb.sh",
         },
         "Rmd": {
             "html": "Rmd2html.sh",
-            "qmd": "Rmd2qmd.sh",
             "ipynb": "Rmd2ipynb.sh",
         },
         "ipynb": {
             "html": "ipynb2html.sh",
-            "qmd": "ipynb2qmd.sh",
             "ipynb": "ipynb2ipynb.sh",
         },
         "docx": {
-            "md": "docx2md.sh",
+            "html": "docx2html.sh",
         },
     }
 
@@ -135,8 +138,12 @@ class MethodsHubContent:
         ), "Target format not supported!"
 
         script = self.RENDER_MATRIX[self.filename_extension][target_format]
-        docker_scripts_location = os.path.join(self.docker_shared_dir, "docker-scripts")
-        pandoc_filters_location = os.path.join(self.docker_shared_dir, "pandoc-filters")
+        docker_scripts_location = os.path.join(
+            os.path.dirname(__file__), "docker-scripts"
+        )
+        pandoc_filters_location = os.path.join(
+            os.path.dirname(__file__), "pandoc-filters"
+        )
         output_location_in_container = self.docker_shared_dir
 
         logger.info("Location of docker_scripts directory: %s", docker_scripts_location)
@@ -201,7 +208,7 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         for targe_format in self.RENDER_MATRIX[self.filename_extension]:
-            self.render_format(targe_format)
+            self._render_format(targe_format)
 
     def render_formats(self, formats):
         assert (
@@ -272,7 +279,7 @@ class MethodsHubContent:
         }
 
         result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
-        print(result)
+        logger.info("GraphQL call resulted in %s", result)
 
     def push_all_rendered_formats(self):
         assert (
@@ -333,7 +340,9 @@ class MethodsHubHTTPContent(MethodsHubContent):
         self.filename = filename
         self.environment_for_container["file2render"] = self.filename
 
-        self.tmp_path = f"_{self.domain}/{uuid.uuid4()}"
+        self.tmp_path = os.path.join(
+            os.getenv("MAGDALENA_TMP", "/tmp"), self.domain, uuid.uuid4().hex
+        )
 
         self.filename_extension = self.filename.split(".")[-1]
         assert (
@@ -402,7 +411,12 @@ class MethodsHubGitContent(MethodsHubContent):
         self.user_name = regex_match.group(2)
         self.repository_name = regex_match.group(3)
 
-        self.tmp_path = f"_{self.domain}/{self.user_name}/{self.repository_name}"
+        self.tmp_path = os.path.join(
+            os.getenv("MAGDALENA_TMP", "/tmp"),
+            self.domain,
+            self.user_name,
+            self.repository_name,
+        )
 
         self.filename_extension = self.filename.split(".")[-1]
         assert (
