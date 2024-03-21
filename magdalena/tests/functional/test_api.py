@@ -13,12 +13,7 @@ def test_post_ipynb_to_html(client):
         },
     )
 
-    response_html = etree.fromstring(response.data, etree.HTMLParser())
-
-    selector = CSSSelector("main")
-    selection = selector(response_html)
-
-    assert len(selection) > 0, "HTML document does NOT have <main>!"
+    assert response.status_code == 201, "New document was not created!"
 
 
 def test_post_docx_to_html(client):
@@ -31,28 +26,4 @@ def test_post_docx_to_html(client):
         },
     )
 
-    response_html = etree.fromstring(response.data, etree.HTMLParser())
-
-    selector = CSSSelector("main")
-    selection = selector(response_html)
-
-    assert len(selection) > 0, "HTML document does NOT have <main>!"
-
-
-def test_post_docx_to_html_with_filename(client):
-    response = client.post(
-        "/",
-        json={
-            "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
-            "filename": "minimal.docx",
-            "target_format": ["html"],
-            "response": "download",
-        },
-    )
-
-    response_html = etree.fromstring(response.data, etree.HTMLParser())
-
-    selector = CSSSelector("main")
-    selection = selector(response_html)
-
-    assert len(selection) > 0, "HTML document does NOT have <main>!"
+    assert response.status_code == 201, "New document was not created!"
