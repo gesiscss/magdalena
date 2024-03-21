@@ -154,7 +154,7 @@ class TestMethodsHubHTTPContent:
             os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)
         ), "Local copy of file not created."
 
-    def test_render_format_docx_to_md(self, monkeypatch):
+    def test_render_format_docx_to_html(self, monkeypatch):
         with monkeypatch.context() as mock:
             mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
             mock.setattr(uuid, "uuid4", mock_uuid4)
@@ -165,7 +165,7 @@ class TestMethodsHubHTTPContent:
             methods_hub_content.clone_or_pull()
 
         methods_hub_content.create_container()
-        methods_hub_content._render_format("md")
+        methods_hub_content._render_format("html")
 
 
 class TestMethodsHubGitContent:
@@ -174,10 +174,23 @@ class TestMethodsHubGitContent:
             assert methodshub.MethodsHubGitContent(None, filename="lorem-ipsum.md")
 
     def test_init_without_filename(self):
-        with pytest.raises(AssertionError):
-            assert methodshub.MethodsHubGitContent(
-                "http://lorem.ipsum/123/456", filename=None
-            )
+        methods_hub_content = methodshub.MethodsHubGitContent(
+            "https://github.com/lorem/ipsum", filename=None
+        )
+        assert methods_hub_content.source_url == "https://github.com/lorem/ipsum.git"
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/lorem/ipsum"
+        )
+        assert methods_hub_content.filename == "README.md"
+        assert methods_hub_content.domain == "github.com"
+        assert methods_hub_content.user_name == "lorem"
+        assert methods_hub_content.repository_name == "ipsum"
+        assert methods_hub_content.tmp_path == "/tmp/github.com/lorem/ipsum"
+        assert methods_hub_content.filename_extension == "md"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
 
     def test_init_with_empty_url(self):
         with pytest.raises(AssertionError):
@@ -186,7 +199,7 @@ class TestMethodsHubGitContent:
     def test_init_with_empty_filename(self):
         with pytest.raises(AssertionError):
             assert methodshub.MethodsHubGitContent(
-                "http://lorem.ipsum/123/456", filename=""
+                "https://github.com/lorem/ipsum", filename=""
             )
 
     def test_init_with_invalid_url(self):
