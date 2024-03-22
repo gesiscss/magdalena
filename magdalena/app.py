@@ -9,6 +9,9 @@ from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
 app = Flask(__name__)
 
+app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_DECODE_ISSUER", None)
+app.config["JWT_PUBLIC_KEY"] = os.getenv("JWT_PUBLIC_KEY", None)
+
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
         app.logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
