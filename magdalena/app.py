@@ -3,6 +3,8 @@ import shutil
 
 from flask import Flask, request, render_template, send_file
 
+from flask_jwt_extended import jwt_required
+
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
 app = Flask(__name__)
