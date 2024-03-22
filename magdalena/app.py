@@ -23,6 +23,7 @@ def index():
 
 
 @app.post("/")
+@jwt_required()
 def build():
     app.logger.info("Form content is %s", request.json)
 
