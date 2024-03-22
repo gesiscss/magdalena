@@ -15,6 +15,7 @@ gql = {extras = ["requests"], version = "^3.5.0"}
 lxml = "^5.1.0"
 cssselect = "^1.2.0"
 pyjwt = "^2.8.0"
+flask-jwt-extended = "^4.6.0"
 
 [tool.poetry.group.dev]
 optional = true
