@@ -9,6 +9,7 @@ from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
 app = Flask(__name__)
 
+app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_TOKEN_LOCATION", "headers")
 app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_DECODE_ISSUER", None)
 app.config["JWT_PUBLIC_KEY"] = os.getenv("JWT_PUBLIC_KEY", None)
 
