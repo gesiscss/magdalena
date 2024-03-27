@@ -1,17 +1,21 @@
 import os
 import shutil
 
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, send_from_directory
 
 from flask_jwt_extended import jwt_required
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
+from .pem import create_public_key
+
+public_key_path = create_public_key()
+
 app = Flask(__name__)
 
 app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_TOKEN_LOCATION", "headers")
 app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_DECODE_ISSUER", None)
-app.config["JWT_PUBLIC_KEY"] = os.getenv("JWT_PUBLIC_KEY", None)
+app.config["JWT_PUBLIC_KEY"] = os.getenv("JWT_PUBLIC_KEY", public_key_path)
 
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
@@ -20,6 +24,9 @@ with app.app_context():
     shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
     app.logger.info("Shared directory is %s", shared_root_dir)
 
+@app.route('/keycloak.min.js')
+def send_keycloak_adapter():
+    return send_from_directory('/var/keycloak', 'keycloak.min.js')
 
 @app.get("/")
 def index():
