@@ -35,11 +35,6 @@ services:
       # Flask
       LOG_LEVEL: debug
 
-      # JWT
-      JWT_TOKEN_LOCATION: headers
-      JWT_DECODE_ISSUER: ''
-      JWT_PUBLIC_KEY: ''
-
       # Keycloak
       KEYCLOAK_SCHEME: http
       KEYCLOAK_DOMAIN: keycloak:8080
