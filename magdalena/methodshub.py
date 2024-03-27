@@ -173,7 +173,7 @@ class MethodsHubContent:
             self.output_location: {"bind": output_location_in_container, "mode": "rw"},
         }
         logger.info(
-            "Volumes the sibling container: %s",
+            "Volumes in the sibling container: %s",
             volumes,
         )
 
@@ -182,7 +182,7 @@ class MethodsHubContent:
             f"{self.home_dir_at_docker}/_docker-scripts"
         )
         logger.info(
-            "Environment variables the sibling container: %s",
+            "Environment variables in the sibling container: %s",
             self.environment_for_container,
         )
 
