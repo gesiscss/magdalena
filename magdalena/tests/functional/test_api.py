@@ -134,7 +134,7 @@ def test_post_ipynb_to_html(client):
     response = client.post(
         "/",
         headers={
-            'Authorization': f"Bearer ${generate_jwt()}",
+            'Authorization': f"Bearer {generate_jwt()}",
         },
         json={
             "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
@@ -151,7 +151,7 @@ def test_post_docx_to_html(client):
     response = client.post(
         "/",
         headers={
-            'Authorization': f"Bearer ${generate_jwt()}",
+            'Authorization': f"Bearer {generate_jwt()}",
         },
         json={
             "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
