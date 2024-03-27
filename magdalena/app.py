@@ -3,19 +3,17 @@ import shutil
 
 from flask import Flask, request, render_template, send_file, send_from_directory
 
-from flask_jwt_extended import jwt_required
+import jwt
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
-from .pem import create_public_key
+from .pem import retrieve_public_key, KEYCLOAK_ISSUER
 
-public_key_path = create_public_key()
+JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
+
+PUBLIC_KEY = retrieve_public_key()
 
 app = Flask(__name__)
-
-app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_TOKEN_LOCATION", "headers")
-app.config["JWT_DECODE_ISSUER"] = os.getenv("JWT_DECODE_ISSUER", None)
-app.config["JWT_PUBLIC_KEY"] = os.getenv("JWT_PUBLIC_KEY", public_key_path)
 
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
@@ -32,10 +30,16 @@ def send_keycloak_adapter():
 def index():
     return render_template("index.html")
 
-
 @app.post("/")
-@jwt_required()
 def build():
+    authorization = request.headers.get('Authorization')
+    assert authorization, "Authorization is missing in header"
+
+    authorization_scheme, authorization_token = authorization.split()
+    assert authorization_scheme == "Bearer", "Authorization is missing in header"
+
+    jwt.decode(authorization_token, key=PUBLIC_KEY, algorithms=["RS256"], options={"verify_aud": False}, issuer=JWT_ISSUER)
+
     app.logger.info("Form content is %s", request.json)
 
     assert "source_url" in request.json, "Field source_url missing in form"
