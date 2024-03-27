@@ -14,7 +14,7 @@ jupyter-repo2docker = "^2023.6.0"
 gql = {extras = ["requests"], version = "^3.5.0"}
 lxml = "^5.1.0"
 cssselect = "^1.2.0"
-pyjwt = "^2.8.0"
+pyjwt = {extras = ["crypto"], version = "^2.8.0"}
 
 [tool.poetry.group.dev]
 optional = true
