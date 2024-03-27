@@ -197,7 +197,7 @@ class MethodsHubContent:
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs())
+        logger.info(container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Fail to render content"
