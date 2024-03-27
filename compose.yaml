@@ -26,6 +26,8 @@ services:
       - "8080:8080"
 
   magdalena:
+    depends_on:
+      - keycloak
     build:
       context: .
       target: dev
@@ -37,6 +39,11 @@ services:
       JWT_TOKEN_LOCATION: headers
       JWT_DECODE_ISSUER: ''
       JWT_PUBLIC_KEY: ''
+
+      # Keycloak
+      KEYCLOAK_SCHEME: http
+      KEYCLOAK_DOMAIN: keycloak:8080
+      KEYCLOAK_REALM: Gesis
 
       # magdalena
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
@@ -57,5 +64,20 @@ services:
     expose:
       - "5000"
     ports:
-      - "5000:5000"
+      - "4200:5000"
     command: flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
+
+  keycloak:
+    extends:
+      file: keycloak/compose.yaml
+      service: keycloak
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    extends:
+      file: keycloak/compose.yaml
+      service: keycloak-db
+
+volumes:
+  keycloak-data:
