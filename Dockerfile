@@ -42,6 +42,17 @@ RUN python3 -m pip install poetry \
     --no-ansi \
     && pip cache purge
 
+RUN curl \
+    -L \
+    -o /tmp/keycloak-js-24.0.2.tgz \
+    "https://github.com/keycloak/keycloak/releases/download/24.0.2/keycloak-js-24.0.2.tgz" \
+    && mkdir -p /var/keycloak \
+    && tar \
+    -zxvf /tmp/keycloak-js-24.0.2.tgz \
+    -C /var/keycloak package/dist/keycloak.min.js \
+    --strip-components 2 \
+    && rm /tmp/keycloak-js-24.0.2.tgz
+
 CMD flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
 
 EXPOSE 5000
