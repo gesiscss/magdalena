@@ -126,9 +126,7 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
         "email": "methods@hub.localhost"
     }
 
-    t = jwt.encode(payload, private_key, algorithm="RS256")
-    print(t)
-    return t 
+    return jwt.encode(payload, private_key, algorithm="RS256")
 
 def test_post_ipynb_to_html(client):
     response = client.post(
