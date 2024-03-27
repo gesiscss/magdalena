@@ -10,10 +10,12 @@ KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", None)
 assert KEYCLOAK_DOMAIN is not None, "KEYCLOAK_DOMAIN can't be None"
 assert KEYCLOAK_REALM is not None, "KEYCLOAK_REALM can't be None"
 
+KEYCLOAK_ISSUER = f"{KEYCLOAK_SCHEME}://{KEYCLOAK_DOMAIN}/realms/{KEYCLOAK_REALM}"
+
 def create_public_key():
     public_key_path = os.path.join(os.path.dirname(__file__), "public.key")
 
-    request = requests.get(f"{KEYCLOAK_SCHEME}://{KEYCLOAK_DOMAIN}/realms/{KEYCLOAK_REALM}")
+    request = requests.get(KEYCLOAK_ISSUER)
 
     assert request.status_code == 200, "Keycloak answer must be 200"
 
