@@ -35,6 +35,9 @@ services:
       # Flask
       LOG_LEVEL: debug
 
+      # JWT
+      JWT_ISSUER: http://localhost:8080/realms/Gesis
+
       # Keycloak
       KEYCLOAK_SCHEME: http
       KEYCLOAK_DOMAIN: keycloak:8080
