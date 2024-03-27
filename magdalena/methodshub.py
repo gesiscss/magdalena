@@ -139,10 +139,10 @@ class MethodsHubContent:
 
         script = self.RENDER_MATRIX[self.filename_extension][target_format]
         docker_scripts_location = os.path.join(
-            os.path.dirname(__file__), "docker-scripts"
+            self.docker_shared_dir, "docker-scripts"
         )
         pandoc_filters_location = os.path.join(
-            os.path.dirname(__file__), "pandoc-filters"
+            self.docker_shared_dir, "pandoc-filters"
         )
         output_location_in_container = self.docker_shared_dir
 
