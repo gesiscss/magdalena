@@ -1,9 +1,17 @@
 import os
 import shutil
 
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, send_from_directory
+
+import jwt
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
+
+from .pem import retrieve_public_key, KEYCLOAK_ISSUER
+
+JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
+
+PUBLIC_KEY = retrieve_public_key()
 
 app = Flask(__name__)
 
@@ -14,14 +22,34 @@ with app.app_context():
     shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
     app.logger.info("Shared directory is %s", shared_root_dir)
 
+    # Need to copy files to be able to share
+    # because of Docker outside of Docker
+    for dir_name in ("docker-scripts", "pandoc-filters"):
+        app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
+        shutil.copytree(
+            os.path.join("magdalena", dir_name),
+            os.path.join(shared_root_dir, dir_name),
+            dirs_exist_ok=True,
+        )
+
+@app.route('/keycloak.min.js')
+def send_keycloak_adapter():
+    return send_from_directory('/var/keycloak', 'keycloak.min.js')
 
 @app.get("/")
 def index():
     return render_template("index.html")
 
-
 @app.post("/")
 def build():
+    authorization = request.headers.get('Authorization')
+    assert authorization, "Authorization is missing in header"
+
+    authorization_scheme, authorization_token = authorization.split()
+    assert authorization_scheme == "Bearer", "Authorization is missing in header"
+
+    jwt.decode(authorization_token, key=PUBLIC_KEY, algorithms=["RS256"], options={"verify_aud": False}, issuer=JWT_ISSUER)
+
     app.logger.info("Form content is %s", request.json)
 
     assert "source_url" in request.json, "Field source_url missing in form"

@@ -139,10 +139,10 @@ class MethodsHubContent:
 
         script = self.RENDER_MATRIX[self.filename_extension][target_format]
         docker_scripts_location = os.path.join(
-            os.path.dirname(__file__), "docker-scripts"
+            self.docker_shared_dir, "docker-scripts"
         )
         pandoc_filters_location = os.path.join(
-            os.path.dirname(__file__), "pandoc-filters"
+            self.docker_shared_dir, "pandoc-filters"
         )
         output_location_in_container = self.docker_shared_dir
 
@@ -173,7 +173,7 @@ class MethodsHubContent:
             self.output_location: {"bind": output_location_in_container, "mode": "rw"},
         }
         logger.info(
-            "Volumes the sibling container: %s",
+            "Volumes in the sibling container: %s",
             volumes,
         )
 
@@ -182,7 +182,7 @@ class MethodsHubContent:
             f"{self.home_dir_at_docker}/_docker-scripts"
         )
         logger.info(
-            "Environment variables the sibling container: %s",
+            "Environment variables in the sibling container: %s",
             self.environment_for_container,
         )
 
@@ -197,7 +197,7 @@ class MethodsHubContent:
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs())
+        logger.info(container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Fail to render content"

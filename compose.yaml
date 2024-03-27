@@ -26,14 +26,27 @@ services:
       - "8080:8080"
 
   magdalena:
+    depends_on:
+      - keycloak
     build:
       context: .
       target: dev
     environment:
+      # Flask
+      LOG_LEVEL: debug
+
+      # JWT
+      JWT_ISSUER: http://localhost:8080/realms/Gesis
+
+      # Keycloak
+      KEYCLOAK_SCHEME: http
+      KEYCLOAK_DOMAIN: keycloak:8080
+      KEYCLOAK_REALM: Gesis
+
+      # magdalena
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
       MAGDALENA_GRAPHQL_TARGET_URL: http://localhost/graphql
       MAGDALENA_GRAPHQL_TARGET_TOKEN: 123456
-      LOG_LEVEL: debug
     volumes:
       - type: bind
         source: .
@@ -49,5 +62,20 @@ services:
     expose:
       - "5000"
     ports:
-      - "5000:5000"
+      - "4200:5000"
     command: flask run --host 0.0.0.0 --port 5000 --reload --debug --debugger
+
+  keycloak:
+    extends:
+      file: keycloak/compose.yaml
+      service: keycloak
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    extends:
+      file: keycloak/compose.yaml
+      service: keycloak-db
+
+volumes:
+  keycloak-data:
