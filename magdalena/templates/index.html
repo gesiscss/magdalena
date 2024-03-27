@@ -2,6 +2,32 @@
 <html>
     <head>
         <title>magdalena</title>
+
+        <script src='./keycloak.min.js'></script>
+        <script>
+const keycloak = new Keycloak({
+    url: 'http://localhost:8080',
+    realm: 'Gesis',
+    clientId: 'gesis-methodshub-ember-client'
+});
+
+async function main() {
+    try {
+    const authenticated = await keycloak.init({
+        onLoad: 'login-required'
+    });
+    console.log(`User is ${authenticated ? 'authenticated' : 'not authenticated'}`);
+
+    if (keycloak.authenticated) {
+        console.log(keycloak.token);
+    }
+} catch (error) {
+    console.error('Failed to initialize adapter:', error);
+}
+};
+
+main();
+        </script>
     </head>
     <body>
         <h1>magdalena</h1>
@@ -50,7 +76,8 @@
             fetch('/', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${keycloak.token}`,
                 },
                 body: JSON.stringify(form_json)
             }).then(
