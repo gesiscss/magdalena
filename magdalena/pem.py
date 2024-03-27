@@ -3,7 +3,7 @@ import os.path
 
 import requests
 
-KEYCLOAK_SCHEME = os.getenv("KEYCLOAK_SCHME", "https")
+KEYCLOAK_SCHEME = os.getenv("KEYCLOAK_SCHEME", "https")
 KEYCLOAK_DOMAIN = os.getenv("KEYCLOAK_DOMAIN", None)
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", None)
 
