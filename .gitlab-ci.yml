@@ -142,7 +142,7 @@ Run test:
     MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
   script:
     - poetry install --with dev
-    - poetry run pytest .
+    - poetry run pytest --verbose --showlocals .
 
 .Deploy new version downstream:
   trigger:
