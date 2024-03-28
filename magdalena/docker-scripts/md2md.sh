@@ -6,6 +6,8 @@
 #
 # md2md.sh
 
+set -o errexit
+
 dirname2render=$(dirname ${file2render})
 basename2render=$(basename ${file2render})
 

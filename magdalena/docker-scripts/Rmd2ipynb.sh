@@ -6,6 +6,8 @@
 #
 # Rmd2md.sh
 
+set -o errexit
+
 Rmd_file=$file2render
 file2render=${Rmd_file/Rmd/qmd}
 
