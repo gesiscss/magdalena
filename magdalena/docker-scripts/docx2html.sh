@@ -6,6 +6,8 @@
 #
 # docx2md.sh
 
+set -o errexit
+
 if test -f "/opt/quarto/bin/tools/pandoc"
 then
     export PANDOC=/opt/quarto/bin/tools/pandoc

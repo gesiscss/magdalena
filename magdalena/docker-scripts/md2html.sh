@@ -6,6 +6,8 @@
 #
 # md2html.sh
 
+set -o errexit
+
 md2render=${file2render}
 qmd2render=${file2render/.md/.qmd}
 

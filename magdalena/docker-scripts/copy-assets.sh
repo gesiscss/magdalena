@@ -5,6 +5,8 @@
 # Syntax:
 # copy-assets.sh output_dirname
 
+set -o errexit
+
 output_dirname=$1
 
 find . \
