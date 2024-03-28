@@ -39,9 +39,11 @@ with app.app_context():
             dirs_exist_ok=True,
         )
 
-@app.route('/keycloak.min.js')
+
+@app.route("/keycloak.min.js")
 def send_keycloak_adapter():
-    return send_from_directory('/var/keycloak', 'keycloak.min.js')
+    return send_from_directory("/var/keycloak", "keycloak.min.js")
+
 
 @app.get("/")
 def index():
@@ -56,13 +58,19 @@ def index():
 
 @app.post("/")
 def build():
-    authorization = request.headers.get('Authorization')
+    authorization = request.headers.get("Authorization")
     assert authorization, "Authorization is missing in header"
 
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    jwt.decode(authorization_token, key=PUBLIC_KEY, algorithms=["RS256"], options={"verify_aud": False}, issuer=JWT_ISSUER)
+    jwt.decode(
+        authorization_token,
+        key=PUBLIC_KEY,
+        algorithms=["RS256"],
+        options={"verify_aud": False},
+        issuer=JWT_ISSUER,
+    )
 
     app.logger.info("Form content is %s", request.json)
 

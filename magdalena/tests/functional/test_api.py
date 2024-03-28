@@ -72,49 +72,39 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
         "auth_time": int(time.mktime(authentication_time.timetuple())),
         "jti": "995ad816-d8e6-4c5d-9dfc-64ad71b77342",
         "iss": os.getenv("JWT_ISSUER"),
-        "aud": [
-            "realm-management",
-            "account"
-        ],
+        "aud": ["realm-management", "account"],
         "sub": "12345678-abcd-abcd-abcd-123456789012",
         "typ": "Bearer",
         "azp": "gesis-methodshub-ember-client",
         "nonce": "9dd3ed6f-35a2-419a-a547-32052225fc43",
         "session_state": "0b4b7e0c-0329-4050-9bf0-50d966a0b872",
         "acr": "1",
-        "allowed-origins": [
-            "http://localhost:4200"
-        ],
+        "allowed-origins": ["http://localhost:4200"],
         "resource_access": {
             "realm-management": {
-            "roles": [
-                "view-realm",
-                "view-identity-providers",
-                "manage-identity-providers",
-                "impersonation",
-                "realm-admin",
-                "create-client",
-                "manage-users",
-                "query-realms",
-                "view-authorization",
-                "query-clients",
-                "query-users",
-                "manage-events",
-                "manage-realm",
-                "view-events",
-                "view-users",
-                "view-clients",
-                "manage-authorization",
-                "manage-clients",
-                "query-groups"
-            ]
+                "roles": [
+                    "view-realm",
+                    "view-identity-providers",
+                    "manage-identity-providers",
+                    "impersonation",
+                    "realm-admin",
+                    "create-client",
+                    "manage-users",
+                    "query-realms",
+                    "view-authorization",
+                    "query-clients",
+                    "query-users",
+                    "manage-events",
+                    "manage-realm",
+                    "view-events",
+                    "view-users",
+                    "view-clients",
+                    "manage-authorization",
+                    "manage-clients",
+                    "query-groups",
+                ]
             },
-            "account": {
-            "roles": [
-                "manage-account",
-                "manage-account-links"
-            ]
-            }
+            "account": {"roles": ["manage-account", "manage-account-links"]},
         },
         "scope": "openid profile email",
         "sid": "0b4b7e0c-0329-4050-9bf0-50d966a0b872",
@@ -123,16 +113,17 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
         "preferred_username": "methodshub",
         "given_name": "Methods",
         "family_name": "Hub",
-        "email": "methods@hub.localhost"
+        "email": "methods@hub.localhost",
     }
 
     return jwt.encode(payload, private_key, algorithm="RS256")
+
 
 def test_post_ipynb_to_html(client):
     response = client.post(
         "/",
         headers={
-            'Authorization': f"Bearer {generate_jwt()}",
+            "Authorization": f"Bearer {generate_jwt()}",
         },
         json={
             "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
@@ -149,7 +140,7 @@ def test_post_docx_to_html(client):
     response = client.post(
         "/",
         headers={
-            'Authorization': f"Bearer {generate_jwt()}",
+            "Authorization": f"Bearer {generate_jwt()}",
         },
         json={
             "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
