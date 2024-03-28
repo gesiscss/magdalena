@@ -3,12 +3,12 @@
     <head>
         <title>magdalena</title>
 
-        <script src='./keycloak.min.js'></script>
+        <script src='keycloak.min.js'></script>
         <script>
 const keycloak = new Keycloak({
-    url: 'http://localhost:8080',
-    realm: 'Gesis',
-    clientId: 'gesis-methodshub-ember-client'
+    url: '{{keycloak_scheme}}://{{keycloak_domain}}',
+    realm: '{{keycloak_realm}}',
+    clientId: '{{keycloak_client}}'
 });
 
 async function main() {

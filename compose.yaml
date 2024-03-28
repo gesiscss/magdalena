@@ -42,6 +42,7 @@ services:
       KEYCLOAK_SCHEME: http
       KEYCLOAK_DOMAIN: keycloak:8080
       KEYCLOAK_REALM: Gesis
+      KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
       # magdalena
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume

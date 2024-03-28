@@ -7,7 +7,14 @@ import jwt
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
-from .pem import retrieve_public_key, KEYCLOAK_ISSUER
+from .pem import (
+    retrieve_public_key,
+    KEYCLOAK_ISSUER,
+    KEYCLOAK_SCHEME,
+    KEYCLOAK_DOMAIN,
+    KEYCLOAK_REALM,
+    KEYCLOAK_CLIENT,
+)
 
 JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
 
@@ -32,23 +39,38 @@ with app.app_context():
             dirs_exist_ok=True,
         )
 
-@app.route('/keycloak.min.js')
+
+@app.route("/keycloak.min.js")
 def send_keycloak_adapter():
-    return send_from_directory('/var/keycloak', 'keycloak.min.js')
+    return send_from_directory("/var/keycloak", "keycloak.min.js")
+
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        keycloak_scheme=KEYCLOAK_SCHEME,
+        keycloak_domain=KEYCLOAK_DOMAIN,
+        keycloak_realm=KEYCLOAK_REALM,
+        keycloak_client=KEYCLOAK_CLIENT,
+    )
+
 
 @app.post("/")
 def build():
-    authorization = request.headers.get('Authorization')
+    authorization = request.headers.get("Authorization")
     assert authorization, "Authorization is missing in header"
 
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    jwt.decode(authorization_token, key=PUBLIC_KEY, algorithms=["RS256"], options={"verify_aud": False}, issuer=JWT_ISSUER)
+    jwt.decode(
+        authorization_token,
+        key=PUBLIC_KEY,
+        algorithms=["RS256"],
+        options={"verify_aud": False},
+        issuer=JWT_ISSUER,
+    )
 
     app.logger.info("Form content is %s", request.json)
 

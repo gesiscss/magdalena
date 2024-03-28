@@ -37,6 +37,7 @@ def pytest_configure(config):
     MAGDALENA_TMP = os.getenv("MAGDALENA_TMP", None)
     os.environ["MAGDALENA_TMP"] = tmp_dir_path
 
+
 def pytest_unconfigure(config):
     if MAGDALENA_SHARED_DIR is None:
         os.unsetenv("MAGDALENA_SHARED_DIR")
@@ -58,7 +59,10 @@ def pytest_unconfigure(config):
 def app():
     with MonkeyPatch.context() as mp:
         mp.setattr(pem, "KEYCLOAK_ISSUER", lambda: "http://localhost/realms/pytest")
-        mp.setattr(pem, "retrieve_public_key", lambda: """-----BEGIN PUBLIC KEY-----
+        mp.setattr(
+            pem,
+            "retrieve_public_key",
+            lambda: """-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAwN85IuBtAfXIcstWVBtr
 X64AD2BdKJVDnR7uJSt+E49p8Acr4zt9rbpHpz+rQgXJGnYXZ/zOfUBmW44ZIHWl
 2sDnfHHaNcmC1zk1Z7iwxd0tIvFDY3C0qoQ4l8FhbDnxIxU2rp2oLLc5ws3hrbQA
@@ -71,7 +75,8 @@ bnIQvXAef0BSKhM1s1nRgmxw7osy1HKKYREy+TZqbIfv8EkV/yeJQZPCVDVDGYs1
 AVA7+7wLkAmQDJw6P4MnKRnmAVwosemlr5v/PgNcxsQku8eoDnOKJBbr0r7pivKc
 WPymBa1m5W/tVCwnpfukgutV2w8OqqO2e6yPFlnMANvk+b8CKsZ305bd0xwvi8+3
 lZHFhEiyaYv9p7cHNWykBvMCAwEAAQ==
------END PUBLIC KEY-----""")
+-----END PUBLIC KEY-----""",
+        )
 
         from .. import app as magdalena
 
