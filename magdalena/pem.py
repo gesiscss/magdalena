@@ -6,11 +6,13 @@ import requests
 KEYCLOAK_SCHEME = os.getenv("KEYCLOAK_SCHEME", "https")
 KEYCLOAK_DOMAIN = os.getenv("KEYCLOAK_DOMAIN", None)
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", None)
+KEYCLOAK_CLIENT = os.getenv("KEYCLOAK_CLIENT", None)
 
 assert KEYCLOAK_DOMAIN is not None, "KEYCLOAK_DOMAIN can't be None"
 assert KEYCLOAK_REALM is not None, "KEYCLOAK_REALM can't be None"
 
 KEYCLOAK_ISSUER = f"{KEYCLOAK_SCHEME}://{KEYCLOAK_DOMAIN}/realms/{KEYCLOAK_REALM}"
+
 
 def retrieve_public_key():
     request = requests.get(KEYCLOAK_ISSUER)
@@ -19,7 +21,7 @@ def retrieve_public_key():
 
     request_as_json = request.json()
 
-    public_key = request_as_json['public_key']
+    public_key = request_as_json["public_key"]
 
     # Documented at https://www.rfc-editor.org/rfc/rfc7468
     pem_public_key = "-----BEGIN RSA PUBLIC KEY-----\n"
