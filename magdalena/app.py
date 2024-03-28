@@ -7,7 +7,14 @@ import jwt
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
-from .pem import retrieve_public_key, KEYCLOAK_ISSUER
+from .pem import (
+    retrieve_public_key,
+    KEYCLOAK_ISSUER,
+    KEYCLOAK_SCHEME,
+    KEYCLOAK_DOMAIN,
+    KEYCLOAK_REALM,
+    KEYCLOAK_CLIENT,
+)
 
 JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
 
@@ -38,7 +45,14 @@ def send_keycloak_adapter():
 
 @app.get("/")
 def index():
-    return render_template("index.html")
+    return render_template(
+        "index.html",
+        keycloak_scheme=KEYCLOAK_SCHEME,
+        keycloak_domain=KEYCLOAK_DOMAIN,
+        keycloak_realm=KEYCLOAK_REALM,
+        keycloak_client=KEYCLOAK_CLIENT,
+    )
+
 
 @app.post("/")
 def build():
