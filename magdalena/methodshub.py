@@ -93,7 +93,7 @@ class MethodsHubContent:
         self.docker_repository = None
         self.docker_image_name = None
         self.docker_user_name = "magdalena"
-        self.docker_user_id = 1000  # This is the first user in Ubuntu
+        self.docker_user_id = os.getuid()  # This MUST be the host_user_id
 
         self.environment_for_container = {}
 
