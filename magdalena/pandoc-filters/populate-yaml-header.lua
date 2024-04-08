@@ -1,3 +1,8 @@
+-- SPDX-FileCopyrightText: 2023 - 2024 GESIS - Leibniz-Institut für Sozialwissenschaften
+-- SPDX-FileContributor: Raniere Gaia Costa da Silva <Raniere.CostadaSilva@gesis.org>
+--
+-- SPDX-License-Identifier: AGPL-3.0-or-later
+
 -- Transfer some textual information to YAML metadata
 issue_number = nil
 title = nil

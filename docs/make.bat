@@ -1,3 +1,8 @@
+REM SPDX-FileCopyrightText: 2023 - 2024 GESIS - Leibniz-Institut für Sozialwissenschaften
+REM SPDX-FileContributor: Raniere Gaia Costa da Silva <Raniere.CostadaSilva@gesis.org>
+REM
+REM SPDX-License-Identifier: AGPL-3.0-or-later
+
 @ECHO OFF
 
 pushd %~dp0
