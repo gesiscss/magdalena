@@ -1,3 +1,8 @@
+.. SPDX-FileCopyrightText: 2023 - 2024 GESIS - Leibniz-Institut für Sozialwissenschaften
+.. SPDX-FileContributor: Raniere Gaia Costa da Silva <Raniere.CostadaSilva@gesis.org>
+..
+.. SPDX-License-Identifier: AGPL-3.0-or-later
+
 .. magadalena documentation master file, created by
    sphinx-quickstart on Fri Mar 15 12:18:33 2024.
    You can adapt this file completely to your liking, but it should at least
