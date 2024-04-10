@@ -9,11 +9,13 @@ Read more about conftest.py at https://docs.pytest.org/en/7.1.x/reference/fixtur
 
 import os
 import os.path
+import shutil
 import uuid
 
 import pytest
 from pytest import MonkeyPatch
 
+os.environ["MYBINDER_URL"] = "https://notebooks.gesis.org/binder"
 os.environ["KEYCLOAK_SCHEME"] = "http"
 os.environ["KEYCLOAK_DOMAIN"] = "localhost"
 os.environ["KEYCLOAK_REALM"] = "pytest"
@@ -41,6 +43,18 @@ def pytest_configure(config):
     os.makedirs(tmp_dir_path, exist_ok=True)
     MAGDALENA_TMP = os.getenv("MAGDALENA_TMP", None)
     os.environ["MAGDALENA_TMP"] = tmp_dir_path
+
+    # Need to copy files to be able to share
+    for dir_name in ("docker-scripts", "pandoc-filters"):
+        shutil.copytree(
+            os.path.join("magdalena", dir_name),
+            os.path.join(shared_dir_path, dir_name),
+            dirs_exist_ok=True,
+        )
+
+    # Need to set correct permission to files
+    for _file in os.walk(shared_dir_path):
+        os.chmod(_file[0], 0o777)
 
 
 def pytest_unconfigure(config):

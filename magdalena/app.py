@@ -44,6 +44,10 @@ with app.app_context():
             dirs_exist_ok=True,
         )
 
+    # Need to set correct permission to files
+    for _file in os.walk(shared_root_dir):
+        os.chmod(_file[0], 0o777)
+
 
 @app.route("/keycloak.min.js")
 def send_keycloak_adapter():

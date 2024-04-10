@@ -23,6 +23,8 @@ import repo2docker
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
+from . import mybinder
+
 logger = logging.getLogger("magdalena.app")
 
 if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
@@ -455,22 +457,26 @@ class MethodsHubGitContent(MethodsHubContent):
         self.git_commit_id = git_get_id_subprocess.stdout.decode().strip()
 
     def create_container(self):
-        self.docker_repository = (
-            f"magdalena/{self.domain}/{self.user_name}/{self.repository_name}"
-        )
-        self.docker_repository = self.docker_repository.lower().replace(" ", "")
-
         if self.git_commit_id is None:
             self.clone_or_pull()
             assert (
                 self.git_commit_id is not None
             ), "Can NOT create Docker container if Git commit ID is None"
 
-        self.docker_image_name = f"{self.docker_repository}:{self.git_commit_id}"
+        if self.domain == "github.com":
+            self.docker_image_name = mybinder.create_container_from_github(
+                self.user_name, self.repository_name, self.git_commit_id
+            )
+        if self.domain == "gitlab.com":
+            self.docker_image_name = mybinder.create_container_from_gitlab(
+                self.user_name, self.repository_name, self.git_commit_id
+            )
+
+        self.docker_repository = self.docker_image_name.split(":")[0]
         self.environment_for_container["docker_image_name"] = self.docker_image_name
         logger.info("Defined Docker image name: %s", self.docker_image_name)
 
-        # Check if container already exists
+        # Check if container image already exists
         docker_client = docker.from_env()
         for docker_image in docker_client.images.list():
             for docker_image_tag in docker_image.tags:
@@ -478,5 +484,8 @@ class MethodsHubGitContent(MethodsHubContent):
                     logger.info("Docker image found. Skipping build.")
                     return
 
-        # Create container
-        self._start_repo2docker(self.source_url)
+        # Donwload container image
+        logger.info(
+            "Docker image NOT found. Downloading image %s.", self.docker_image_name
+        )
+        docker_client.images.pull(self.docker_repository, self.git_commit_id)

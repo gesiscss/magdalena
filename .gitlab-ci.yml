@@ -3,6 +3,9 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+variables:
+  MYBINDER_URL: https://notebooks.gesis.org/binder
+
 stages:
   - config
   - prepare

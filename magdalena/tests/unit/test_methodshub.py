@@ -167,7 +167,7 @@ class TestMethodsHubHTTPContent:
             os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)
         ), "Local copy of file not created."
 
-    def test_render_format_docx_to_html(self, monkeypatch):
+    def test_render_docx_to_html(self, monkeypatch):
         with monkeypatch.context() as mock:
             mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
             mock.setattr(uuid, "uuid4", mock_uuid4)
@@ -354,3 +354,32 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.filename_extension == "qmd"
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
+
+    def test_render_qmd_to_html(self):
+        methods_hub_content = methodshub.MethodsHubGitContent(
+            "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
+            filename="index.qmd",
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
+        )
+        assert methods_hub_content.git_commit_id is None
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
+        )
+        assert methods_hub_content.filename == "index.qmd"
+        assert methods_hub_content.domain == "github.com"
+        assert methods_hub_content.user_name == "GESIS-Methods-Hub"
+        assert methods_hub_content.repository_name == "minimal-example-qmd-rstats-units"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"),
+            "github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units",
+        )
+        assert methods_hub_content.filename_extension == "qmd"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+        methods_hub_content.create_container()
+        methods_hub_content._render_format("html")
