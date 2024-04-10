@@ -87,10 +87,12 @@ def _create_container(provider_prefix, spec):
     )
     assert response.status_code == 200
     assert "version" in response.json()
+    logger.info("Jupyter single user server is running!")
 
     response = requests.post(
         notebook_url + "/api/shutdown", headers=headers, timeout=REQUESTS_TIMEOUT
     )
     assert response.status_code == 200
+    logger.info("Jupyter single user server was shutdown!")
 
     return container_name
