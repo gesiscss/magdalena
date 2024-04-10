@@ -14,6 +14,7 @@ import uuid
 import pytest
 from pytest import MonkeyPatch
 
+os.environ["MYBINDER_URL"] = "https://notebooks.gesis.org/binder"
 os.environ["KEYCLOAK_SCHEME"] = "http"
 os.environ["KEYCLOAK_DOMAIN"] = "localhost"
 os.environ["KEYCLOAK_REALM"] = "pytest"
