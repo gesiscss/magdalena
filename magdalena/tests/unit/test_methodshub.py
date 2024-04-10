@@ -357,9 +357,13 @@ class TestMethodsHubGitContent:
 
     def test_render_qmd_to_html(self):
         methods_hub_content = methodshub.MethodsHubGitContent(
-            "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git", filename="index.qmd"
+            "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
+            filename="index.qmd",
         )
-        assert methods_hub_content.source_url == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
+        assert (
+            methods_hub_content.source_url
+            == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
+        )
         assert methods_hub_content.git_commit_id is None
         assert (
             methods_hub_content.http_to_git_repository
@@ -370,7 +374,8 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.user_name == "GESIS-Methods-Hub"
         assert methods_hub_content.repository_name == "minimal-example-qmd-rstats-units"
         assert methods_hub_content.tmp_path == os.path.join(
-            os.getenv("MAGDALENA_TMP"), "github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
+            os.getenv("MAGDALENA_TMP"),
+            "github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units",
         )
         assert methods_hub_content.filename_extension == "qmd"
         assert methods_hub_content.docker_repository is None
