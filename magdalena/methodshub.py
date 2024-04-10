@@ -23,7 +23,7 @@ import repo2docker
 from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
-import mybinder
+from . import mybinder
 
 logger = logging.getLogger("magdalena.app")
 
