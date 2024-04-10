@@ -60,9 +60,11 @@ def _create_container(provider_prefix, spec):
             data = json.loads(line.split(":", 1)[1])
 
             if data.get("message") is not None:
-                logger.info("| %s | %s", data.get("phase"), data.get("message").strip())
+                logger.info(
+                    "| %-15s | %s", data.get("phase"), data.get("message").strip()
+                )
             else:
-                logger.info("%s", line)
+                logger.info("| %-15s | %s", "missing phase", line)
 
             if data.get("phase") == "built":
                 container_name = data.get("imageName")
@@ -72,7 +74,7 @@ def _create_container(provider_prefix, spec):
                 token = data["token"]
                 break
         else:
-            logger.info("%s", line)
+            logger.info(logger.info("| %-15s | %s", "missing data", line), line)
     else:
         assert False, "%s never returned a 'Ready'" % MYBINDER_URL
 
