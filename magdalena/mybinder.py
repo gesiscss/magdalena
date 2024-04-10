@@ -74,7 +74,7 @@ def _create_container(provider_prefix, spec):
                 token = data["token"]
                 break
         else:
-            logger.info(logger.info("| %-15s | %s", "missing data", line), line)
+            logger.info("| %-15s | %s", "missing data", line)
     else:
         assert False, "%s never returned a 'Ready'" % MYBINDER_URL
 
