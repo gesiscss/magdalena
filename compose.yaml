@@ -50,6 +50,7 @@ services:
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
       # magdalena
+      MYBINDER_URL: https://notebooks.gesis.org/binder
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
       MAGDALENA_GRAPHQL_TARGET_URL: http://localhost/graphql
       MAGDALENA_GRAPHQL_TARGET_TOKEN: 123456
