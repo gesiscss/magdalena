@@ -484,4 +484,7 @@ class MethodsHubGitContent(MethodsHubContent):
                     return
 
         # Donwload container image
+        logger.info(
+            "Docker image NOT found. Downloading image %s.", self.docker_image_name
+        )
         docker_client.images.get(self.docker_image_name)
