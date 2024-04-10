@@ -472,6 +472,7 @@ class MethodsHubGitContent(MethodsHubContent):
                 self.user_name, self.repository_name, self.git_commit_id
             )
 
+        self.docker_repository = self.docker_image_name.split(":")[0]
         self.environment_for_container["docker_image_name"] = self.docker_image_name
         logger.info("Defined Docker image name: %s", self.docker_image_name)
 
@@ -487,4 +488,4 @@ class MethodsHubGitContent(MethodsHubContent):
         logger.info(
             "Docker image NOT found. Downloading image %s.", self.docker_image_name
         )
-        docker_client.images.get(self.docker_image_name)
+        docker_client.images.pull(self.docker_repository, self.git_commit_id)
