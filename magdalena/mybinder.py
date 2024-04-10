@@ -4,12 +4,19 @@ Wrap around mybinder.org / binderhub API.
 Documentation at https://binderhub.readthedocs.io/en/latest/api.html.
 """
 
+import datetime
+import json
+import logging
 import os
 import urllib.parse
 
-MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
+import requests
 
-logger = logger.getLogger("magdalena.app")
+MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
+REQUESTS_TIMEOUT = 30  # seconds
+USER_TIMEOUT = 300  # seconds or 5min
+
+logger = logging.getLogger("magdalena.app")
 
 
 def create_container_from_github(user, repo, commit_id="main"):
