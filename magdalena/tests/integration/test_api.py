@@ -139,7 +139,7 @@ def test_post_qmd_to_html_without_quarto(client):
         },
     )
 
-    assert response.status_code == 201, "New document was not created!"
+    assert response.status_code == 500, "Expected fail due missing of Quarto!"
 
 
 def test_post_qmd_to_html_with_quarto(client):

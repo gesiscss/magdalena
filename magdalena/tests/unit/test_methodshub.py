@@ -359,13 +359,16 @@ class TestMethodsHubGitContent:
         methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
             filename="index.qmd",
-            git_commit_id="996dbe13501f6cf3f2811843bee68cc5295dd0ff"
+            git_commit_id="996dbe13501f6cf3f2811843bee68cc5295dd0ff",
         )
         assert (
             methods_hub_content.source_url
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
         )
-        assert methods_hub_content.git_commit_id == "996dbe13501f6cf3f2811843bee68cc5295dd0ff"
+        assert (
+            methods_hub_content.git_commit_id
+            == "996dbe13501f6cf3f2811843bee68cc5295dd0ff"
+        )
         assert (
             methods_hub_content.http_to_git_repository
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
@@ -389,13 +392,16 @@ class TestMethodsHubGitContent:
         methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
             filename="index.qmd",
-            git_commit_id="c4add962323f877758bd679bfc94b6d26400d14c"
+            git_commit_id="c4add962323f877758bd679bfc94b6d26400d14c",
         )
         assert (
             methods_hub_content.source_url
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
         )
-        assert methods_hub_content.git_commit_id == "c4add962323f877758bd679bfc94b6d26400d14c"
+        assert (
+            methods_hub_content.git_commit_id
+            == "c4add962323f877758bd679bfc94b6d26400d14c"
+        )
         assert (
             methods_hub_content.http_to_git_repository
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
