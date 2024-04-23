@@ -124,6 +124,42 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
     return jwt.encode(payload, private_key, algorithm="RS256")
 
 
+def test_post_qmd_to_html_without_quarto(client):
+    response = client.post(
+        "/",
+        headers={
+            "Authorization": f"Bearer {generate_jwt()}",
+        },
+        json={
+            "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units",
+            "filename": "index.qmd",
+            "git_commit_id": "996dbe13501f6cf3f2811843bee68cc5295dd0ff",
+            "target_format": ["html"],
+            "response": "download",
+        },
+    )
+
+    assert response.status_code == 201, "New document was not created!"
+
+
+def test_post_qmd_to_html_with_quarto(client):
+    response = client.post(
+        "/",
+        headers={
+            "Authorization": f"Bearer {generate_jwt()}",
+        },
+        json={
+            "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units",
+            "filename": "index.qmd",
+            "git_commit_id": "c4add962323f877758bd679bfc94b6d26400d14c",
+            "target_format": ["html"],
+            "response": "download",
+        },
+    )
+
+    assert response.status_code == 201, "New document was not created!"
+
+
 def test_post_ipynb_to_html(client):
     response = client.post(
         "/",
