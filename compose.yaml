@@ -26,13 +26,15 @@ services:
         source: docs/source/_static/openapi
         target: /var/magdalena/openapi
     expose:
-      - "8080"
+      - "8800"
     ports:
-      - "8080:8080"
+      - "8800:8080"
 
   magdalena:
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
+        restart: true
     build:
       context: .
       target: dev

@@ -44,8 +44,19 @@ paths:
                   - FAIL
         '400':
           description: Invalid input
-        '422':
-          description: Validation exception
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal Server Error
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+                description: The type of error.
+              message:
+                type: string
+                description: Human description of the error.
 definitions:
   Document:
     type: object
@@ -60,6 +71,10 @@ definitions:
         type: string
         description: Source URL
         example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
+      git_commit_id:
+        type: string
+        description: Git Commit ID
+        example: c4add962323f877758bd679bfc94b6d26400d14c
       filename:
         type: string
         description: File in source

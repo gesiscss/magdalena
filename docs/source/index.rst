@@ -13,16 +13,24 @@ Welcome to ``magadalena``'s documentation!
 
 ``magdalena`` is a microservice to convert
 `Quarto <https://quarto.org/>`_ documents into output formats such as
-HTML and PDF **for GESIS’ MethodsHub**. ``magdalena`` is the successor of ``andrew``, see https://github.com/GESIS-Methods-Hub/andrew.
+HTML and PDF **for GESIS’ Methods Hub**. ``magdalena`` is the successor of ``andrew``, see https://github.com/GESIS-Methods-Hub/andrew.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Documentation
 
-   architecture
-   api
-   faq
-   contributing
+   user/api
+   user/faq
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Documentation
+
+   user/architecture
+   dev/contributing
+   dev/unit-tests
+   dev/integration-tests
+   dev/faq
 
 Indices and tables
 ==================

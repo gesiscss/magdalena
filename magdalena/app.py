@@ -92,33 +92,35 @@ def build():
         assert "filename" in request.json, "Field filename missing in form"
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
-            request.json["filename"],
-            (
+            id_for_graphql=(
                 request.json["forward_id"]
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
+            git_commit_id=request.json["git_commit_id"],
+            filename=request.json["filename"],
         )
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.json["source_url"],
-            (
+            id_for_graphql=(
                 request.json["forward_id"]
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
-            (
+            filename=(
                 request.json["filename"]
                 if ("filename" in request.json and len(request.json["filename"]))
                 else None
             ),
         )
 
-    assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
-    assert methods_hub_content.create_container() is None, "Fail on container creation"
-    assert (
-        methods_hub_content.render_formats(request.json["target_format"]) is None
-    ), "Fail on render contributions"
+    try:
+        methods_hub_content.clone_or_pull()
+        methods_hub_content.create_container()
+        methods_hub_content.render_formats(request.json["target_format"])
+    except Exception as error:
+        return {"message": error}, 500
 
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")
