@@ -62,7 +62,7 @@ and, in another terminal, run
 
 .. code:: bash
 
-   docker exec magdalena-magdalena-1 -- pytest .
+   docker compose exec magdalena pytest .
 
 Production Environment
 ----------------------

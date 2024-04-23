@@ -10,4 +10,4 @@ The REST API is available as a `OpenAPI <https://www.openapis.org/>`_ document, 
 
 The follow documentation was generated from ``magdalena`` OpenAPI document.
 
-.. openapi:: _static/openapi/magdalena.yaml
+.. openapi:: ../_static/openapi/magdalena.yaml
