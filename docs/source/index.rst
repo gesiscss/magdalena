@@ -17,12 +17,20 @@ HTML and PDF **for GESIS’ Methods Hub**. ``magdalena`` is the successor of ``a
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: User Documentation
 
-   architecture
-   api
-   faq
-   contributing
+   user/api
+   user/faq
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Developer Documentation
+
+   user/architecture
+   dev/contributing
+   dev/unit-tests
+   dev/integration-tests
+   dev/faq
 
 Indices and tables
 ==================
