@@ -115,11 +115,15 @@ def build():
             ),
         )
 
-    assert methods_hub_content.clone_or_pull() is None, "Fail on clone or pull"
-    assert methods_hub_content.create_container() is None, "Fail on container creation"
-    assert (
-        methods_hub_content.render_formats(request.json["target_format"]) is None
-    ), "Fail on render contributions"
+    try:
+        methods_hub_content.clone_or_pull()
+        methods_hub_content.create_container()
+        methods_hub_content.render_formats(request.json["target_format"])
+    except Exception as error:
+        return {
+            "message": error
+        }, 500
+                                           
 
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")
