@@ -355,16 +355,47 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-    def test_render_qmd_to_html(self):
+    def test_render_qmd_to_html_without_quarto(self):
         methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
             filename="index.qmd",
+            git_commit_id="996dbe13501f6cf3f2811843bee68cc5295dd0ff"
         )
         assert (
             methods_hub_content.source_url
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
         )
-        assert methods_hub_content.git_commit_id is None
+        assert methods_hub_content.git_commit_id == "996dbe13501f6cf3f2811843bee68cc5295dd0ff"
+        assert (
+            methods_hub_content.http_to_git_repository
+            == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
+        )
+        assert methods_hub_content.filename == "index.qmd"
+        assert methods_hub_content.domain == "github.com"
+        assert methods_hub_content.user_name == "GESIS-Methods-Hub"
+        assert methods_hub_content.repository_name == "minimal-example-qmd-rstats-units"
+        assert methods_hub_content.tmp_path == os.path.join(
+            os.getenv("MAGDALENA_TMP"),
+            "github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units",
+        )
+        assert methods_hub_content.filename_extension == "qmd"
+        assert methods_hub_content.docker_repository is None
+        assert methods_hub_content.docker_image_name is None
+
+        with pytest.raises(AssertionError):
+            methods_hub_content.create_container()
+
+    def test_render_qmd_to_html_with_quarto(self):
+        methods_hub_content = methodshub.MethodsHubGitContent(
+            "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
+            filename="index.qmd",
+            git_commit_id="c4add962323f877758bd679bfc94b6d26400d14c"
+        )
+        assert (
+            methods_hub_content.source_url
+            == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git"
+        )
+        assert methods_hub_content.git_commit_id == "c4add962323f877758bd679bfc94b6d26400d14c"
         assert (
             methods_hub_content.http_to_git_repository
             == "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units"
