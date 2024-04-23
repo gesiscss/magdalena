@@ -488,7 +488,7 @@ class MethodsHubGitContent(MethodsHubContent):
                 self.user_name, self.repository_name, self.git_commit_id
             )
 
-        assert self.docker_image_name is None, "Docker Image can NOT be None"
+        assert self.docker_image_name is not None, "Docker Image can NOT be None"
         self.docker_repository = self.docker_image_name.split(":")[0]
         self.environment_for_container["docker_image_name"] = self.docker_image_name
         logger.info("Defined Docker image name: %s", self.docker_image_name)
