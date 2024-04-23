@@ -44,6 +44,10 @@ main();
                 <input type="text" id="source_url" name="source_url" required>
             </div>
             <div>
+                <label for="git_commit_id">Git Commit ID:</label><br>
+                <input type="text" id="git_commit_id" name="git_commit_id">
+            </div>
+            <div>
                 <label for="filename">File in source:</label><br>
                 <input type="text" id="filename" name="filename">
             </div>
@@ -73,6 +77,7 @@ main();
             let form_data = new FormData(html_form);
             let form_json = {
                 "source_url": form_data.get("source_url"),
+                "git_commit_id": form_data.get("git_commit_id"),
                 "filename": form_data.get("filename"),
                 "response": form_data.get("response")
             };
