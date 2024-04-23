@@ -92,22 +92,23 @@ def build():
         assert "filename" in request.json, "Field filename missing in form"
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
-            request.json["filename"],
-            (
+            id_for_graphql=(
                 request.json["forward_id"]
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
+            git_commit_id=request.json["git_commit_id"],
+            filename=request.json["filename"],
         )
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.json["source_url"],
-            (
+            id_for_graphql=(
                 request.json["forward_id"]
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
-            (
+            filename=(
                 request.json["filename"]
                 if ("filename" in request.json and len(request.json["filename"]))
                 else None

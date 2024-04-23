@@ -389,7 +389,9 @@ class MethodsHubHTTPContent(MethodsHubContent):
 
 
 class MethodsHubGitContent(MethodsHubContent):
-    def __init__(self, source_url, id_for_graphql=None, filename=None):
+    def __init__(
+        self, source_url, id_for_graphql=None, git_commit_id=None, filename=None
+    ):
         MethodsHubContent.__init__(self, source_url, id_for_graphql)
 
         if filename is None:
