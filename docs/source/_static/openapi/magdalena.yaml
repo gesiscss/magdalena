@@ -60,6 +60,10 @@ definitions:
         type: string
         description: Source URL
         example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
+      git_commit_id:
+        type: string
+        description: Git Commit ID
+        example: c4add962323f877758bd679bfc94b6d26400d14c
       filename:
         type: string
         description: File in source
