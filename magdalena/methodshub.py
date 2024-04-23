@@ -506,3 +506,16 @@ class MethodsHubGitContent(MethodsHubContent):
             "Docker image NOT found. Downloading image %s.", self.docker_image_name
         )
         docker_client.images.pull(self.docker_repository, self.git_commit_id)
+
+        # Test if container has Quarto
+        client = docker.from_env()
+        container = client.containers.run(
+            self.docker_image_name,
+            command=f"which quarto",
+            detach=True,
+        )
+        result = container.wait()
+        logger.info(container.logs().decode("utf-8"))
+        container.remove()
+
+        assert result["StatusCode"] == 0, "Container does NOT have Quarto installed"
