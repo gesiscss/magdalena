@@ -120,10 +120,7 @@ def build():
         methods_hub_content.create_container()
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        return {
-            "message": error
-        }, 500
-                                           
+        return {"message": error}, 500
 
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")
