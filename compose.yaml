@@ -32,7 +32,9 @@ services:
 
   magdalena:
     depends_on:
-      - keycloak
+      keycloak:
+        condition: service_healthy
+        restart: true
     build:
       context: .
       target: dev
