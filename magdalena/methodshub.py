@@ -395,7 +395,7 @@ class MethodsHubGitContent(MethodsHubContent):
         MethodsHubContent.__init__(self, source_url, id_for_graphql)
 
         if filename is None:
-            logger.info("Filename is None. Using README.md.")
+            logger.warning("Filename is None. Using README.md.")
             filename = "README.md"
 
         assert len(filename), "filename can NOT be empty"
@@ -405,7 +405,7 @@ class MethodsHubGitContent(MethodsHubContent):
             source_url = f"{source_url}.git"
 
         self.source_url = source_url
-        self.git_commit_id = None
+        self.git_commit_id = git_commit_id
         self.http_to_git_repository = self.source_url.replace(".git", "")
         self.filename = filename
 
@@ -452,11 +452,25 @@ class MethodsHubGitContent(MethodsHubContent):
             )
             assert git_clone_subprocess.returncode == 0, "Fail to clone Git repository"
 
-        git_get_id_subprocess = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=self.tmp_path, capture_output=True
+        if self.git_commit_id is None:
+            logger.warning("Git Commit ID is None. Using most recent commit.")
+            git_get_id_subprocess = subprocess.run(
+                ["git", "rev-parse", "HEAD"], cwd=self.tmp_path, capture_output=True
+            )
+            assert (
+                git_get_id_subprocess.returncode == 0
+            ), "Fail to retrieve Git commit ID"
+            self.git_commit_id = git_get_id_subprocess.stdout.decode().strip()
+
+        git_commit_exists = subprocess.run(
+            ["git", "show", self.git_commit_id, "--"],
+            cwd=self.tmp_path,
+            capture_output=True,
         )
-        assert git_get_id_subprocess.returncode == 0, "Fail to retrieve Git commit ID"
-        self.git_commit_id = git_get_id_subprocess.stdout.decode().strip()
+        assert git_commit_exists.returncode == 0, (
+            "Git commit with ID %s does NOT exists" % self.git_commit_id
+        )
+        logger.info("Git Commit ID: : %s", self.git_commit_id)
 
     def create_container(self):
         if self.git_commit_id is None:
@@ -474,6 +488,7 @@ class MethodsHubGitContent(MethodsHubContent):
                 self.user_name, self.repository_name, self.git_commit_id
             )
 
+        assert self.docker_image_name is None, "Docker Image can NOT be None"
         self.docker_repository = self.docker_image_name.split(":")[0]
         self.environment_for_container["docker_image_name"] = self.docker_image_name
         logger.info("Defined Docker image name: %s", self.docker_image_name)
