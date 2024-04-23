@@ -22,15 +22,6 @@ output_basename=index.md
 
 mkdir --parents $output_dirname
 
-git --version
-
-git_hash=$(git rev-parse HEAD)
-
-# If git > 2.25
-# git_date=$(git log -1 --format="%as")
-# else
-git_date=$(git log -1 --format=format:%ad --date=format:%Y-%m-%d)
-
 quarto_version=$(quarto --version)
 
 cd $dirname2render
@@ -45,7 +36,6 @@ if [[ $(head -n 1 ${basename2render} | grep -e '---' | wc -l) = 0 ]]
 then
     echo ${basename2render} does NOT have a YAML header!
     shift_heading_level='-1'
-    fallback_author="author:$(git log -1 --format=format:%aN)"
 
     cover_filename=$(find . -name 'cover*' | head -n 1)
 
@@ -71,7 +61,6 @@ quarto \
     --output index.md-tmp \
     --wrap=none \
     ${shift_heading_level:+"--shift-heading-level-by" "$shift_heading_level"} \
-    ${fallback_author:+"--metadata" "$fallback_author"} \
     ${cover_metadata:+"--metadata" "$cover_metadata"} \
     --metadata "method:true" \
     --metadata "citation:true" \
@@ -79,9 +68,6 @@ quarto \
     --metadata "github_user_name:${github_user_name}" \
     --metadata "github_repository_name:${github_repository_name}" \
     --metadata "docker_image:${docker_image}" \
-    --metadata "git_hash:${git_hash}" \
-    --metadata "git_date:${git_date}" \
-    --metadata "date:${git_date}" \
     --metadata "info_quarto_version:${quarto_version}" \
     --metadata "source_filename:${file2render}" && \
     cp index.md-tmp "$output_dirname/$output_basename" && \

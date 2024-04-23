@@ -70,7 +70,6 @@ ${PANDOC} \
     ${cover_metadata:+"--metadata" "$cover_metadata"} \
     --metadata "guide:true" \
     --metadata "citation:true" \
-    --metadata "date:${git_date}" \
     --metadata "info_pandoc_version:${pandoc_version}" \
     --metadata "source_filename:${file2render}" \
     --lua-filter=_pandoc-filters/remove-toc.lua \
