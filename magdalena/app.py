@@ -58,11 +58,11 @@ def send_keycloak_adapter():
 def index():
     keycloak_scheme = os.getenv("FRONTEND_KEYCLOAK_SCHEME", None)
     if keycloak_scheme is None:
-        keycloak_scheme = KEYCLOAK_SCHEME
+        keycloak_scheme = os.getenv("KEYCLOAK_SCHEME", None)
 
     keycloak_domain = os.getenv("FRONTEND_KEYCLOAK_DOMAIN", None)
     if keycloak_domain is None:
-        keycloak_domain = KEYCLOAK_DOMAIN
+        keycloak_domain = os.getenv("KEYCLOAK_DOMAIN", None)
 
     return render_template(
         "index.html",
