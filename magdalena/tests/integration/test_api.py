@@ -169,6 +169,7 @@ def test_post_ipynb_to_html(client):
         json={
             "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
             "filename": "index.ipynb",
+            "git_commit_id": "294d461873f2b7b0005bed8750b0c66932f21c7d",
             "target_format": ["html"],
             "response": "download",
         },
