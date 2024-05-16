@@ -11,38 +11,24 @@ We use `poetry <https://python-poetry.org>`_ as dependence manager.
 Development Environment
 -----------------------
 
-With Docker Compose
-^^^^^^^^^^^^^^^^^^^
+Configuration
+^^^^^^^^^^^^^
+
+Edit `/etc/hosts` (if using Windows, `C:\Windows\System32\drivers\etc\hosts`) to include
+
+```
+127.0.0.1	keycloak.gesis.dev
+127.0.0.1	methodshub.gesis.dev
+```
+
+Docker Compose
+^^^^^^^^^^^^^^
 
 Start the container by running
 
 .. code:: bash
 
     docker compose up magdalena
-
-and open http://localhost:5000 with your web browser.
-
-Without Docker Compose
-^^^^^^^^^^^^^^^^^^^^^^
-
-Install the dependencies by running
-
-.. code:: bash
-
-    poetry install --with dev
-
-and start the server by running
-
-.. code:: bash
-
-    poetry run \
-    flask \
-    run \
-    --host 0.0.0.0 \
-    --port 5000 \
-    --reload \
-    --debug \
-    --debugger
 
 and open http://localhost:5000 with your web browser.
 
