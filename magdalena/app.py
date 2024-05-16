@@ -113,7 +113,7 @@ def build():
             app.logger.warning("git_commit_id is not defined or empty!")
             git_commit_id = None
         else:
-            git_commit_id = request.json["filename"]
+            git_commit_id = request.json["git_commit_id"]
         
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
