@@ -8,8 +8,14 @@ import os.path
 
 import requests
 
-KEYCLOAK_SCHEME = os.getenv("KEYCLOAK_SCHEME", "https")
-KEYCLOAK_DOMAIN = os.getenv("KEYCLOAK_DOMAIN", None)
+KEYCLOAK_SCHEME = os.getenv("BACKEND_KEYCLOAK_SCHEME", None)
+if KEYCLOAK_SCHEME is None:
+    KEYCLOAK_SCHEME = os.getenv("KEYCLOAK_SCHEME", None)
+
+KEYCLOAK_DOMAIN = os.getenv("BACKEND_KEYCLOAK_DOMAIN", None)
+if KEYCLOAK_DOMAIN is None:
+    KEYCLOAK_DOMAIN = os.getenv("KEYCLOAK_DOMAIN", None)
+
 KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM", None)
 KEYCLOAK_CLIENT = os.getenv("KEYCLOAK_CLIENT", None)
 
