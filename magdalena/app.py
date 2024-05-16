@@ -56,10 +56,18 @@ def send_keycloak_adapter():
 
 @app.get("/")
 def index():
+    keycloak_scheme = os.getenv("FRONTEND_KEYCLOAK_SCHEME", None)
+    if keycloak_scheme is None:
+        keycloak_scheme = os.getenv("KEYCLOAK_SCHEME", None)
+
+    keycloak_domain = os.getenv("FRONTEND_KEYCLOAK_DOMAIN", None)
+    if keycloak_domain is None:
+        keycloak_domain = os.getenv("KEYCLOAK_DOMAIN", None)
+
     return render_template(
         "index.html",
-        keycloak_scheme=KEYCLOAK_SCHEME,
-        keycloak_domain=KEYCLOAK_DOMAIN,
+        keycloak_scheme=keycloak_scheme,
+        keycloak_domain=keycloak_domain,
         keycloak_realm=KEYCLOAK_REALM,
         keycloak_client=KEYCLOAK_CLIENT,
     )
@@ -72,6 +80,10 @@ def build():
 
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
+
+    app.logger.debug("Validating JWT")
+    app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+    app.logger.debug("\tJWT: %s", authorization_token)
 
     jwt.decode(
         authorization_token,
@@ -89,7 +101,20 @@ def build():
         "github.com" in request.json["source_url"]
         or "gitlab.com" in request.json["source_url"]
     ):
-        assert "filename" in request.json, "Field filename missing in form"
+        # assert "filename" in request.json, "Field filename missing in form"
+        if "filename" not in request.json or len(request.json["filename"]) == 0:
+            app.logger.warning("filename is not defined or empty! Using 'README.md'")
+            filename = "README.md"
+        else:
+            filename = request.json["filename"]
+
+        # assert "git_commit_id" in request.json, "Field git_commit_id missing in form"
+        if "git_commit_id" not in request.json or len(request.json["git_commit_id"]) == 0:
+            app.logger.warning("git_commit_id is not defined or empty!")
+            git_commit_id = None
+        else:
+            git_commit_id = request.json["filename"]
+        
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
             id_for_graphql=(
@@ -97,8 +122,8 @@ def build():
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
-            git_commit_id=request.json["git_commit_id"],
-            filename=request.json["filename"],
+            git_commit_id=git_commit_id,
+            filename=filename,
         )
     else:
         methods_hub_content = MethodsHubHTTPContent(
@@ -120,7 +145,8 @@ def build():
         methods_hub_content.create_container()
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        return {"message": error}, 500
+        app.logger.error(error)
+        return {"message": str(error)}, 500
 
     if request.json["response"] == "download":
         app.logger.info("Sending response to user")

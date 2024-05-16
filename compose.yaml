@@ -30,6 +30,20 @@ services:
     ports:
       - "8800:8080"
 
+  reverse-proxy:
+    depends_on:
+      - keycloak
+      - magdalena
+    image: nginx:1.25.4-alpine-slim
+    expose:
+      - "80"
+    ports:
+      - "80:80"
+    volumes:
+      - type: bind
+        source: ./nginx/sites-enabled
+        target: /etc/nginx/conf.d
+
   magdalena:
     depends_on:
       keycloak:
@@ -43,13 +57,25 @@ services:
       LOG_LEVEL: debug
 
       # JWT
-      JWT_ISSUER: http://localhost:8080/realms/Gesis
+      JWT_ISSUER: http://keycloak.gesis.dev/realms/gesis
 
       # Keycloak
       KEYCLOAK_SCHEME: http
-      KEYCLOAK_DOMAIN: keycloak:8080
-      KEYCLOAK_REALM: Gesis
+      KEYCLOAK_DOMAIN: keycloak.gesis.dev
+      KEYCLOAK_REALM: gesis
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
+
+      # Keycloak (Backend)
+      # 
+      # Used to retrieve the public key from Keycloak.
+      BACKEND_KEYCLOAK_SCHEME: http
+      BACKEND_KEYCLOAK_DOMAIN: keycloak:8080
+
+      # Keycloak (Frontend)
+      # 
+      # Used to configure keycloak-js.
+      # FRONTEND_KEYCLOAK_SCHEME: http
+      # FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis.dev
 
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder

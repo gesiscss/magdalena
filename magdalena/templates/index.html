@@ -71,8 +71,8 @@ main();
         </form>
     </body>
     <script>
-        function submit(event) {
-            console.log("Submit");
+        async function submit(event) {
+            console.log("Preparing request ...");
             let html_form = document.getElementById('form');
             let form_data = new FormData(html_form);
             let form_json = {
@@ -84,23 +84,29 @@ main();
             for (let key of ["target_format"]) {
                 form_json[key] = form_data.getAll(key);
             }
+            console.log("Preparing request completed!");
 
-            fetch('/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${keycloak.token}`,
-                },
-                body: JSON.stringify(form_json)
-            }).then(
-                res => res.blob()
-            ).then(
-                blob => {
-                    var file = window.URL.createObjectURL(blob);
-                    window.location.assign(file);
+            keycloak.updateToken(-1).then(
+                (data) => {
+                    console.log(`JWT: ${keycloak.token}`);
+                    
+                    fetch('/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${keycloak.token}`,
+                        },
+                        body: JSON.stringify(form_json)
+                    }).then(
+                        res => res.blob()
+                    ).then(
+                        blob => {
+                            var file = window.URL.createObjectURL(blob);
+                            window.location.assign(file);
+                        }
+                    );
                 }
-            );
-
+            )
             event.preventDefault();
         }
         
