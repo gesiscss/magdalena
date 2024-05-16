@@ -56,10 +56,18 @@ def send_keycloak_adapter():
 
 @app.get("/")
 def index():
+    keycloak_scheme = os.getenv("FRONTEND_KEYCLOAK_SCHEME", None)
+    if keycloak_scheme is None:
+        keycloak_scheme = KEYCLOAK_SCHEME
+
+    keycloak_domain = os.getenv("FRONTEND_KEYCLOAK_DOMAIN", None)
+    if keycloak_domain is None:
+        keycloak_domain = KEYCLOAK_DOMAIN
+
     return render_template(
         "index.html",
-        keycloak_scheme=KEYCLOAK_SCHEME,
-        keycloak_domain=KEYCLOAK_DOMAIN,
+        keycloak_scheme=keycloak_scheme,
+        keycloak_domain=keycloak_domain,
         keycloak_realm=KEYCLOAK_REALM,
         keycloak_client=KEYCLOAK_CLIENT,
     )
