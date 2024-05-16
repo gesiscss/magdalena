@@ -48,7 +48,7 @@ services:
       # Keycloak
       KEYCLOAK_SCHEME: http
       KEYCLOAK_DOMAIN: keycloak:8080
-      KEYCLOAK_REALM: Gesis
+      KEYCLOAK_REALM: gesis
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
       # magdalena
