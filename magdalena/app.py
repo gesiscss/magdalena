@@ -81,6 +81,10 @@ def build():
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
+    app.logger.debug("Validating JWT")
+    app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+    app.logger.debug("\tJWT: %s", authorization_token)
+
     jwt.decode(
         authorization_token,
         key=PUBLIC_KEY,
