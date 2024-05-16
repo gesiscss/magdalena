@@ -494,18 +494,25 @@ class MethodsHubGitContent(MethodsHubContent):
         logger.info("Defined Docker image name: %s", self.docker_image_name)
 
         # Check if container image already exists
+        docker_image_found = False
+
         docker_client = docker.from_env()
         for docker_image in docker_client.images.list():
+            if docker_image_found:
+                break
+
             for docker_image_tag in docker_image.tags:
                 if docker_image_tag == self.docker_image_name:
                     logger.info("Docker image found. Skipping build.")
-                    return
+                    docker_image_found = True
+                    break
 
         # Donwload container image
-        logger.info(
-            "Docker image NOT found. Downloading image %s.", self.docker_image_name
-        )
-        docker_client.images.pull(self.docker_repository, self.git_commit_id)
+        if not docker_image_found:
+            logger.info(
+                "Docker image NOT found. Downloading image %s.", self.docker_image_name
+            )
+            docker_client.images.pull(self.docker_repository, self.git_commit_id)
 
         # Test if container has Quarto
         client = docker.from_env()
