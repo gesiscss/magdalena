@@ -65,6 +65,14 @@ services:
       KEYCLOAK_REALM: gesis
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
+      # Keycloak (Backend)
+      BACKEND_KEYCLOAK_SCHEME: http
+      BACKEND_KEYCLOAK_DOMAIN: keycloak:8080
+
+      # Keycloak (Frontend)
+      FRONTEND_KEYCLOAK_SCHEME: http
+      FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis.dev
+
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
