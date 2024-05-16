@@ -101,7 +101,20 @@ def build():
         "github.com" in request.json["source_url"]
         or "gitlab.com" in request.json["source_url"]
     ):
-        assert "filename" in request.json, "Field filename missing in form"
+        # assert "filename" in request.json, "Field filename missing in form"
+        if "filename" not in request.json or len(request.json["filename"]) == 0:
+            app.logger.warning("filename is not defined or empty! Using 'README.md'")
+            filename = "README.md"
+        else:
+            filename = request.json["filename"]
+
+        # assert "git_commit_id" in request.json, "Field git_commit_id missing in form"
+        if "git_commit_id" not in request.json or len(request.json["git_commit_id"]) == 0:
+            app.logger.warning("git_commit_id is not defined or empty!")
+            git_commit_id = None
+        else:
+            git_commit_id = request.json["filename"]
+        
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
             id_for_graphql=(
@@ -109,8 +122,8 @@ def build():
                 if ("forward_id" in request.json and len(request.json["forward_id"]))
                 else None
             ),
-            git_commit_id=request.json["git_commit_id"],
-            filename=request.json["filename"],
+            git_commit_id=git_commit_id,
+            filename=filename,
         )
     else:
         methods_hub_content = MethodsHubHTTPContent(
