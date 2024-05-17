@@ -155,7 +155,7 @@ Run test:
       --verbose \
       --showlocals \
       -o log_cli=true \
-      -o log_cli_level=INFO \
+      -o log_cli_level=DEBUG \
       .
 
 .Deploy new version downstream:
