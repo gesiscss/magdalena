@@ -30,7 +30,8 @@ quarto \
     render ${basename2render} \
     --execute \
     --to html \
-    --output index.html \
+    --self-contained \
+    --output ${output_basename} \
     --wrap=none \
     --metadata "method:true" \
     --metadata "citation:true" \
@@ -40,5 +41,5 @@ quarto \
     --metadata "docker_image:${docker_image}" \
     --metadata "info_quarto_version:${quarto_version}" \
     --metadata "source_filename:${file2render}" && \
-    cp index.html $output_dirname/$output_basename && \
+    cp ${output_basename} $output_dirname/$output_basename && \
     ${docker_script_root}/copy-assets.sh $output_dirname
