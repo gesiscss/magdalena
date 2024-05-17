@@ -162,8 +162,12 @@ class MethodsHubContent:
             "Script %s not found! Skipping execution." % script
         )
 
-        host_user_id = os.getuid()
-        host_group_id = os.getgid()
+        host_user_id = (
+            1000  # Must be 1000 to match jovyan user in the repo2docker container
+        )
+        host_group_id = (
+            1000  # Must be 1000 to match jovyan user in the repo2docker container
+        )
 
         volumes = {
             docker_scripts_location: {
