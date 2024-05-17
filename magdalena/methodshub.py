@@ -223,7 +223,13 @@ class MethodsHubContent:
 
     def rendered_file(self, format):
         filename = f"index.{format}"
-        return os.path.join(self.output_location, filename)
+        file_path = os.path.join(self.output_location, filename)
+
+        logger.debug("Rendered file path: %s", file_path)
+        if not os.path.exists(file_path):
+            logger.error("%s does NOT exist!", file_path)
+
+        return file_path
 
     def zip_all_formats(self):
         assert (
