@@ -14,6 +14,9 @@
 
 set -o errexit
 
+# To help when debugging, print all environment variables
+# env
+
 dirname2render=$(dirname ${file2render})
 basename2render=$(basename ${file2render})
 
@@ -30,7 +33,8 @@ quarto \
     render ${basename2render} \
     --execute \
     --to html \
-    --output index.html \
+    --self-contained \
+    --output ${output_basename} \
     --wrap=none \
     --metadata "method:true" \
     --metadata "citation:true" \
@@ -39,6 +43,10 @@ quarto \
     --metadata "github_repository_name:${github_repository_name}" \
     --metadata "docker_image:${docker_image}" \
     --metadata "info_quarto_version:${quarto_version}" \
-    --metadata "source_filename:${file2render}" && \
-    cp index.html $output_dirname/$output_basename && \
-    ${docker_script_root}/copy-assets.sh $output_dirname
+    --metadata "source_filename:${file2render}"
+
+find ${output_basename} -type f -exec chmod -f a+rwx {} \;
+
+cp ${output_basename} $output_dirname/$output_basename
+
+${docker_script_root}/copy-assets.sh $output_dirname

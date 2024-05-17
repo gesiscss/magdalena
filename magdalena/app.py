@@ -21,6 +21,11 @@ from .pem import (
     KEYCLOAK_CLIENT,
 )
 
+# Newly created files or directories created will have no privileges initially revoked
+#
+# We need this to avoid permission issues in the containers.
+os.umask(0)
+
 JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
 
 PUBLIC_KEY = retrieve_public_key()
@@ -43,10 +48,6 @@ with app.app_context():
             os.path.join(shared_root_dir, dir_name),
             dirs_exist_ok=True,
         )
-
-    # Need to set correct permission to files
-    for _file in os.walk(shared_root_dir):
-        os.chmod(_file[0], 0o777)
 
 
 @app.route("/keycloak.min.js")
@@ -109,12 +110,15 @@ def build():
             filename = request.json["filename"]
 
         # assert "git_commit_id" in request.json, "Field git_commit_id missing in form"
-        if "git_commit_id" not in request.json or len(request.json["git_commit_id"]) == 0:
+        if (
+            "git_commit_id" not in request.json
+            or len(request.json["git_commit_id"]) == 0
+        ):
             app.logger.warning("git_commit_id is not defined or empty!")
             git_commit_id = None
         else:
-            git_commit_id = request.json["filename"]
-        
+            git_commit_id = request.json["git_commit_id"]
+
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
             id_for_graphql=(
@@ -142,10 +146,20 @@ def build():
 
     try:
         methods_hub_content.clone_or_pull()
+    except Exception as error:
+        app.logger.error("Error when cloning\n\t%s", error)
+        return {"message": str(error)}, 500
+
+    try:
         methods_hub_content.create_container()
+    except Exception as error:
+        app.logger.error("Error when creating container\n\t%s", error)
+        return {"message": str(error)}, 500
+
+    try:
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        app.logger.error(error)
+        app.logger.error("Error when rendering\n\t%s", error)
         return {"message": str(error)}, 500
 
     if request.json["response"] == "download":

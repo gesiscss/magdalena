@@ -12,6 +12,7 @@ import re
 import subprocess
 import urllib.request
 import uuid
+from pprint import pformat
 from zipfile import ZipFile
 
 from lxml import etree
@@ -24,6 +25,11 @@ from gql import Client, gql
 from gql.transport.requests import RequestsHTTPTransport
 
 from . import mybinder
+
+# Newly created files or directories created will have no privileges initially revoked
+#
+# We need this to avoid permission issues in the containers.
+os.umask(0)
 
 logger = logging.getLogger("magdalena.app")
 
@@ -161,8 +167,12 @@ class MethodsHubContent:
             "Script %s not found! Skipping execution." % script
         )
 
-        host_user_id = os.getuid()
-        host_group_id = os.getgid()
+        host_user_id = (
+            1000  # Must be 1000 to match jovyan user in the repo2docker container
+        )
+        host_group_id = (
+            1000  # Must be 1000 to match jovyan user in the repo2docker container
+        )
 
         volumes = {
             docker_scripts_location: {
@@ -176,8 +186,8 @@ class MethodsHubContent:
             self.output_location: {"bind": output_location_in_container, "mode": "rw"},
         }
         logger.info(
-            "Volumes in the sibling container: %s",
-            volumes,
+            "Volumes in the sibling container:\n%s",
+            pformat(volumes),
         )
 
         self.environment_for_container["output_location"] = output_location_in_container
@@ -185,8 +195,8 @@ class MethodsHubContent:
             f"{self.home_dir_at_docker}/_docker-scripts"
         )
         logger.info(
-            "Environment variables in the sibling container: %s",
-            self.environment_for_container,
+            "Environment variables in the sibling container:\n%s",
+            pformat(self.environment_for_container),
         )
 
         logger.info("Running %s ...", script)
@@ -200,7 +210,8 @@ class MethodsHubContent:
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs().decode("utf-8"))
+        logger.debug("Container attributes:\n%s", pformat(container.attrs))
+        logger.info("Container log:\n%s", container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Fail to render content"
@@ -219,11 +230,19 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         for targe_format in formats:
+            logger.debug("Rendering %s ...", targe_format)
             self._render_format(targe_format)
+            logger.debug("Rendering %s complete!", targe_format)
 
     def rendered_file(self, format):
         filename = f"index.{format}"
-        return os.path.join(self.output_location, filename)
+        file_path = os.path.join(self.output_location, filename)
+
+        logger.debug("Rendered file path: %s", file_path)
+        if not os.path.exists(file_path):
+            logger.error("%s does NOT exist!", file_path)
+
+        return file_path
 
     def zip_all_formats(self):
         assert (
@@ -470,7 +489,7 @@ class MethodsHubGitContent(MethodsHubContent):
         assert git_commit_exists.returncode == 0, (
             "Git commit with ID %s does NOT exists" % self.git_commit_id
         )
-        logger.info("Git Commit ID: : %s", self.git_commit_id)
+        logger.info("Git Commit ID: %s", self.git_commit_id)
 
     def create_container(self):
         if self.git_commit_id is None:
@@ -496,12 +515,20 @@ class MethodsHubGitContent(MethodsHubContent):
         # Check if container image already exists
         docker_image_found = False
 
+        logger.debug("Creating Docker client ...")
         docker_client = docker.from_env()
+        # If Docker daemon is not running or can't be connected to, a error occurs here.
+        logger.debug("Created Docker client.")
+
+        logger.debug(
+            "Searching for Docker image %s in local cache", self.docker_image_name
+        )
         for docker_image in docker_client.images.list():
             if docker_image_found:
                 break
 
             for docker_image_tag in docker_image.tags:
+                logger.debug("\t - %s", docker_image_tag)
                 if docker_image_tag == self.docker_image_name:
                     logger.info("Docker image found. Skipping build.")
                     docker_image_found = True
@@ -515,6 +542,7 @@ class MethodsHubGitContent(MethodsHubContent):
             docker_client.images.pull(self.docker_repository, self.git_commit_id)
 
         # Test if container has Quarto
+        logger.debug("Checking if container has Quarto")
         client = docker.from_env()
         container = client.containers.run(
             self.docker_image_name,
@@ -522,7 +550,7 @@ class MethodsHubGitContent(MethodsHubContent):
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs().decode("utf-8"))
+        logger.debug(container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Container does NOT have Quarto installed"

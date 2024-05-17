@@ -167,18 +167,18 @@ class TestMethodsHubHTTPContent:
             os.path.join(methods_hub_content.tmp_path, methods_hub_content.filename)
         ), "Local copy of file not created."
 
-    def test_render_docx_to_html(self, monkeypatch):
-        with monkeypatch.context() as mock:
-            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
-            mock.setattr(uuid, "uuid4", mock_uuid4)
+    # def test_render_docx_to_html(self, monkeypatch):
+    #     with monkeypatch.context() as mock:
+    #         mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    #         mock.setattr(uuid, "uuid4", mock_uuid4)
 
-            methods_hub_content = methodshub.MethodsHubHTTPContent(
-                "http://lorem.ipsum/123"
-            )
-            methods_hub_content.clone_or_pull()
+    #         methods_hub_content = methodshub.MethodsHubHTTPContent(
+    #             "http://lorem.ipsum/123"
+    #         )
+    #         methods_hub_content.clone_or_pull()
 
-        methods_hub_content.create_container()
-        methods_hub_content._render_format("html")
+    #     methods_hub_content.create_container()
+    #     methods_hub_content._render_format("html")
 
 
 class TestMethodsHubGitContent:

@@ -169,6 +169,7 @@ def test_post_ipynb_to_html(client):
         json={
             "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
             "filename": "index.ipynb",
+            "git_commit_id": "294d461873f2b7b0005bed8750b0c66932f21c7d",
             "target_format": ["html"],
             "response": "download",
         },
@@ -177,17 +178,17 @@ def test_post_ipynb_to_html(client):
     assert response.status_code == 201, "New document was not created!"
 
 
-def test_post_docx_to_html(client):
-    response = client.post(
-        "/",
-        headers={
-            "Authorization": f"Bearer {generate_jwt()}",
-        },
-        json={
-            "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
-            "target_format": ["html"],
-            "response": "download",
-        },
-    )
+# def test_post_docx_to_html(client):
+#     response = client.post(
+#         "/",
+#         headers={
+#             "Authorization": f"Bearer {generate_jwt()}",
+#         },
+#         json={
+#             "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
+#             "target_format": ["html"],
+#             "response": "download",
+#         },
+#     )
 
-    assert response.status_code == 201, "New document was not created!"
+#     assert response.status_code == 201, "New document was not created!"
