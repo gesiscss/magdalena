@@ -26,6 +26,11 @@ from gql.transport.requests import RequestsHTTPTransport
 
 from . import mybinder
 
+# Newly created files or directories created will have no privileges initially revoked
+#
+# We need this to avoid permission issues in the containers.
+os.umask(0)
+
 logger = logging.getLogger("magdalena.app")
 
 if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
