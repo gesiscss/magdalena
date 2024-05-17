@@ -12,6 +12,7 @@ import re
 import subprocess
 import urllib.request
 import uuid
+from pprint import pformat
 from zipfile import ZipFile
 
 from lxml import etree
@@ -176,8 +177,8 @@ class MethodsHubContent:
             self.output_location: {"bind": output_location_in_container, "mode": "rw"},
         }
         logger.info(
-            "Volumes in the sibling container: %s",
-            volumes,
+            "Volumes in the sibling container:\n%s",
+            pformat(volumes),
         )
 
         self.environment_for_container["output_location"] = output_location_in_container
@@ -185,8 +186,8 @@ class MethodsHubContent:
             f"{self.home_dir_at_docker}/_docker-scripts"
         )
         logger.info(
-            "Environment variables in the sibling container: %s",
-            self.environment_for_container,
+            "Environment variables in the sibling container:\n%s",
+            pformat(self.environment_for_container),
         )
 
         logger.info("Running %s ...", script)
@@ -200,7 +201,8 @@ class MethodsHubContent:
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs().decode("utf-8"))
+        logger.debug("Container attributes:\n%s", pformat(container.attrs))
+        logger.info("Container log:\n%s", container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Fail to render content"
@@ -219,7 +221,9 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         for targe_format in formats:
+            logger.debug("Rendering %s ...", targe_format)
             self._render_format(targe_format)
+            logger.debug("Rendering %s complete!", targe_format)
 
     def rendered_file(self, format):
         filename = f"index.{format}"
@@ -529,6 +533,7 @@ class MethodsHubGitContent(MethodsHubContent):
             docker_client.images.pull(self.docker_repository, self.git_commit_id)
 
         # Test if container has Quarto
+        logger.debug("Checking if container has Quarto")
         client = docker.from_env()
         container = client.containers.run(
             self.docker_image_name,
@@ -536,7 +541,7 @@ class MethodsHubGitContent(MethodsHubContent):
             detach=True,
         )
         result = container.wait()
-        logger.info(container.logs().decode("utf-8"))
+        logger.debug(container.logs().decode("utf-8"))
         container.remove()
 
         assert result["StatusCode"] == 0, "Container does NOT have Quarto installed"
