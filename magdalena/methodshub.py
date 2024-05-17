@@ -496,12 +496,20 @@ class MethodsHubGitContent(MethodsHubContent):
         # Check if container image already exists
         docker_image_found = False
 
+        logger.debug("Creating Docker client ...")
         docker_client = docker.from_env()
+        # If Docker daemon is not running or can't be connected to, a error occurs here.
+        logger.debug("Created Docker client.")
+
+        logger.debug(
+            "Searching for Docker image %s in local cache", self.docker_image_name
+        )
         for docker_image in docker_client.images.list():
             if docker_image_found:
                 break
 
             for docker_image_tag in docker_image.tags:
+                logger.debug("\t - %s", docker_image_tag)
                 if docker_image_tag == self.docker_image_name:
                     logger.info("Docker image found. Skipping build.")
                     docker_image_found = True
