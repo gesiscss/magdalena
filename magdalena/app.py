@@ -109,12 +109,15 @@ def build():
             filename = request.json["filename"]
 
         # assert "git_commit_id" in request.json, "Field git_commit_id missing in form"
-        if "git_commit_id" not in request.json or len(request.json["git_commit_id"]) == 0:
+        if (
+            "git_commit_id" not in request.json
+            or len(request.json["git_commit_id"]) == 0
+        ):
             app.logger.warning("git_commit_id is not defined or empty!")
             git_commit_id = None
         else:
             git_commit_id = request.json["git_commit_id"]
-        
+
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
             id_for_graphql=(
@@ -142,10 +145,20 @@ def build():
 
     try:
         methods_hub_content.clone_or_pull()
+    except Exception as error:
+        app.logger.error("Error when cloning\n\t%s", error)
+        return {"message": str(error)}, 500
+
+    try:
         methods_hub_content.create_container()
+    except Exception as error:
+        app.logger.error("Error when creating container\n\t%s", error)
+        return {"message": str(error)}, 500
+
+    try:
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        app.logger.error(error)
+        app.logger.error("Error when rendering\n\t%s", error)
         return {"message": str(error)}, 500
 
     if request.json["response"] == "download":
