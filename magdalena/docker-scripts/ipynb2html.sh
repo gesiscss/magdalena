@@ -14,6 +14,9 @@
 
 set -o errexit
 
+# To help when debugging, print all environment variables
+env
+
 dirname2render=$(dirname ${file2render})
 basename2render=$(basename ${file2render})
 
