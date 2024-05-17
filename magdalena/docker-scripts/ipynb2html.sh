@@ -43,6 +43,10 @@ quarto \
     --metadata "github_repository_name:${github_repository_name}" \
     --metadata "docker_image:${docker_image}" \
     --metadata "info_quarto_version:${quarto_version}" \
-    --metadata "source_filename:${file2render}" && \
-    cp ${output_basename} $output_dirname/$output_basename && \
-    ${docker_script_root}/copy-assets.sh $output_dirname
+    --metadata "source_filename:${file2render}"
+
+find ${output_basename} -type f -exec chmod -f a+rwx {} \;
+
+cp ${output_basename} $output_dirname/$output_basename
+
+${docker_script_root}/copy-assets.sh $output_dirname
