@@ -21,6 +21,11 @@ from .pem import (
     KEYCLOAK_CLIENT,
 )
 
+# Newly created files or directories created will have no privileges initially revoked
+#
+# We need this to avoid permission issues in the containers.
+os.umask(0)
+
 JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
 
 PUBLIC_KEY = retrieve_public_key()
@@ -43,10 +48,6 @@ with app.app_context():
             os.path.join(shared_root_dir, dir_name),
             dirs_exist_ok=True,
         )
-
-    # Need to set correct permission to files
-    for _file in os.walk(shared_root_dir):
-        os.chmod(_file[0], 0o777)
 
 
 @app.route("/keycloak.min.js")
