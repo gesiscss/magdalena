@@ -476,7 +476,7 @@ class MethodsHubGitContent(MethodsHubContent):
         assert git_commit_exists.returncode == 0, (
             "Git commit with ID %s does NOT exists" % self.git_commit_id
         )
-        logger.info("Git Commit ID: : %s", self.git_commit_id)
+        logger.info("Git Commit ID: %s", self.git_commit_id)
 
     def create_container(self):
         if self.git_commit_id is None:
