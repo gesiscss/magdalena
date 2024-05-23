@@ -6,6 +6,8 @@
 services:
 
   sphinx:
+    profiles:
+      - docs
     image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx:7.2.6-make
     command: sphinx-autobuild --host 0.0.0.0 source build
     volumes:
@@ -18,6 +20,8 @@ services:
       - "8000:8000"
 
   swagger-editor:
+    profiles:
+      - docs
     image: swaggerapi/swagger-editor:v4.12.1
     environment:
       SWAGGER_FILE: /var/magdalena/openapi/magdalena.yaml
