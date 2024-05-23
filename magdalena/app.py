@@ -34,10 +34,11 @@ PUBLIC_KEY = retrieve_public_key()
 app = Flask(__name__)
 
 with app.app_context():
-    if __name__ != "__main__":
-        gunicorn_logger = logging.getLogger("gunicorn.error")
-        app.logger.handlers = gunicorn_logger.handlers
-        app.logger.setLevel(gunicorn_logger.level)
+    for logger_name in logging.root.manager.loggerDict:
+        if logger_name == "gunicorn.error":
+            gunicorn_logger = logging.getLogger("gunicorn.error")
+            app.logger.handlers = gunicorn_logger.handlers
+            app.logger.setLevel(gunicorn_logger.level)
 
     if "MAGDALENA_SHARED_DIR" not in os.environ:
         app.logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
