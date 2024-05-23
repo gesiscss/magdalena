@@ -41,7 +41,7 @@ GRAPHQL_TRANSPORT = RequestsHTTPTransport(
     url=os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"),
     verify=True,
     retries=3,
-    headers={"Authorization": f"Bearer {os.getenv('MAGDALENA_GRAPHQL_TARGET_TOKEN')}"},
+    # headers={"Authorization": f"Bearer {os.getenv('MAGDALENA_GRAPHQL_TARGET_TOKEN')}"},
 )
 
 GRAPHQL_CLIENT = Client(transport=GRAPHQL_TRANSPORT, fetch_schema_from_transport=True)
