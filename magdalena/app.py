@@ -10,13 +10,9 @@ from flask import Flask
 
 from .blueprint import magdalena
 
-if "MAGDALENA_URL_PREFIX" not in os.environ:
-    app.logger.warning("MAGDALENA_URL_PREFIX is not defined! Using default.")
-url_prefix = os.getenv("MAGDALENA_URL_PREFIX", None)
-app.logger.info("URL prefix is %s", url_prefix)
 
 app = Flask(__name__)
-register_blueprint(magdalena, url_prefix=url_prefix)
+
 
 with app.app_context():
     if "MAGDALENA_SHARED_DIR" not in os.environ:
@@ -34,3 +30,10 @@ with app.app_context():
             os.path.join(shared_root_dir, dir_name),
             dirs_exist_ok=True,
         )
+
+    if "MAGDALENA_URL_PREFIX" not in os.environ:
+        app.logger.warning("MAGDALENA_URL_PREFIX is not defined! Using default.")
+    url_prefix = os.getenv("MAGDALENA_URL_PREFIX", None)
+    app.logger.info("URL prefix is %s", url_prefix)
+
+    app.register_blueprint(magdalena, url_prefix=url_prefix)

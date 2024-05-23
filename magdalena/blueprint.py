@@ -6,7 +6,14 @@
 import os
 import shutil
 
-from flask import Blueprint, request, render_template, send_file, send_from_directory
+from flask import (
+    Blueprint,
+    request,
+    render_template,
+    send_file,
+    send_from_directory,
+    current_app,
+)
 
 import jwt
 
@@ -54,6 +61,7 @@ def index():
         keycloak_domain=keycloak_domain,
         keycloak_realm=KEYCLOAK_REALM,
         keycloak_client=KEYCLOAK_CLIENT,
+        resource_location=request.url_rule.rule,
     )
 
 
@@ -65,9 +73,9 @@ def build():
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    app.logger.debug("Validating JWT")
-    app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
-    app.logger.debug("\tJWT: %s", authorization_token)
+    current_app.logger.debug("Validating JWT")
+    current_app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+    current_app.logger.debug("\tJWT: %s", authorization_token)
 
     jwt.decode(
         authorization_token,
@@ -77,7 +85,7 @@ def build():
         issuer=JWT_ISSUER,
     )
 
-    app.logger.info("Form content is %s", request.json)
+    current_app.logger.info("Form content is %s", request.json)
 
     assert "source_url" in request.json, "Field source_url missing in form"
 
@@ -87,7 +95,9 @@ def build():
     ):
         # assert "filename" in request.json, "Field filename missing in form"
         if "filename" not in request.json or len(request.json["filename"]) == 0:
-            app.logger.warning("filename is not defined or empty! Using 'README.md'")
+            current_app.logger.warning(
+                "filename is not defined or empty! Using 'README.md'"
+            )
             filename = "README.md"
         else:
             filename = request.json["filename"]
@@ -97,7 +107,7 @@ def build():
             "git_commit_id" not in request.json
             or len(request.json["git_commit_id"]) == 0
         ):
-            app.logger.warning("git_commit_id is not defined or empty!")
+            current_app.logger.warning("git_commit_id is not defined or empty!")
             git_commit_id = None
         else:
             git_commit_id = request.json["git_commit_id"]
@@ -130,23 +140,23 @@ def build():
     try:
         methods_hub_content.clone_or_pull()
     except Exception as error:
-        app.logger.error("Error when cloning\n\t%s", error)
+        current_app.logger.error("Error when cloning\n\t%s", error)
         return {"message": str(error)}, 500
 
     try:
         methods_hub_content.create_container()
     except Exception as error:
-        app.logger.error("Error when creating container\n\t%s", error)
+        current_app.logger.error("Error when creating container\n\t%s", error)
         return {"message": str(error)}, 500
 
     try:
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        app.logger.error("Error when rendering\n\t%s", error)
+        current_app.logger.error("Error when rendering\n\t%s", error)
         return {"message": str(error)}, 500
 
     if request.json["response"] == "download":
-        app.logger.info("Sending response to user")
+        current_app.logger.info("Sending response to user")
         if len(request.json["target_format"]) == 1:
             return (
                 send_file(
@@ -169,7 +179,7 @@ def build():
             )
 
     if request.json["response"] == "forward":
-        app.logger.info(
+        current_app.logger.info(
             "Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL")
         )
 
