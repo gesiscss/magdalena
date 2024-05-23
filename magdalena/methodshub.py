@@ -281,9 +281,10 @@ class MethodsHubContent:
         """
         )
 
-        filename2push = f"index.{target_format}"
+        filename = f"index.{format}"
+        file_path = os.path.join(self.output_location, filename)
 
-        with open(filename2push, "rb") as _file:
+        with open(file_path, "rb") as _file:
             file_as_binary = b"".join(_file.readlines())
 
         if target_format != "html":
@@ -295,7 +296,7 @@ class MethodsHubContent:
             input: {
                 "binary": file_base64,
                 "fileExtension": target_format,
-                "name": filename2push,
+                "name": filename,
                 "content": {"id": self.id_for_graphql},
             }
         }
