@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import os
 import os.path
 import urllib.request
 import uuid
@@ -11,15 +12,10 @@ import pytest
 
 from ... import methodshub
 
+MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
 
-class Mock200HTTPResponse:
-    status = 200
 
-    @staticmethod
-    def info():
-        return {"Content-Disposition": 'filename="mock-file.docx"'}
-
-    @staticmethod
+class MockDocxResponse:
     def read():
         with open(
             os.path.join(os.path.dirname(__file__), "..", "assets", "minimal.docx"),
@@ -28,18 +24,6 @@ class Mock200HTTPResponse:
             docx = _file.read()
 
         return docx
-
-
-def mock_urlopen_with_200(url):
-    return Mock200HTTPResponse()
-
-
-class Mock404HTTPResponse:
-    status = 404
-
-
-def mock_urlopen_with_404(url):
-    return Mock404HTTPResponse()
 
 
 class MockUui4:
@@ -55,8 +39,12 @@ class TestMethodsHubHTTPContent:
         with pytest.raises(AssertionError):
             assert methodshub.MethodsHubHTTPContent(None, filename="lorem-ipsum.docx")
 
-    def test_init_without_filename(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_without_filename(self, requests_mock):
+        requests_mock.get(
+            "http://lorem.ipsum/123",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
 
         assert methodshub.MethodsHubHTTPContent("http://lorem.ipsum/123", filename=None)
 
@@ -64,8 +52,13 @@ class TestMethodsHubHTTPContent:
         with pytest.raises(AssertionError):
             assert methodshub.MethodsHubHTTPContent("", filename="lorem-ipsum.md")
 
-    def test_init_with_empty_filename(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_with_empty_filename(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "http://lorem.ipsum/123",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
 
         with pytest.raises(AssertionError):
@@ -73,8 +66,13 @@ class TestMethodsHubHTTPContent:
                 "http://lorem.ipsum/123", filename=""
             )
 
-    def test_init_with_nextcloud(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_with_nextcloud(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "https://gesisbox.gesis.org/lorem/ipsum/download",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
 
         methods_hub_content = methodshub.MethodsHubHTTPContent(
@@ -93,8 +91,13 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-    def test_init_with_nextcloud_complete(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_with_nextcloud_complete(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "https://gesisbox.gesis.org/lorem/ipsum/download",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
 
         methods_hub_content = methodshub.MethodsHubHTTPContent(
@@ -113,8 +116,13 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-    def test_init_with_sharepoint(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_with_sharepoint(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "https://gesisev.sharepoint.com/lorem/ipsum&download=1",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
 
         methods_hub_content = methodshub.MethodsHubHTTPContent(
@@ -133,8 +141,13 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-    def test_init_with_sharepoint_complete(self, monkeypatch):
-        monkeypatch.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
+    def test_init_with_sharepoint_complete(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "https://gesisev.sharepoint.com/lorem/ipsum&download=1",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         monkeypatch.setattr(uuid, "uuid4", mock_uuid4)
 
         methods_hub_content = methodshub.MethodsHubHTTPContent(
@@ -153,9 +166,14 @@ class TestMethodsHubHTTPContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-    def test_clone_or_pull(self, monkeypatch):
+    def test_clone_or_pull(self, monkeypatch, requests_mock):
+        requests_mock.get(
+            "http://lorem.ipsum/123",
+            body=MockDocxResponse(),
+            headers={"Content-Disposition": 'filename="mock-file.docx"'},
+        )
+
         with monkeypatch.context() as mock:
-            mock.setattr(urllib.request, "urlopen", mock_urlopen_with_200)
             mock.setattr(uuid, "uuid4", mock_uuid4)
 
             methods_hub_content = methodshub.MethodsHubHTTPContent(
@@ -388,7 +406,7 @@ class TestMethodsHubGitContent:
         with pytest.raises(AssertionError):
             methods_hub_content.create_container()
 
-    def test_render_qmd_to_html_with_quarto(self):
+    def test_render_qmd_to_html_with_quarto(self, requests_mock):
         methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
             filename="index.qmd",
@@ -418,5 +436,11 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-        methods_hub_content.create_container()
+        with requests_mock.Mocker() as m:
+            expected_response = """
+data: {"phase": "built", "imageName": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "message": "Found built image, launching...\\n"}
+data: {"phase": "ready", "message": "server running at https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/\\n", "image": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "repo_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units", "token": "qKcb4Ja4Q12TqaR7zb8Tog", "binder_ref_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/tree/c4add962323f877758bd679bfc94b6d26400d14c", "binder_launch_host": "https://mybinder.org/", "binder_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "binder_persistent_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "url": "https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/"}
+"""
+            m.get(MYBINDER_URL, text=expected_response)
+            methods_hub_content.create_container()
         methods_hub_content._render_format("html")

@@ -48,6 +48,7 @@ def _create_container(provider_prefix, spec):
     response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
     response.raise_for_status()
     for line in response.iter_lines():
+        logger.debug(line)
         now = datetime.datetime.now()
         request_duration = now - begin_of_request
         if request_duration.seconds > USER_TIMEOUT:
