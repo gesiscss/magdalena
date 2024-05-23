@@ -270,7 +270,7 @@ class MethodsHubContent:
                     arcname=filename2zip,
                 )
 
-    def _push_rendered_format(self, target_format):
+    def _push_rendered_format(self, format):
         mutation = gql(
             """
             mutation Mutation($input: CreateFileInput!) {
@@ -287,7 +287,7 @@ class MethodsHubContent:
         with open(file_path, "rb") as _file:
             file_as_binary = b"".join(_file.readlines())
 
-        if target_format != "html":
+        if format != "html":
             file_base64 = base64.b64encode(file_as_binary)
         else:
             file_base64 = base64.b64encode(extract_content_from_html(file_as_binary))
@@ -295,7 +295,7 @@ class MethodsHubContent:
         variables = {
             input: {
                 "binary": file_base64,
-                "fileExtension": target_format,
+                "fileExtension": format,
                 "name": filename,
                 "content": {"id": self.id_for_graphql},
             }
