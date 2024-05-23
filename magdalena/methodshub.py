@@ -304,6 +304,7 @@ class MethodsHubContent:
             }
         }
 
+        logger.debug("GraphQL variables:\n%s" % pformat(variables))
         result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
         logger.info("GraphQL call resulted in %s", result)
 
