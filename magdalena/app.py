@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import logging
 import os
 import shutil
 
@@ -33,6 +34,11 @@ PUBLIC_KEY = retrieve_public_key()
 app = Flask(__name__)
 
 with app.app_context():
+    if __name__ != "__main__":
+        gunicorn_logger = logging.getLogger("gunicorn.error")
+        app.logger.handlers = gunicorn_logger.handlers
+        app.logger.setLevel(gunicorn_logger.level)
+
     if "MAGDALENA_SHARED_DIR" not in os.environ:
         app.logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
         os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
