@@ -296,7 +296,7 @@ class MethodsHubContent:
             file_base64 = base64.b64encode(extract_content_from_html(file_as_binary))
 
         variables = {
-            input: {
+            "input": {
                 "binary": file_base64,
                 "fileExtension": target_format,
                 "name": filename,
