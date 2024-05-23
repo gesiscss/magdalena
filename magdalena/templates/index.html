@@ -90,7 +90,7 @@ main();
                 (data) => {
                     console.log(`JWT: ${keycloak.token}`);
                     
-                    fetch('/', {
+                    fetch("{{ url_for('build') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
