@@ -105,6 +105,21 @@ def build():
 
     assert "source_url" in request.json, "Field source_url missing in form"
 
+    if "response" in request.json:
+        response_type = request.json["response"]
+    else:
+        response_type = None
+
+    assert response_type is ["download", "forward"], "Field response is invalid"
+
+    if "forward_id" in request.json and len(request.json["forward_id"]):
+        forward_id = request.json["forward_id"]
+    else:
+        forward_id = None
+
+    if response_type == "forward":
+        assert forward_id, "Field forward_id is missing when it is required"
+
     if (
         "github.com" in request.json["source_url"]
         or "gitlab.com" in request.json["source_url"]
@@ -128,22 +143,14 @@ def build():
 
         methods_hub_content = MethodsHubGitContent(
             request.json["source_url"],
-            id_for_graphql=(
-                request.json["forward_id"]
-                if ("forward_id" in request.json and len(request.json["forward_id"]))
-                else None
-            ),
+            id_for_graphql=forward_id,
             git_commit_id=git_commit_id,
             filename=filename,
         )
     else:
         methods_hub_content = MethodsHubHTTPContent(
             request.json["source_url"],
-            id_for_graphql=(
-                request.json["forward_id"]
-                if ("forward_id" in request.json and len(request.json["forward_id"]))
-                else None
-            ),
+            id_for_graphql=forward_id,
             filename=(
                 request.json["filename"]
                 if ("filename" in request.json and len(request.json["filename"]))
@@ -169,7 +176,7 @@ def build():
         app.logger.error("Error when rendering\n\t%s", error)
         return {"message": str(error)}, 500
 
-    if request.json["response"] == "download":
+    if response_type == "download":
         app.logger.info("Sending response to user")
         if len(request.json["target_format"]) == 1:
             return (
@@ -192,7 +199,7 @@ def build():
                 201,
             )
 
-    if request.json["response"] == "forward":
+    if response_type == "forward":
         app.logger.info(
             "Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL")
         )
