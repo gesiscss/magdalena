@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <head>
         <title>magdalena</title>
 
-        <script src='keycloak.min.js'></script>
+        <script src="{{ url_for('send_keycloak_adapter') }}"></script>
         <script>
 const keycloak = new Keycloak({
     url: '{{keycloak_scheme}}://{{keycloak_domain}}',
