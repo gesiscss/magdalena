@@ -221,21 +221,21 @@ class MethodsHubContent:
             self.filename_extension in self.RENDER_MATRIX
         ), "File extension not supported!"
 
-        for targe_format in self.RENDER_MATRIX[self.filename_extension]:
-            self._render_format(targe_format)
+        for target_format in self.RENDER_MATRIX[self.filename_extension]:
+            self._render_format(target_format)
 
     def render_formats(self, formats):
         assert (
             self.filename_extension in self.RENDER_MATRIX
         ), "File extension not supported!"
 
-        for targe_format in formats:
-            logger.debug("Rendering %s ...", targe_format)
-            self._render_format(targe_format)
-            logger.debug("Rendering %s complete!", targe_format)
+        for target_format in formats:
+            logger.debug("Rendering %s ...", target_format)
+            self._render_format(target_format)
+            logger.debug("Rendering %s complete!", target_format)
 
-    def rendered_file(self, format):
-        filename = f"index.{format}"
+    def rendered_file(self, target_format):
+        filename = f"index.{target_format}"
         file_path = os.path.join(self.output_location, filename)
 
         logger.debug("Rendered file path: %s", file_path)
@@ -250,8 +250,8 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         with ZipFile(self.zip_file_path, "w") as zip_with_all_formats:
-            for targe_format in self.RENDER_MATRIX[self.filename_extension]:
-                filename2zip = f"index.{targe_format}"
+            for target_format in self.RENDER_MATRIX[self.filename_extension]:
+                filename2zip = f"index.{target_format}"
                 zip_with_all_formats.write(
                     os.path.join(self.output_location, filename2zip),
                     arcname=filename2zip,
@@ -263,14 +263,14 @@ class MethodsHubContent:
         ), "File extension not supported!"
 
         with ZipFile(self.zip_file_path, "w") as zip_output:
-            for targe_format in formats:
-                filename2zip = f"index.{targe_format}"
+            for target_format in formats:
+                filename2zip = f"index.{target_format}"
                 zip_output.write(
                     os.path.join(self.output_location, filename2zip),
                     arcname=filename2zip,
                 )
 
-    def _push_rendered_format(self, format):
+    def _push_rendered_format(self, target_format):
         mutation = gql(
             """
             mutation Mutation($input: CreateFileInput!) {
@@ -281,13 +281,16 @@ class MethodsHubContent:
         """
         )
 
-        filename = f"index.{format}"
+        logger.debug("Preparing content to push ...")
+
+        filename = f"index.{target_format}"
         file_path = os.path.join(self.output_location, filename)
 
+        logger.debug("Loading file %s ...", file_path)
         with open(file_path, "rb") as _file:
             file_as_binary = b"".join(_file.readlines())
 
-        if format != "html":
+        if target_format != "html":
             file_base64 = base64.b64encode(file_as_binary)
         else:
             file_base64 = base64.b64encode(extract_content_from_html(file_as_binary))
@@ -295,7 +298,7 @@ class MethodsHubContent:
         variables = {
             input: {
                 "binary": file_base64,
-                "fileExtension": format,
+                "fileExtension": target_format,
                 "name": filename,
                 "content": {"id": self.id_for_graphql},
             }
