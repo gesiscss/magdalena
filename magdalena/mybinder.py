@@ -48,6 +48,7 @@ def _create_container(provider_prefix, spec):
     response = requests.get(build_url, stream=True, timeout=REQUESTS_TIMEOUT)
     response.raise_for_status()
     for line in response.iter_lines():
+        logger.debug(line)
         now = datetime.datetime.now()
         request_duration = now - begin_of_request
         if request_duration.seconds > USER_TIMEOUT:
@@ -83,14 +84,14 @@ def _create_container(provider_prefix, spec):
 
     headers = {"Authorization": f"token {token}"}
     response = requests.get(
-        notebook_url + "/api", headers=headers, timeout=REQUESTS_TIMEOUT
+        notebook_url + "api", headers=headers, timeout=REQUESTS_TIMEOUT
     )
     assert response.status_code == 200
     assert "version" in response.json()
     logger.info("Jupyter single user server is running!")
 
     response = requests.post(
-        notebook_url + "/api/shutdown", headers=headers, timeout=REQUESTS_TIMEOUT
+        notebook_url + "api/shutdown", headers=headers, timeout=REQUESTS_TIMEOUT
     )
     assert response.status_code == 200
     logger.info("Jupyter single user server was shutdown!")

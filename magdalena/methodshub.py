@@ -10,10 +10,11 @@ import os
 import os.path
 import re
 import subprocess
-import urllib.request
 import uuid
 from pprint import pformat
 from zipfile import ZipFile
+
+import requests
 
 from lxml import etree
 from lxml.cssselect import CSSSelector
@@ -353,15 +354,18 @@ class MethodsHubHTTPContent(MethodsHubContent):
             )
 
         if filename is None:
-            request = urllib.request.urlopen(self.source_url)
-            assert request.status == 200, "Fail to stablish connection"
-            regex_match_filename = re.search(
-                r'filename="(.+)"', request.info()["Content-Disposition"]
-            )
-            assert (
-                regex_match_filename is not None
-            ), "Unable to extract filename from HTTP request"
-            filename = regex_match_filename.group(1)
+            with requests.get(self.source_url, stream=True) as response:
+                assert response.status_code == 200, "Fail to stablish connection"
+                assert (
+                    "Content-Disposition" in response.headers
+                ), "HTTP response header missing Content-Disposition"
+                regex_match_filename = re.search(
+                    r'filename="(.+)"', response.headers["Content-Disposition"]
+                )
+                assert (
+                    regex_match_filename is not None
+                ), "Unable to extract filename from HTTP request"
+                filename = regex_match_filename.group(1)
         assert len(filename), "filename can NOT be empty"
 
         self.filename = filename
@@ -386,10 +390,10 @@ class MethodsHubHTTPContent(MethodsHubContent):
     def clone_or_pull(self):
         os.makedirs(self.tmp_path, exist_ok=True)
 
-        request = urllib.request.urlopen(self.source_url)
-        assert request.status == 200, "Fail to stablish connection"
-        with open(os.path.join(self.tmp_path, self.filename), "wb") as _file:
-            _file.write(request.read())
+        with requests.get(self.source_url, stream=True) as response:
+            assert response.status_code == 200, "Fail to stablish connection"
+            with open(os.path.join(self.tmp_path, self.filename), "wb") as _file:
+                _file.write(response.raw.read())
 
     def create_container(self):
         self.docker_repository = f"magdalena/{self.domain}/{self.filename}"
