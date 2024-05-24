@@ -110,7 +110,7 @@ def build():
     else:
         response_type = None
 
-    assert response_type is ["download", "forward"], "Field response is invalid"
+    assert response_type in ["download", "forward"], "Field response is invalid"
 
     if "forward_id" in request.json and len(request.json["forward_id"]):
         forward_id = request.json["forward_id"]
