@@ -5,14 +5,14 @@
 
 import os
 import os.path
+import re
 import urllib.request
 import uuid
 
 import pytest
 
 from ... import methodshub
-
-MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
+from ...mybinder import MYBINDER_URL
 
 
 class MockDocxResponse:
@@ -436,11 +436,20 @@ class TestMethodsHubGitContent:
         assert methods_hub_content.docker_repository is None
         assert methods_hub_content.docker_image_name is None
 
-        with requests_mock.Mocker() as m:
-            expected_response = """
+        mybinder_build_matcher = re.compile(f"^{MYBINDER_URL}/build")
+        expected_mybinder_build_response = """
 data: {"phase": "built", "imageName": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "message": "Found built image, launching...\\n"}
 data: {"phase": "ready", "message": "server running at https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/\\n", "image": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "repo_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units", "token": "qKcb4Ja4Q12TqaR7zb8Tog", "binder_ref_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/tree/c4add962323f877758bd679bfc94b6d26400d14c", "binder_launch_host": "https://mybinder.org/", "binder_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "binder_persistent_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "url": "https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/"}
 """
-            m.get(MYBINDER_URL, text=expected_response)
-            methods_hub_content.create_container()
+        requests_mock.get(mybinder_build_matcher, text=expected_mybinder_build_response)
+
+        mybinder_status_matcher = re.compile(f"^{MYBINDER_URL}/jupyter/user/.*/api$")
+        requests_mock.get(mybinder_status_matcher, json={"version": "mock"})
+
+        mybinder_shutdown_matcher = re.compile(
+            f"^{MYBINDER_URL}/jupyter/user/.*/api/shutdown$"
+        )
+        requests_mock.post(mybinder_shutdown_matcher)
+
+        methods_hub_content.create_container()
         methods_hub_content._render_format("html")
