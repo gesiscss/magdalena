@@ -3,14 +3,17 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-import os
 import datetime
+import os
+import re
 import time
 
 import jwt
 
 from lxml import etree
 from lxml.cssselect import CSSSelector
+
+from ...mybinder import MYBINDER_URL
 
 
 def generate_jwt():
@@ -124,7 +127,24 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
     return jwt.encode(payload, private_key, algorithm="RS256")
 
 
-def test_post_qmd_to_html_without_quarto(client):
+def test_post_qmd_to_html_without_quarto(client, requests_mock):
+    requests_mock.real_http = True
+
+    mybinder_build_matcher = re.compile(f"^{MYBINDER_URL}/build")
+    expected_mybinder_build_response = """
+data: {"phase": "built", "imageName": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:996dbe13501f6cf3f2811843bee68cc5295dd0ff", "message": "Found built image, launching...\\n"}
+data: {"phase": "ready", "message": "server running at https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/\\n", "image": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:996dbe13501f6cf3f2811843bee68cc5295dd0ff", "repo_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units", "token": "qKcb4Ja4Q12TqaR7zb8Tog", "binder_ref_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/tree/996dbe13501f6cf3f2811843bee68cc5295dd0ff", "binder_launch_host": "https://mybinder.org/", "binder_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/996dbe13501f6cf3f2811843bee68cc5295dd0ff", "binder_persistent_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/996dbe13501f6cf3f2811843bee68cc5295dd0ff", "url": "https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/"}
+"""
+    requests_mock.get(mybinder_build_matcher, text=expected_mybinder_build_response)
+
+    mybinder_status_matcher = re.compile(f"^{MYBINDER_URL}/jupyter/user/.*/api$")
+    requests_mock.get(mybinder_status_matcher, json={"version": "mock"})
+
+    mybinder_shutdown_matcher = re.compile(
+        f"^{MYBINDER_URL}/jupyter/user/.*/api/shutdown$"
+    )
+    requests_mock.post(mybinder_shutdown_matcher)
+
     response = client.post(
         "/",
         headers={
@@ -142,7 +162,24 @@ def test_post_qmd_to_html_without_quarto(client):
     assert response.status_code == 500, "Expected fail due missing of Quarto!"
 
 
-def test_post_qmd_to_html_with_quarto(client):
+def test_post_qmd_to_html_with_quarto(client, requests_mock):
+    requests_mock.real_http = True
+
+    mybinder_build_matcher = re.compile(f"^{MYBINDER_URL}/build")
+    expected_mybinder_build_response = """
+data: {"phase": "built", "imageName": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "message": "Found built image, launching...\\n"}
+data: {"phase": "ready", "message": "server running at https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/\\n", "image": "gesiscss/binder-r2d-g5b5b759-gesis-2dmethods-2dhub-2dminimal-2dexample-2dqmd-2drstats-2dunits-06c93c:c4add962323f877758bd679bfc94b6d26400d14c", "repo_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units", "token": "qKcb4Ja4Q12TqaR7zb8Tog", "binder_ref_url": "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/tree/c4add962323f877758bd679bfc94b6d26400d14c", "binder_launch_host": "https://mybinder.org/", "binder_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "binder_persistent_request": "v2/gh/GESIS-Methods-Hub/minimal-example-qmd-rstats-units/c4add962323f877758bd679bfc94b6d26400d14c", "url": "https://notebooks.gesis.org/binder/jupyter/user/gesis-methods-h-md-rstats-units-gejw8fu0/"}
+"""
+    requests_mock.get(mybinder_build_matcher, text=expected_mybinder_build_response)
+
+    mybinder_status_matcher = re.compile(f"^{MYBINDER_URL}/jupyter/user/.*/api$")
+    requests_mock.get(mybinder_status_matcher, json={"version": "mock"})
+
+    mybinder_shutdown_matcher = re.compile(
+        f"^{MYBINDER_URL}/jupyter/user/.*/api/shutdown$"
+    )
+    requests_mock.post(mybinder_shutdown_matcher)
+
     response = client.post(
         "/",
         headers={
