@@ -16,7 +16,7 @@ from ...mybinder import MYBINDER_URL
 
 
 class MockDocxResponse:
-    def read():
+    def read(self):
         with open(
             os.path.join(os.path.dirname(__file__), "..", "assets", "minimal.docx"),
             "rb",
