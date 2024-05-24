@@ -271,7 +271,7 @@ class MethodsHubContent:
                     arcname=filename2zip,
                 )
 
-    def _push_rendered_format(self, target_format):
+    def _push_rendered_format(self, target_format, token):
         mutation = gql(
             """
             mutation Mutation($input: CreateFileInput!) {
@@ -309,21 +309,21 @@ class MethodsHubContent:
         result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
         logger.info("GraphQL call resulted in %s", result)
 
-    def push_all_rendered_formats(self):
+    def push_all_rendered_formats(self, token):
         assert (
             self.filename_extension in self.RENDER_MATRIX
         ), "File extension not supported!"
 
         for target_format in self.RENDER_MATRIX[self.filename_extension]:
-            self._push_rendered_format(target_format)
+            self._push_rendered_format(target_format, token)
 
-    def push_rendered_formats(self, formats):
+    def push_rendered_formats(self, formats, token):
         assert (
             self.filename_extension in self.RENDER_MATRIX
         ), "File extension not supported!"
 
         for target_format in formats:
-            self._push_rendered_format(target_format)
+            self._push_rendered_format(target_format, token)
 
 
 class MethodsHubHTTPContent(MethodsHubContent):
