@@ -38,15 +38,6 @@ if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
     logger.warning("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
     os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
 
-GRAPHQL_TRANSPORT = RequestsHTTPTransport(
-    url=os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"),
-    verify=True,
-    retries=3,
-    # headers={"Authorization": f"Bearer {os.getenv('MAGDALENA_GRAPHQL_TARGET_TOKEN')}"},
-)
-
-GRAPHQL_CLIENT = Client(transport=GRAPHQL_TRANSPORT, fetch_schema_from_transport=True)
-
 
 def extract_content_from_html(raw_html):
     """
@@ -272,6 +263,15 @@ class MethodsHubContent:
                 )
 
     def _push_rendered_format(self, target_format, token):
+        graphql_transport = RequestsHTTPTransport(
+            url=os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"),
+            verify=True,
+            retries=3,
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        graphql_client = Client(transport=graphql_transport)
+
         mutation = gql(
             """
             mutation Mutation($input: CreateFileInput!) {
@@ -306,7 +306,7 @@ class MethodsHubContent:
         }
 
         logger.debug("GraphQL variables:\n%s" % pformat(variables))
-        result = GRAPHQL_CLIENT.execute(mutation, variable_values=variables)
+        result = graphql_client.execute(mutation, variable_values=variables)
         logger.info("GraphQL call resulted in %s", result)
 
     def push_all_rendered_formats(self, token):
