@@ -299,7 +299,7 @@ class MethodsHubContent:
         variables = {
             "input": {
                 "binary": file_base64.decode("utf-8"),
-                "fileExtension": target_format,
+                "fileExtension": target_format.upper(),
                 "name": filename,
                 "content": {"id": self.id_for_graphql},
             }
