@@ -407,6 +407,8 @@ class TestMethodsHubGitContent:
             methods_hub_content.create_container()
 
     def test_render_qmd_to_html_with_quarto(self, requests_mock):
+        requests_mock.real_http = True
+
         methods_hub_content = methodshub.MethodsHubGitContent(
             "https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units.git",
             filename="index.qmd",
