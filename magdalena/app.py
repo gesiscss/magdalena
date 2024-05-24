@@ -208,8 +208,10 @@ def build():
         )
 
         if len(request.json["target_format"]) == 1:
-            methods_hub_content.push_rendered_formats(request.json["target_format"])
+            methods_hub_content.push_rendered_formats(
+                request.json["target_format"], authorization_token
+            )
         else:
-            methods_hub_content.push_all_rendered_formats()
+            methods_hub_content.push_all_rendered_formats(authorization_token)
 
         return {"status": "OK"}, 201
