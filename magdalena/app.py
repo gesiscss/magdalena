@@ -105,20 +105,23 @@ def build():
 
     assert "source_url" in request.json, "Field source_url missing in form"
 
-    if "response" in request.json:
-        response_type = request.json["response"]
-    else:
-        response_type = None
+    assert "response" in request.json, "Field response missing in form"
 
-    assert response_type in ["download", "forward"], "Field response is invalid"
+    assert request.json["response"] in [
+        "download",
+        "forward",
+    ], "Field response is invalid"
 
-    if "forward_id" in request.json and len(request.json["forward_id"]):
+    response_type = request.json["response"]
+
+    if response_type == "forward":
+        assert "forward_id" in request.json, "Field forward_id missing in form"
+
+        assert request.json["forward_id"], "Field forward_id is invalid"
+
         forward_id = request.json["forward_id"]
     else:
         forward_id = None
-
-    if response_type == "forward":
-        assert forward_id, "Field forward_id is missing when it is required"
 
     if (
         "github.com" in request.json["source_url"]
