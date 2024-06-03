@@ -16,7 +16,7 @@ from zipfile import ZipFile
 
 import requests
 
-from lxml import etree
+import lxml.html
 from lxml.cssselect import CSSSelector
 
 import docker
@@ -43,7 +43,7 @@ def extract_content_from_html(raw_html):
     """
     Extract content from html created by Quarto.
     """
-    html = etree.fromstring(raw_html, etree.HTMLParser())
+    html = lxml.html.fromstring(raw_html)
     selector = CSSSelector("main")
     selection = selector(html)
 
@@ -59,7 +59,7 @@ def extract_content_from_html(raw_html):
     selection = selection[0]
     selection.tag = "div"
 
-    return etree.tostring(selection, with_tail=False)
+    return lxml.html.tostring(selection, with_tail=False)
 
 
 class MethodsHubContent:
