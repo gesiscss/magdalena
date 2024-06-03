@@ -59,6 +59,11 @@ def extract_content_from_html(raw_html):
     selection = selection[0]
     selection.tag = "div"
 
+    header_selector = CSSSelector("header")
+    header_selection = header_selector(selection)
+    if len(header_selection) > 0:
+        header_selection[0].getparent().remove(header_selection)
+
     return lxml.html.tostring(selection, with_tail=False)
 
 
