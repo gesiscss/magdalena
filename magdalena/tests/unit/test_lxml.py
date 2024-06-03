@@ -37,7 +37,25 @@ class TestMethodsHubExtractHtml:
 </html>"""
 
         expected_html = b"""<div>
+      
       Lorem ipsum.
+    </div>"""
+
+        html = methodshub.extract_content_from_html(raw_html)
+
+        assert html == expected_html
+
+    def test_empty_link(self):
+        raw_html = b"""<html>
+  <body>
+    <main>
+      Lorem <a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> ipsum.
+    </main>
+  </body>
+</html>"""
+
+        expected_html = b"""<div>
+      Lorem <a href="#cb1-1" aria-hidden="true" tabindex="-1"></a> ipsum.
     </div>"""
 
         html = methodshub.extract_content_from_html(raw_html)
