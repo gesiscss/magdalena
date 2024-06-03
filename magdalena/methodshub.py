@@ -62,7 +62,7 @@ def extract_content_from_html(raw_html):
     header_selector = CSSSelector("header")
     header_selection = header_selector(selection)
     if len(header_selection) > 0:
-        header_selection[0].getparent().remove(header_selection)
+        header_selection[0].drop_tree()
 
     return lxml.html.tostring(selection, with_tail=False)
 
