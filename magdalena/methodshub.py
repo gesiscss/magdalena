@@ -47,7 +47,7 @@ def extract_content_from_html(raw_html):
     selector = CSSSelector("main")
     selection = selector(html)
 
-    if len(selection) > 0:
+    if len(selection) <= 0:
         logger.info("<main> was not found. Using <body> instead.")
         selector = CSSSelector("body")
         selection = selector(html)
@@ -58,6 +58,11 @@ def extract_content_from_html(raw_html):
 
     selection = selection[0]
     selection.tag = "div"
+
+    header_selector = CSSSelector("header")
+    header_selection = header_selector(selection)
+    if len(header_selection) > 0:
+        header_selection[0].drop_tree()
 
     return lxml.html.tostring(selection, with_tail=False)
 
