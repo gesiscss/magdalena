@@ -47,7 +47,7 @@ def extract_content_from_html(raw_html):
     selector = CSSSelector("main")
     selection = selector(html)
 
-    if len(selection) > 0:
+    if len(selection) <= 0:
         logger.info("<main> was not found. Using <body> instead.")
         selector = CSSSelector("body")
         selection = selector(html)
