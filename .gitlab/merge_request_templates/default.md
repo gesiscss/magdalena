@@ -2,4 +2,6 @@
 
 /assign @costadre
 
-/label ~Technical Publishing System
+/milestone %"Q2/2024"
+
+/label ~"Technical Publishing System"

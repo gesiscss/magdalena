@@ -15,4 +15,3 @@
 
 /label ~"Technical Publishing System"
 /label ~"Environment::Stage"
-/label ~"Environment::Production"
