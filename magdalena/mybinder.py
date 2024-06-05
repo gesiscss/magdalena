@@ -14,7 +14,7 @@ import requests
 
 MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
 REQUESTS_TIMEOUT = 30  # seconds
-USER_TIMEOUT = 300  # seconds or 5min
+USER_TIMEOUT = 1800  # seconds or 30min
 
 logger = logging.getLogger("magdalena.app")
 
@@ -52,7 +52,10 @@ def _create_container(provider_prefix, spec):
         now = datetime.datetime.now()
         request_duration = now - begin_of_request
         if request_duration.seconds > USER_TIMEOUT:
-            logger.error("Timeout")
+            logger.error(
+                "Connection with %s is %s seconds old. Timeout!"
+                % (MYBINDER_URL, USER_TIMEOUT)
+            )
             response.close()
             break
 
