@@ -13,8 +13,8 @@ import urllib.parse
 import requests
 
 MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
-REQUESTS_TIMEOUT = 30  # seconds
-USER_TIMEOUT = 1800  # seconds or 30min
+REQUESTS_TIMEOUT = os.getenv("MYBINDER_REQUESTS_TIMEOUT", 30)  # seconds
+USER_TIMEOUT = os.getenv("MYBINDER_USER_TIMEOUT", 1800)  # seconds or 30min
 
 logger = logging.getLogger("magdalena.app")
 
