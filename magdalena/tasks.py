@@ -106,51 +106,26 @@ def build(self, request_json):
         )
 
     task.update_state(state="CLONING")
-    try:
-        methods_hub_content.clone_or_pull()
-    except Exception as error:
-        logger.error("Error when cloning\n\t%s", error)
-        return {"message": str(error)}, 500
+    methods_hub_content.clone_or_pull()
 
     task.update_state(state="DOCKERIZING")
-    try:
-        methods_hub_content.create_container()
-    except Exception as error:
-        logger.error("Error when creating container\n\t%s", error)
-        return {"message": str(error)}, 500
+    methods_hub_content.create_container()
 
     task.update_state(state="RENDERING")
-    try:
-        methods_hub_content.render_formats(request_json["target_format"])
-    except Exception as error:
-        logger.error("Error when rendering\n\t%s", error)
-        return {"message": str(error)}, 500
+    methods_hub_content.render_formats(request_json["target_format"])
 
-    task.update_state(state="STORING")
     if response_type == "download":
-        logger.info("Sending response to user")
+        task.update_state(state="STORING")
+        logger.info("Storing response for user")
         if len(request_json["target_format"]) == 1:
-            return (
-                send_file(
-                    methods_hub_content.rendered_file(request_json["target_format"][0]),
-                    mimetype="text/plain",
-                    as_attachment=True,
-                ),
-                201,
-            )
+            return methods_hub_content.rendered_file(request_json["target_format"][0])
         else:
             assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
-            return (
-                send_file(
-                    methods_hub_content.zip_file_path,
-                    mimetype="application/zip",
-                    as_attachment=True,
-                ),
-                201,
-            )
+            return methods_hub_content.zip_file_path
 
     if response_type == "forward":
+        task.update_state(state="FORWARDING")
         logger.info("Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"))
 
         if len(request_json["target_format"]) == 1:
@@ -159,5 +134,3 @@ def build(self, request_json):
             )
         else:
             methods_hub_content.push_all_rendered_formats(authorization_token)
-
-        return {"status": "OK"}, 201
