@@ -61,6 +61,30 @@ services:
       RABBITMQ_DEFAULT_USER: celery
       RABBITMQ_DEFAULT_PASS: 123
 
+  worker:
+    depends_on:
+      - redis
+      - rabbitmq
+    build:
+      context: .
+      target: dev
+    volumes:
+      - type: bind
+        source: .
+        target: /var/magdalena
+      - type: bind
+        source: /var/run/docker.sock
+        target: /var/run/docker.sock
+      - type: bind
+        # This must be the same as MAGDALENA_SHARED_DIR
+        # because of Docker outside of Docker
+        source: /tmp/magdalena-shared-volume
+        target: /tmp/magdalena-shared-volume
+    environment:
+      RABBITMQ_DEFAULT_USER: celery
+      RABBITMQ_DEFAULT_PASS: 123
+    command: celery -A worker worker --loglevel=INFO
+
   magdalena:
     depends_on:
       keycloak:
@@ -69,6 +93,8 @@ services:
       redis:
         condition: service_started
       rabbitmq:
+        condition: service_started
+      worker:
         condition: service_started
     build:
       context: .
