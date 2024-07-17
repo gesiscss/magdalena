@@ -16,7 +16,7 @@ MYBINDER_URL = os.getenv("MYBINDER_URL", "https://mybinder.org")
 REQUESTS_TIMEOUT = os.getenv("MYBINDER_REQUESTS_TIMEOUT", 30)  # seconds
 USER_TIMEOUT = os.getenv("MYBINDER_USER_TIMEOUT", 1800)  # seconds or 30min
 
-logger = logging.getLogger("magdalena.app")
+logger = logging.getLogger(__name__)
 
 
 def create_container_from_github(user, repo, commit_id="main"):
