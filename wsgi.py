@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-from magdalena.app import app
+from magdalena.app import create_app
 
 if __name__ == "__main__":
-    app.run()
+    create_app().run()
