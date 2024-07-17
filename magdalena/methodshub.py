@@ -32,7 +32,7 @@ from . import mybinder
 # We need this to avoid permission issues in the containers.
 os.umask(0)
 
-logger = logging.getLogger("magdalena.app")
+logger = logging.getLogger(__name__)
 
 if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
     logger.warning("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")

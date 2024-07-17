@@ -37,7 +37,7 @@ services:
   reverse-proxy:
     depends_on:
       - keycloak
-      - magdalena
+      - magdalena-web
     image: nginx:1.25.4-alpine-slim
     expose:
       - "80"
@@ -48,11 +48,20 @@ services:
         source: ./nginx/sites-enabled
         target: /etc/nginx/conf.d
 
+  # On 20 March 2024, Redis moved away from the BSD license.
+  # The last Redis release under the BSD license was version 7.2.4.
+  #
+  # In the future, we might want to move to https://valkey.io/
+  redis:
+    image: redis:7.2.4-alpine3.19
+
+  rabbitmq:
+    image: rabbitmq:3.13-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: celery
+      RABBITMQ_DEFAULT_PASS: 123
+
   magdalena:
-    depends_on:
-      keycloak:
-        condition: service_healthy
-        restart: true
     build:
       context: .
       target: dev
@@ -61,11 +70,11 @@ services:
       LOG_LEVEL: debug
 
       # JWT
-      JWT_ISSUER: http://keycloak.gesis.dev/realms/gesis
+      JWT_ISSUER: http://keycloak.gesis/realms/gesis
 
       # Keycloak
       KEYCLOAK_SCHEME: http
-      KEYCLOAK_DOMAIN: keycloak.gesis.dev
+      KEYCLOAK_DOMAIN: keycloak.gesis
       KEYCLOAK_REALM: gesis
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
@@ -79,7 +88,7 @@ services:
       # 
       # Used to configure keycloak-js.
       # FRONTEND_KEYCLOAK_SCHEME: http
-      # FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis.dev
+      # FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis
 
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder
@@ -98,6 +107,33 @@ services:
         # because of Docker outside of Docker
         source: /tmp/magdalena-shared-volume
         target: /tmp/magdalena-shared-volume
+
+  magdalena-worker:
+    extends:
+      magdalena
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+    command: celery -A magdalena.worker worker --loglevel=INFO
+
+  magdalena-web:
+    extends:
+      magdalena
+    depends_on:
+      keycloak:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      magdalena-worker:
+        condition: service_started
     expose:
       - "5000"
     ports:
