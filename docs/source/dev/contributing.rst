@@ -6,78 +6,93 @@
 Contributing
 ============
 
-We use `poetry <https://python-poetry.org>`_ as dependence manager.
+Requirements
+------------
 
-Development Environment
------------------------
+-  Git
+-  Docker
+-  Docker Compose
+-  `Poetry <https://python-poetry.org/>`_
 
 Configuration
-^^^^^^^^^^^^^
+-------------
 
-Edit `/etc/hosts` (if using Windows, `C:\Windows\System32\drivers\etc\hosts`) to include
+You need to define a couple of local domain names.
 
-```
-127.0.0.1	keycloak.gesis.dev
-127.0.0.1	methodshub.gesis.dev
-```
+Virtual Private Server (VPS)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Docker Compose
-^^^^^^^^^^^^^^
+If you are using a server provided by IT for development, for example
+``svk-my-server.gesis.intra`` with IP ``10.22.15.xxx``, add
 
-Start the container by running
+::
+
+   # Used by GESIS Keycloak for Development
+   #
+   # https://git.gesis.org/rse/keycloak
+   10.22.15.xxx       methodshub.gesis
+   10.22.15.xxx       keycloak.gesis
+
+to the file ``/etc/hosts`` on GNU/Linux laptop or to the file
+``C:\Windows\System32\drivers\etc\hosts`` on your Windows laptop.
+
+Windows and Windows Subsystem for Linux (WSL2)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add
+
+::
+
+   # Used by GESIS Keycloak for Development
+   #
+   # https://git.gesis.org/rse/keycloak
+   127.0.0.1       methodshub.gesis
+   127.0.0.1       keycloak.gesis
+
+to the file ``C:\Windows\System32\drivers\etc\hosts``.
+
+GNU/Linux
+^^^^^^^^^
+
+Add
+
+::
+
+   # Used by GESIS Keycloak for Development
+   #
+   # https://git.gesis.org/rse/keycloak
+   127.0.0.1       methodshub.gesis
+   127.0.0.1       keycloak.gesis
+
+to the file ``/etc/hosts``.
+
+Quick Start
+-----------
+
+The faster way to start is with `Docker
+Compose <https://docs.docker.com/compose/>`__ by running
 
 .. code:: bash
 
-    docker compose up magdalena
+   docker compose up reverse-proxy --attach-dependencies
 
-and open http://localhost:5000 with your web browser.
+The frontend will be available at http://methodshub.gesis. To login, use the credential below:
 
-Running the Test Collection
-----------------------------
-
-We recommend to run the continous integration test in the Docker
-container.
-
-Run
-
-.. code:: bash
-
-   docker compose up magdalena
-
-and, in another terminal, run
-
-.. code:: bash
-
-   docker compose exec magdalena pytest .
-
-Production Environment
-----------------------
-
-With Docker Compose
-^^^^^^^^^^^^^^^^^^^
-
-Not supported.
-
-Without Docker Compose
-^^^^^^^^^^^^^^^^^^^^^^
-
-Install the dependencies by running
-
-.. code:: bash
-
-    poetry install --with prod
-
-and start the server by running
-
-.. code:: bash
-
-    poetry run \
-    gunicorn \
-    --workers=2 \
-    --bind 0.0.0.0:5000 \
-    'wsgi:app'
-
-and open http://localhost:5000 with your web browser.
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| Realm      | Username     | Password   | Roles     | Notes                                                                                             |                                |
++============+==============+============+===========+===================================================================================================+================================+
+| ``master`` | ``admin``    | ``123456`` |           |                                                                                                   | Only for http://keycloak.gesis |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| ``gesis``  | ``ano``      | ``123``    |           | `A. N. Other <https://en.wikipedia.org/wiki/A._N._Other>`__ is a gender neutral placeholder name. |                                |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| ``gesis``  | ``jane.doe`` | ``123``    |           |                                                                                                   |                                |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| ``gesis``  | ``john.doe`` | ``123``    |           |                                                                                                   |                                |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| ``gesis``  | ``mh``       | ``123``    |           | Username for Methods Hub.                                                                         |                                |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
+| ``gesis``  | ``mhowner``  | ``123``    | ``owner`` | Username for Methods Hub.                                                                         |                                |
++------------+--------------+------------+-----------+---------------------------------------------------------------------------------------------------+--------------------------------+
 
 Documentation Environment
 -------------------------
