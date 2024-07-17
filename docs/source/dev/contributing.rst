@@ -74,7 +74,7 @@ Compose <https://docs.docker.com/compose/>`__ by running
 
 .. code:: bash
 
-   docker compose up -d reverse-proxy && docker compose logs -f reverse-proxy magdalena-web magdalena-worker
+   docker compose up -d reverse-proxy && docker compose logs -n 0 -f reverse-proxy magdalena-web magdalena-worker
 
 The frontend will be available at http://methodshub.gesis. To login, use the credential below:
 
