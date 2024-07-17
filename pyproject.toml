@@ -6,7 +6,7 @@
 [tool.poetry]
 package-mode = false
 name = "magdalena"
-version = "0.2.3"
+version = "0.3.0"
 description = "Microservice to convert Quarto documents into output formats such as HTML and PDF."
 authors = ["Raniere Silva <Raniere.CostadaSilva@gesis.org>"]
 readme = "README.md"
