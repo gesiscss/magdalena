@@ -13,27 +13,12 @@ def create_app():
     import os
     import shutil
 
-    from flask import Flask
-
-    import jwt
-
-    from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
-
-    from .pem import (
-        retrieve_public_key,
-        KEYCLOAK_ISSUER,
-    )
-
     from .views import bp
 
     # Newly created files or directories created will have no privileges initially revoked
     #
     # We need this to avoid permission issues in the containers.
     os.umask(0)
-
-    JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
-
-    PUBLIC_KEY = retrieve_public_key()
 
     app = Flask(__name__)
 

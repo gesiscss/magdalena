@@ -11,14 +11,16 @@ from flask import Blueprint
 from flask import request
 from flask import Response
 from flask import stream_with_context
-from flask import request, render_template, send_file, send_from_directory
+from flask import request, render_template, send_from_directory
+
+import jwt
 
 from .pem import (
     KEYCLOAK_REALM,
     KEYCLOAK_CLIENT,
 )
 
-# import tasks
+from . import tasks
 
 bp = Blueprint("tasks", __name__)
 
@@ -94,6 +96,10 @@ def index():
 
 @bp.post("/")
 def build():
+    JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
+
+    PUBLIC_KEY = retrieve_public_key()
+
     authorization = request.headers.get("Authorization")
     assert authorization, "Authorization is missing in header"
 
@@ -112,117 +118,5 @@ def build():
         issuer=JWT_ISSUER,
     )
 
-    bp.logger.info("Form content is %s", request.json)
-
-    assert "source_url" in request.json, "Field source_url missing in form"
-
-    assert "response" in request.json, "Field response missing in form"
-
-    assert request.json["response"] in [
-        "download",
-        "forward",
-    ], "Field response is invalid"
-
-    response_type = request.json["response"]
-
-    if response_type == "forward":
-        assert "forward_id" in request.json, "Field forward_id missing in form"
-
-        assert request.json["forward_id"], "Field forward_id is invalid"
-
-        forward_id = request.json["forward_id"]
-    else:
-        forward_id = None
-
-    if (
-        "github.com" in request.json["source_url"]
-        or "gitlab.com" in request.json["source_url"]
-    ):
-        # assert "filename" in request.json, "Field filename missing in form"
-        if "filename" not in request.json or len(request.json["filename"]) == 0:
-            bp.logger.warning("filename is not defined or empty! Using 'README.md'")
-            filename = "README.md"
-        else:
-            filename = request.json["filename"]
-
-        # assert "git_commit_id" in request.json, "Field git_commit_id missing in form"
-        if (
-            "git_commit_id" not in request.json
-            or len(request.json["git_commit_id"]) == 0
-        ):
-            bp.logger.warning("git_commit_id is not defined or empty!")
-            git_commit_id = None
-        else:
-            git_commit_id = request.json["git_commit_id"]
-
-        methods_hub_content = MethodsHubGitContent(
-            request.json["source_url"],
-            id_for_graphql=forward_id,
-            git_commit_id=git_commit_id,
-            filename=filename,
-        )
-    else:
-        methods_hub_content = MethodsHubHTTPContent(
-            request.json["source_url"],
-            id_for_graphql=forward_id,
-            filename=(
-                request.json["filename"]
-                if ("filename" in request.json and len(request.json["filename"]))
-                else None
-            ),
-        )
-
-    try:
-        methods_hub_content.clone_or_pull()
-    except Exception as error:
-        bp.logger.error("Error when cloning\n\t%s", error)
-        return {"message": str(error)}, 500
-
-    try:
-        methods_hub_content.create_container()
-    except Exception as error:
-        bp.logger.error("Error when creating container\n\t%s", error)
-        return {"message": str(error)}, 500
-
-    try:
-        methods_hub_content.render_formats(request.json["target_format"])
-    except Exception as error:
-        bp.logger.error("Error when rendering\n\t%s", error)
-        return {"message": str(error)}, 500
-
-    if response_type == "download":
-        bp.logger.info("Sending response to user")
-        if len(request.json["target_format"]) == 1:
-            return (
-                send_file(
-                    methods_hub_content.rendered_file(request.json["target_format"][0]),
-                    mimetype="text/plain",
-                    as_attachment=True,
-                ),
-                201,
-            )
-        else:
-            assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
-
-            return (
-                send_file(
-                    methods_hub_content.zip_file_path,
-                    mimetype="application/zip",
-                    as_attachment=True,
-                ),
-                201,
-            )
-
-    if response_type == "forward":
-        bp.logger.info(
-            "Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL")
-        )
-
-        if len(request.json["target_format"]) == 1:
-            methods_hub_content.push_rendered_formats(
-                request.json["target_format"], authorization_token
-            )
-        else:
-            methods_hub_content.push_all_rendered_formats(authorization_token)
-
-        return {"status": "OK"}, 201
+    celery_result = tasks.build.delay(request.json)
+    return {"id": result.id}
