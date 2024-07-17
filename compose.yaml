@@ -70,11 +70,11 @@ services:
       LOG_LEVEL: debug
 
       # JWT
-      JWT_ISSUER: http://keycloak.gesis.dev/realms/gesis
+      JWT_ISSUER: http://keycloak.gesis/realms/gesis
 
       # Keycloak
       KEYCLOAK_SCHEME: http
-      KEYCLOAK_DOMAIN: keycloak.gesis.dev
+      KEYCLOAK_DOMAIN: keycloak.gesis
       KEYCLOAK_REALM: gesis
       KEYCLOAK_CLIENT: gesis-methodshub-ember-client
 
@@ -88,7 +88,7 @@ services:
       # 
       # Used to configure keycloak-js.
       # FRONTEND_KEYCLOAK_SCHEME: http
-      # FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis.dev
+      # FRONTEND_KEYCLOAK_DOMAIN: keycloak.gesis
 
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder
