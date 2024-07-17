@@ -3,13 +3,16 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import json
 import os
+import time
 
 from celery.result import AsyncResult
 
 from flask import Blueprint
 from flask import request
 from flask import Response
+from flask import current_app
 from flask import stream_with_context
 from flask import request, render_template, send_from_directory
 
@@ -18,6 +21,8 @@ import jwt
 from .pem import (
     KEYCLOAK_REALM,
     KEYCLOAK_CLIENT,
+    KEYCLOAK_ISSUER,
+    retrieve_public_key,
 )
 
 from . import tasks
@@ -45,23 +50,22 @@ def result(id):
 #
 # @stream_with_context
 # def poll_result(id):
-#     current_bp.logger.error(result)
+#     current_current_app.logger.error(result)
 @stream_with_context
 def poll_result(id):
     # This is a generator and yield should be used to return data
     result = AsyncResult(id)
 
-    while result.state != "SUCCESS":
-        data = {"state": result.state, "info": result.info}
+    while result.state not in ["SUCCESS", "FAILURE"]:
+        data = {"state": result.state}
         yield f"data: {json.dumps(data)}\n\n"
-        time.sleep(1)
+        time.sleep(30)
 
         # Update for while
         result = AsyncResult(id)
-        current_bp.logger.error(result.parent)
 
     if result.state == "SUCCESS":
-        data = {"state": result.state, "info": result.info, "result": result.result}
+        data = {"state": result.state, "result": result.result}
         yield f"data: {json.dumps(data)}\n\n"
     else:
         data = {"state": result.state}
@@ -106,9 +110,9 @@ def build():
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    bp.logger.debug("Validating JWT")
-    bp.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
-    bp.logger.debug("\tJWT: %s", authorization_token)
+    current_app.logger.debug("Validating JWT")
+    current_app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+    current_app.logger.debug("\tJWT: %s", authorization_token)
 
     jwt.decode(
         authorization_token,
@@ -119,4 +123,4 @@ def build():
     )
 
     celery_result = tasks.build.delay(request.json)
-    return {"id": result.id}
+    return {"id": celery_result.id}

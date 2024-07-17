@@ -5,112 +5,143 @@ SPDX-FileContributor: Raniere Gaia Costa da Silva <Raniere.CostadaSilva@gesis.or
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-<!doctype html>
+<!DOCTYPE html>
 <html>
-    <head>
-        <title>magdalena</title>
+  <head>
+    <title>magdalena</title>
 
-        <script src="{{ url_for('tasks.send_keycloak_adapter') }}"></script>
-        <script>
-const keycloak = new Keycloak({
-    url: '{{keycloak_scheme}}://{{keycloak_domain}}',
-    realm: '{{keycloak_realm}}',
-    clientId: '{{keycloak_client}}'
-});
-
-async function main() {
-    try {
-    const authenticated = await keycloak.init({
-        onLoad: 'login-required'
-    });
-    console.debug(`User is ${authenticated ? 'authenticated' : 'not authenticated'}`);
-
-    if (keycloak.authenticated) {
-        console.debug(keycloak.token);
-    }
-} catch (error) {
-    console.error('Failed to initialize adapter:', error);
-}
-};
-
-main();
-        </script>
-    </head>
-    <body>
-        <h1>magdalena</h1>
-        <form action="" method="post" id="form">
-            <div>
-                <label for="source_url">Source URL:</label><br>
-                <input type="text" id="source_url" name="source_url" required>
-            </div>
-            <div>
-                <label for="git_commit_id">Git Commit ID:</label><br>
-                <input type="text" id="git_commit_id" name="git_commit_id">
-            </div>
-            <div>
-                <label for="filename">File in source:</label><br>
-                <input type="text" id="filename" name="filename">
-            </div>
-            <div>
-                <label for="target_format">Select target format:</label><br>
-                <select  id="target_format" name="target_format" multiple size="4" required>
-                    <option value="md" disabled>Markdown</option>
-                    <option value="html" selected >HTML</option>
-                    <option value="qmd" disabled>Quarto</option>
-                    <option value="ipynb">Jupyter Notebook</option>
-                </select>
-            </div>
-            <div>
-                <label for="response">Select response format:</label><br>
-                <select  id="response" name="response" multiple size="2" required>
-                    <option value="download" selected>Download</option>
-                    <option value="forward" disabled>Forward</option>
-                </select>
-            </div>
-            <input type="submit" value="Submit" id="submit">
-        </form>
-    </body>
+    <script src="{{ url_for('tasks.send_keycloak_adapter') }}"></script>
     <script>
-        async function submit(event) {
-            console.debug("Preparing request ...");
-            let html_form = document.getElementById('form');
-            let form_data = new FormData(html_form);
-            let form_json = {
-                "source_url": form_data.get("source_url"),
-                "git_commit_id": form_data.get("git_commit_id"),
-                "filename": form_data.get("filename"),
-                "response": form_data.get("response")
-            };
-            for (let key of ["target_format"]) {
-                form_json[key] = form_data.getAll(key);
-            }
-            console.debug("Preparing request completed!");
+      const keycloak = new Keycloak({
+        url: "{{keycloak_scheme}}://{{keycloak_domain}}",
+        realm: "{{keycloak_realm}}",
+        clientId: "{{keycloak_client}}",
+      });
 
-            keycloak.updateToken(-1).then(
-                (data) => {
-                    console.debug(`JWT: ${keycloak.token}`);
-                    
-                    fetch("{{ url_for('tasks.build') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${keycloak.token}`,
-                        },
-                        body: JSON.stringify(form_json)
-                    }).then(
-                        res => res.blob()
-                    ).then(
-                        blob => {
-                            var file = window.URL.createObjectURL(blob);
-                            window.location.assign(file);
-                        }
-                    );
-                }
-            )
-            event.preventDefault();
+      async function main() {
+        try {
+          const authenticated = await keycloak.init({
+            onLoad: "login-required",
+          });
+          console.debug(
+            `User is ${authenticated ? "authenticated" : "not authenticated"}`
+          );
+
+          if (keycloak.authenticated) {
+            console.debug(keycloak.token);
+          }
+        } catch (error) {
+          console.error("Failed to initialize adapter:", error);
         }
-        
-        let html_form = document.getElementById('form');
-        html_form.addEventListener("submit", submit);
+      }
+
+      main();
     </script>
+  </head>
+  <body>
+    <h1>magdalena</h1>
+    <form action="" method="post" id="form">
+      <div>
+        <label for="source_url">Source URL:</label><br />
+        <input type="text" id="source_url" name="source_url" required />
+      </div>
+      <div>
+        <label for="git_commit_id">Git Commit ID:</label><br />
+        <input type="text" id="git_commit_id" name="git_commit_id" />
+      </div>
+      <div>
+        <label for="filename">File in source:</label><br />
+        <input type="text" id="filename" name="filename" />
+      </div>
+      <div>
+        <label for="target_format">Select target format:</label><br />
+        <select
+          id="target_format"
+          name="target_format"
+          multiple
+          size="4"
+          required
+        >
+          <option value="md" disabled>Markdown</option>
+          <option value="html" selected>HTML</option>
+          <option value="qmd" disabled>Quarto</option>
+          <option value="ipynb">Jupyter Notebook</option>
+        </select>
+      </div>
+      <div>
+        <label for="response">Select response format:</label><br />
+        <select id="response" name="response" multiple size="2" required>
+          <option value="download" selected>Download</option>
+          <option value="forward" disabled>Forward</option>
+        </select>
+      </div>
+      <input type="submit" value="Submit" id="submit" />
+    </form>
+  </body>
+  <script>
+    async function submit(event) {
+      console.debug("Preparing request ...");
+      let html_form = document.getElementById("form");
+      let form_data = new FormData(html_form);
+      let form_json = {
+        source_url: form_data.get("source_url"),
+        git_commit_id: form_data.get("git_commit_id"),
+        filename: form_data.get("filename"),
+        response: form_data.get("response"),
+      };
+      for (let key of ["target_format"]) {
+        form_json[key] = form_data.getAll(key);
+      }
+      console.debug("Preparing request completed!");
+
+      keycloak.updateToken(-1).then((data) => {
+        console.debug(`JWT: ${keycloak.token}`);
+
+        fetch("{{ url_for('tasks.build') }}", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${keycloak.token}`,
+          },
+          body: JSON.stringify(form_json),
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            }
+
+            throw new Error(`${res.status} - ${res.statusText}`);
+          })
+          .then((data) => {
+            console.debug("Starting server-sent event ...");
+
+            const evtSource = new EventSource(`/sse/result/${data.id}`);
+
+            evtSource.onerror = (err) => {
+              console.debug("Closing Server Sent Events connection!", err);
+
+              // We might close the connection here on the bases that the connection ended because no more data will be send.
+              evtSource.close();
+            };
+
+            evtSource.onmessage = (event) => {
+              console.debug(event);
+              message = JSON.parse(event.data);
+              if (message.state === "SUCCESS") {
+                console.debug(`Result: ${message.result}`);
+
+                // We must close the connection here!
+                evtSource.close();
+              } else {
+                console.debug(`State: ${message.state}`);
+              }
+            };
+          });
+      });
+      event.preventDefault();
+    }
+
+    let html_form = document.getElementById("form");
+    html_form.addEventListener("submit", submit);
+  </script>
 </html>
