@@ -3,13 +3,20 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import os
+
 from celery.result import AsyncResult
 
 from flask import Blueprint
-from flask import current_app
 from flask import request
 from flask import Response
 from flask import stream_with_context
+from flask import request, render_template, send_file, send_from_directory
+
+from .pem import (
+    KEYCLOAK_REALM,
+    KEYCLOAK_CLIENT,
+)
 
 # import tasks
 
@@ -36,7 +43,7 @@ def result(id):
 #
 # @stream_with_context
 # def poll_result(id):
-#     current_app.logger.error(result)
+#     current_bp.logger.error(result)
 @stream_with_context
 def poll_result(id):
     # This is a generator and yield should be used to return data
@@ -49,7 +56,7 @@ def poll_result(id):
 
         # Update for while
         result = AsyncResult(id)
-        current_app.logger.error(result.parent)
+        current_bp.logger.error(result.parent)
 
     if result.state == "SUCCESS":
         data = {"state": result.state, "info": result.info, "result": result.result}
@@ -93,9 +100,9 @@ def build():
     authorization_scheme, authorization_token = authorization.split()
     assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    app.logger.debug("Validating JWT")
-    app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
-    app.logger.debug("\tJWT: %s", authorization_token)
+    bp.logger.debug("Validating JWT")
+    bp.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+    bp.logger.debug("\tJWT: %s", authorization_token)
 
     jwt.decode(
         authorization_token,
@@ -105,7 +112,7 @@ def build():
         issuer=JWT_ISSUER,
     )
 
-    app.logger.info("Form content is %s", request.json)
+    bp.logger.info("Form content is %s", request.json)
 
     assert "source_url" in request.json, "Field source_url missing in form"
 
@@ -133,7 +140,7 @@ def build():
     ):
         # assert "filename" in request.json, "Field filename missing in form"
         if "filename" not in request.json or len(request.json["filename"]) == 0:
-            app.logger.warning("filename is not defined or empty! Using 'README.md'")
+            bp.logger.warning("filename is not defined or empty! Using 'README.md'")
             filename = "README.md"
         else:
             filename = request.json["filename"]
@@ -143,7 +150,7 @@ def build():
             "git_commit_id" not in request.json
             or len(request.json["git_commit_id"]) == 0
         ):
-            app.logger.warning("git_commit_id is not defined or empty!")
+            bp.logger.warning("git_commit_id is not defined or empty!")
             git_commit_id = None
         else:
             git_commit_id = request.json["git_commit_id"]
@@ -168,23 +175,23 @@ def build():
     try:
         methods_hub_content.clone_or_pull()
     except Exception as error:
-        app.logger.error("Error when cloning\n\t%s", error)
+        bp.logger.error("Error when cloning\n\t%s", error)
         return {"message": str(error)}, 500
 
     try:
         methods_hub_content.create_container()
     except Exception as error:
-        app.logger.error("Error when creating container\n\t%s", error)
+        bp.logger.error("Error when creating container\n\t%s", error)
         return {"message": str(error)}, 500
 
     try:
         methods_hub_content.render_formats(request.json["target_format"])
     except Exception as error:
-        app.logger.error("Error when rendering\n\t%s", error)
+        bp.logger.error("Error when rendering\n\t%s", error)
         return {"message": str(error)}, 500
 
     if response_type == "download":
-        app.logger.info("Sending response to user")
+        bp.logger.info("Sending response to user")
         if len(request.json["target_format"]) == 1:
             return (
                 send_file(
@@ -207,7 +214,7 @@ def build():
             )
 
     if response_type == "forward":
-        app.logger.info(
+        bp.logger.info(
             "Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL")
         )
 

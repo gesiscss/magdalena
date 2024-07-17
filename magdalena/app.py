@@ -13,7 +13,7 @@ def create_app():
     import os
     import shutil
 
-    from flask import Flask, request, render_template, send_file, send_from_directory
+    from flask import Flask
 
     import jwt
 
@@ -22,10 +22,6 @@ def create_app():
     from .pem import (
         retrieve_public_key,
         KEYCLOAK_ISSUER,
-        KEYCLOAK_SCHEME,
-        KEYCLOAK_DOMAIN,
-        KEYCLOAK_REALM,
-        KEYCLOAK_CLIENT,
     )
 
     from .views import bp

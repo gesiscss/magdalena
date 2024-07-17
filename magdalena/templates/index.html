@@ -10,7 +10,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
     <head>
         <title>magdalena</title>
 
-        <script src="{{ url_for('send_keycloak_adapter') }}"></script>
+        <script src="{{ url_for('tasks.send_keycloak_adapter') }}"></script>
         <script>
 const keycloak = new Keycloak({
     url: '{{keycloak_scheme}}://{{keycloak_domain}}',
@@ -90,7 +90,7 @@ main();
                 (data) => {
                     console.log(`JWT: ${keycloak.token}`);
                     
-                    fetch("{{ url_for('build') }}", {
+                    fetch("{{ url_for('tasks.build') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
