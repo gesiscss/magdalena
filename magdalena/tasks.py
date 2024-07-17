@@ -3,12 +3,40 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import os
+import shutil
+
 from celery import shared_task
+from celery.signals import celeryd_after_setup
 from celery.utils.log import get_task_logger
 
 from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
 
 logger = get_task_logger(__name__)
+
+# Newly created files or directories created will have no privileges initially revoked
+#
+# We need this to avoid permission issues in the containers.
+os.umask(0)
+
+
+@celeryd_after_setup.connect
+def setup_shared_dir(sender, instance, **kwargs):
+    if "MAGDALENA_SHARED_DIR" not in os.environ:
+        logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
+        os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
+    shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
+    logger.info("Shared directory is %s", shared_root_dir)
+
+    # Need to copy files to be able to share
+    # because of Docker outside of Docker
+    for dir_name in ("docker-scripts", "pandoc-filters"):
+        logger.info("Copying %s to %s", dir_name, shared_root_dir)
+        shutil.copytree(
+            os.path.join("magdalena", dir_name),
+            os.path.join(shared_root_dir, dir_name),
+            dirs_exist_ok=True,
+        )
 
 
 @shared_task(bind=True, ignore_result=False)

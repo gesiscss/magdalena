@@ -10,15 +10,8 @@ from flask import Flask
 
 def create_app():
     import logging
-    import os
-    import shutil
 
     from .views import bp
-
-    # Newly created files or directories created will have no privileges initially revoked
-    #
-    # We need this to avoid permission issues in the containers.
-    os.umask(0)
 
     app = Flask(__name__)
 
@@ -28,22 +21,6 @@ def create_app():
                 gunicorn_logger = logging.getLogger("gunicorn.error")
                 app.logger.handlers = gunicorn_logger.handlers
                 app.logger.setLevel(gunicorn_logger.level)
-
-        if "MAGDALENA_SHARED_DIR" not in os.environ:
-            app.logger.warning("MAGDALENA_SHARED_DIR is not defined! Using default.")
-            os.environ["MAGDALENA_SHARED_DIR"] = "/tmp/magdalena-shared-volume"
-        shared_root_dir = os.getenv("MAGDALENA_SHARED_DIR")
-        app.logger.info("Shared directory is %s", shared_root_dir)
-
-        # Need to copy files to be able to share
-        # because of Docker outside of Docker
-        for dir_name in ("docker-scripts", "pandoc-filters"):
-            app.logger.info("Copying %s to %s", dir_name, shared_root_dir)
-            shutil.copytree(
-                os.path.join("magdalena", dir_name),
-                os.path.join(shared_root_dir, dir_name),
-                dirs_exist_ok=True,
-            )
 
     app.config.from_mapping(
         CELERY=dict(
