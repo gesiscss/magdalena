@@ -10,11 +10,10 @@ import time
 from celery.result import AsyncResult
 
 from flask import Blueprint
-from flask import request
+from flask import request, render_template, send_file, send_from_directory
 from flask import Response
 from flask import current_app
 from flask import stream_with_context
-from flask import request, render_template, send_from_directory
 
 import jwt
 
@@ -35,6 +34,35 @@ def send_keycloak_adapter():
     return send_from_directory("/var/keycloak", "keycloak.min.js")
 
 
+@bp.get("/download/<id>")
+def download(id):
+    result = AsyncResult(id)
+
+    if result.ready() and result.successful():
+        file_path = result.result
+        if file_path:
+            if file_path.endswith(".zip"):
+                return send_file(
+                    file_path,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                )
+            elif file_path.endswith(".html"):
+                return send_file(
+                    file_path,
+                    mimetype="text/html",
+                    as_attachment=False,
+                )
+            else:
+                return send_file(
+                    file_path,
+                    mimetype="text/plain",
+                    as_attachment=False,
+                )
+
+    return "Not found", 404
+
+
 @bp.get("/result/<id>")
 def result(id):
     result = AsyncResult(id)
@@ -42,7 +70,7 @@ def result(id):
     return {
         "ready": ready,
         "successful": result.successful() if ready else None,
-        "value": result.get() if ready else result.result,
+        "value": result.result if ready else None,
     }
 
 
