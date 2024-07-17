@@ -23,10 +23,10 @@ async function main() {
     const authenticated = await keycloak.init({
         onLoad: 'login-required'
     });
-    console.log(`User is ${authenticated ? 'authenticated' : 'not authenticated'}`);
+    console.debug(`User is ${authenticated ? 'authenticated' : 'not authenticated'}`);
 
     if (keycloak.authenticated) {
-        console.log(keycloak.token);
+        console.debug(keycloak.token);
     }
 } catch (error) {
     console.error('Failed to initialize adapter:', error);
@@ -72,7 +72,7 @@ main();
     </body>
     <script>
         async function submit(event) {
-            console.log("Preparing request ...");
+            console.debug("Preparing request ...");
             let html_form = document.getElementById('form');
             let form_data = new FormData(html_form);
             let form_json = {
@@ -84,11 +84,11 @@ main();
             for (let key of ["target_format"]) {
                 form_json[key] = form_data.getAll(key);
             }
-            console.log("Preparing request completed!");
+            console.debug("Preparing request completed!");
 
             keycloak.updateToken(-1).then(
                 (data) => {
-                    console.log(`JWT: ${keycloak.token}`);
+                    console.debug(`JWT: ${keycloak.token}`);
                     
                     fetch("{{ url_for('tasks.build') }}", {
                         method: 'POST',
