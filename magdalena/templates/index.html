@@ -130,6 +130,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
               if (message.state === "SUCCESS") {
                 console.debug(`Result: ${message.result}`);
 
+                console.info(`/download/${data.id}`);
+
                 // We must close the connection here!
                 evtSource.close();
               } else {
