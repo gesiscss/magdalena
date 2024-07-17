@@ -48,11 +48,28 @@ services:
         source: ./nginx/sites-enabled
         target: /etc/nginx/conf.d
 
+  # On 20 March 2024, Redis moved away from the BSD license.
+  # The last Redis release under the BSD license was version 7.2.4.
+  #
+  # In the future, we might want to move to https://valkey.io/
+  redis:
+    image: redis:7.2.4-alpine3.19
+
+  rabbitmq:
+    image: rabbitmq:3.13-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: celery
+      RABBITMQ_DEFAULT_PASS: 123
+
   magdalena:
     depends_on:
       keycloak:
         condition: service_healthy
         restart: true
+      redis:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
     build:
       context: .
       target: dev
