@@ -50,6 +50,11 @@ optional = true
 [tool.poetry.group.prod.dependencies]
 gunicorn = "^21.2.0"
 
+
+[tool.poetry.group.test.dependencies]
+pytest-celery = "^1.0.1"
+pytest-mock = "^3.14.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

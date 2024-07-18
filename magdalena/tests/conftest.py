@@ -97,9 +97,9 @@ lZHFhEiyaYv9p7cHNWykBvMCAwEAAQ==
 -----END PUBLIC KEY-----""",
         )
 
-        from .. import app as magdalena
+    from .. import app as magdalena
 
-    app = magdalena.app
+    app = magdalena.create_app()
     app.config.update(
         {
             "TESTING": True,
