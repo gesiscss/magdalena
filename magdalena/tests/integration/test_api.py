@@ -176,7 +176,7 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
     assert response.status_code == 200
 
 
-def test_post_qmd_to_html_with_quarto(client, requests_mock):
+def test_post_qmd_to_html_with_quarto(client, requests_mock, monkeypatch):
     monkeypatch.setattr(tasks, "build", MockCeleryTask)
 
     requests_mock.real_http = True
