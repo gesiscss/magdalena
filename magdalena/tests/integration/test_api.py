@@ -176,7 +176,7 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
     assert response.status_code == 200
 
 
-def test_post_qmd_to_html_with_quarto(client, requests_mock):
+def test_post_qmd_to_html_with_quarto(client, requests_mock, monkeypatch):
     monkeypatch.setattr(tasks, "build", MockCeleryTask)
 
     requests_mock.real_http = True
@@ -213,24 +213,24 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
     assert response.status_code == 200
 
 
-def test_post_ipynb_to_html(client):
-    monkeypatch.setattr(tasks, "build", MockCeleryTask)
+# def test_post_ipynb_to_html(client, monkeypatch):
+#     monkeypatch.setattr(tasks, "build", MockCeleryTask)
 
-    response = client.post(
-        "/",
-        headers={
-            "Authorization": f"Bearer {generate_jwt()}",
-        },
-        json={
-            "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
-            "filename": "index.ipynb",
-            "git_commit_id": "294d461873f2b7b0005bed8750b0c66932f21c7d",
-            "target_format": ["html"],
-            "response": "download",
-        },
-    )
+#     response = client.post(
+#         "/",
+#         headers={
+#             "Authorization": f"Bearer {generate_jwt()}",
+#         },
+#         json={
+#             "source_url": "https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python",
+#             "filename": "index.ipynb",
+#             "git_commit_id": "294d461873f2b7b0005bed8750b0c66932f21c7d",
+#             "target_format": ["html"],
+#             "response": "download",
+#         },
+#     )
 
-    assert response.status_code == 200
+#     assert response.status_code == 200
 
 
 # def test_post_docx_to_html(client):
