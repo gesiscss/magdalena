@@ -69,6 +69,10 @@ services:
       # Flask
       LOG_LEVEL: debug
 
+      # RabbitMQ
+      RABBITMQ_DEFAULT_USER: celery
+      RABBITMQ_DEFAULT_PASS: 123
+
       # JWT
       JWT_ISSUER: http://keycloak.gesis/realms/gesis
 
