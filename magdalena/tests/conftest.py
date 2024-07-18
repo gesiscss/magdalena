@@ -20,6 +20,8 @@ os.environ["KEYCLOAK_SCHEME"] = "http"
 os.environ["KEYCLOAK_DOMAIN"] = "localhost"
 os.environ["KEYCLOAK_REALM"] = "pytest"
 os.environ["JWT_ISSUER"] = "http://localhost/realms/pytest"
+os.environ["RABBITMQ_DEFAULT_USER"] = "celery"
+os.environ["RABBITMQ_DEFAULT_PASS"] = "123"
 
 from .. import pem
 
