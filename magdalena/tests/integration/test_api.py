@@ -8,12 +8,15 @@ import os
 import re
 import time
 
+import pytest
+
 import jwt
 
 from lxml import etree
 from lxml.cssselect import CSSSelector
 
 from ...mybinder import MYBINDER_URL
+from ... import tasks
 
 
 def generate_jwt():
@@ -127,7 +130,18 @@ Pf/FvtAcECBjAtmUlUpCMqAS101lcEy5JDARzhc/rBLAly+ES3K5D+/qowE=
     return jwt.encode(payload, private_key, algorithm="RS256")
 
 
-def test_post_qmd_to_html_without_quarto(client, requests_mock):
+class MockCeleryAsyncResult:
+    id = "123-456-789"
+
+
+class MockCeleryTask:
+    def delay(self, *args, **kwargs):
+        return MockCeleryAsyncResult()
+
+
+def test_post_qmd_to_html_without_quarto(client, requests_mock, monkeypatch):
+    monkeypatch.setattr(tasks, "build", MockCeleryTask)
+
     requests_mock.real_http = True
 
     mybinder_build_matcher = re.compile(f"^{MYBINDER_URL}/build")
@@ -161,7 +175,10 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
 
     assert response.status_code == 200
 
+
 def test_post_qmd_to_html_with_quarto(client, requests_mock):
+    monkeypatch.setattr(tasks, "build", MockCeleryTask)
+
     requests_mock.real_http = True
 
     mybinder_build_matcher = re.compile(f"^{MYBINDER_URL}/build")
@@ -197,6 +214,8 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
 
 
 def test_post_ipynb_to_html(client):
+    monkeypatch.setattr(tasks, "build", MockCeleryTask)
+
     response = client.post(
         "/",
         headers={

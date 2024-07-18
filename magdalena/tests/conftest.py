@@ -20,6 +20,8 @@ os.environ["KEYCLOAK_SCHEME"] = "http"
 os.environ["KEYCLOAK_DOMAIN"] = "localhost"
 os.environ["KEYCLOAK_REALM"] = "pytest"
 os.environ["JWT_ISSUER"] = "http://localhost/realms/pytest"
+os.environ["RABBITMQ_DEFAULT_USER"] = "celery"
+os.environ["RABBITMQ_DEFAULT_PASS"] = "123"
 
 from .. import pem
 
@@ -97,14 +99,18 @@ lZHFhEiyaYv9p7cHNWykBvMCAwEAAQ==
 -----END PUBLIC KEY-----""",
         )
 
-    from .. import app as magdalena
+        from .. import app as magdalena
 
-    app = magdalena.create_app()
+        # Need to be inside the monkey patch context
+        # because it need to fetch the public key.
+        app = magdalena.create_app()
+
     app.config.update(
         {
             "TESTING": True,
         }
     )
+
     yield app
 
 
