@@ -194,7 +194,7 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
         },
     )
 
-    assert response.status_code == 201, "New document was not created!"
+    assert response.status_code == 200, "New document was not created!"
 
 
 def test_post_ipynb_to_html(client):
@@ -212,7 +212,7 @@ def test_post_ipynb_to_html(client):
         },
     )
 
-    assert response.status_code == 201, "New document was not created!"
+    assert response.status_code == 200, "New document was not created!"
 
 
 # def test_post_docx_to_html(client):
