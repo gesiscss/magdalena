@@ -5,7 +5,7 @@
 
 swagger: '2.0'
 info:
-    title: New API
+    title: magdalena
     version: 1.0.0
     description: magdalena OpenAPI 2.0 specification.
     contact:
@@ -25,9 +25,19 @@ paths:
                 -
                     name: body
                     description: Git repository details.
+                    schema:
+                        $ref: '#/definitions/build-request'
                     in: body
+                    required: true
             responses:
-                '201': {}
+                '201':
+                    description: Task to build page was created.
+                    schema:
+                        $ref: '#/definitions/task'
+                    examples: {}
+            security:
+                -
+                    gesis: []
             description: Convert Git repository into HTML.
     '/result/{id}':
         get:
@@ -100,3 +110,19 @@ definitions:
             target_format:
                 - html
             response: download
+    task:
+        title: Root Type for task
+        description: ''
+        type: object
+        properties:
+            id:
+                type: string
+        example:
+            id: '123'
+securityDefinitions:
+    gesis:
+        flow: implicit
+        authorizationUrl: 'https://login.gesis.org/'
+        scopes: {}
+        type: oauth2
+        description: GESIS Keycloak Single-Sing On
