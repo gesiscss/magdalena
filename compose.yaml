@@ -8,8 +8,8 @@ services:
   sphinx:
     profiles:
       - docs
-    image: docker-private.gesis.intra/rse/docker/images/sphinx-doc:2.1.4
-    command: sphinx-autobuild --host 0.0.0.0 source build
+    image: docker-private.gesis.intra/rse/docker/images/sphinx-doc:2.2.0
+    command: sphinx-autobuild --host 0.0.0.0 /mnt/docs/source /mnt/docs/build
     volumes:
       - type: bind
         source: docs
