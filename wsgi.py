@@ -5,5 +5,8 @@
 
 from magdalena.app import create_app
 
+app = create_app()
+
 if __name__ == "__main__":
-    create_app().run()
+    # This is not executed by gunicorn
+    app.run()
