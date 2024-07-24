@@ -23,13 +23,6 @@ def create_app():
 
     app = Flask(__name__)
 
-    with app.app_context():
-        for logger_name in logging.root.manager.loggerDict:
-            if logger_name == "gunicorn.error":
-                gunicorn_logger = logging.getLogger("gunicorn.error")
-                app.logger.handlers = gunicorn_logger.handlers
-                app.logger.setLevel(gunicorn_logger.level)
-
     app.config.from_mapping(
         CELERY=dict(
             broker_url=f"pyamqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@rabbitmq/",
