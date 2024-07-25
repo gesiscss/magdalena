@@ -15,6 +15,34 @@ Welcome to ``magadalena``'s documentation!
 `Quarto <https://quarto.org/>`_ documents into output formats such as
 HTML and PDF **for GESIS’ Methods Hub**. ``magdalena`` is the successor of ``andrew``, see https://github.com/GESIS-Methods-Hub/andrew.
 
+The follow sequence diagram illustrates how ``magdalena`` works.
+
+.. mermaid::
+
+   sequenceDiagram
+      actor user as User
+      participant flask as Web App (Flask)
+      participant broker as Broker (RabbitMQ)
+      participant worker as Worker (Celery)
+      participant backend as Backend (Redis)
+
+      user->>flask: POST
+      flask->>flask: Validate JWT
+      flask->>flask: Validate JSON
+      flask->>broker: Enqueue new task
+      flask->>user: Response with task ID 123
+      worker->>broker: Pick task
+      worker->>backend: Store result
+      user->>flask: GET /result/123
+      flask->>broker: Check status of task ID 123
+      alt is complete
+         flask->>backend: Fetch result
+         flask->>user: Response with result
+      else
+         flask->>user: Response with status
+      end
+
+
 .. toctree::
    :maxdepth: 2
    :caption: User Documentation
