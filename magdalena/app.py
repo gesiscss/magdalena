@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+from logging.config import dictConfig
 import os
 
 from celery import Celery
@@ -15,10 +16,57 @@ RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", None)
 assert RABBITMQ_DEFAULT_USER is not None, "RABBITMQ_DEFAULT_USER can't be None"
 assert RABBITMQ_DEFAULT_PASS is not None, "KEYCLOAK_REALM can't be None"
 
+# Define the logging level
+LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
+LOGGING_LEVEL = LOGGING_LEVEL.upper()
+
+# Logging level must be one of the defined in https://docs.python.org/3/howto/logging.html#logging-levels
+assert LOGGING_LEVEL in [
+    "CRITICAL",
+    "ERROR",
+    "WARNING",
+    "INFO",
+    "DEBUG",
+    "NOTSET",
+], "Logging level is invalid"
+
+# Configuring the logging
+#
+# https://docs.python.org/3/library/logging.config.html#configuration-dictionary-schema
+dictConfig(
+    {
+        "version": 1,
+        "disable_existing_loggers": True,
+        "formatters": {
+            "default": {
+                "format": "[%(asctime)s] [%(levelname)s] %(message)s",
+            }
+        },
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+                "formatter": "default",
+                "stream": "ext://sys.stdout",  # https://docs.python.org/3/library/logging.config.html#access-to-external-objects
+            },
+        },
+        "loggers": {
+            "gunicorn.error": {
+                "handlers": ["console"],
+                "level": LOGGING_LEVEL,
+                "propagate": False,
+            },
+            "gunicorn.access": {
+                "handlers": ["console"],
+                "level": LOGGING_LEVEL,
+                "propagate": False,
+            },
+        },
+        "root": {"level": LOGGING_LEVEL, "handlers": ["console"]},
+    }
+)
+
 
 def create_app():
-    import logging
-
     from .views import bp
 
     app = Flask(__name__)
