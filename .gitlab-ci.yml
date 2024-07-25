@@ -45,7 +45,7 @@ Assign Docker image tag:
 
 # Build documentation
 include:
-  - component: $CI_SERVER_FQDN/rse/docker/images/sphinx-doc/sphinx-doc@2.1.4
+  - component: $CI_SERVER_FQDN/rse/docker/images/sphinx-doc/sphinx-doc@2.2.0
     inputs:
       stage: release
       dir: docs
