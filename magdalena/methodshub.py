@@ -43,7 +43,7 @@ def check_postBuild(git_path):
     """
     Check if postBuild file exists in Git repository.
     """
-    postBuild_path = os.path.join(self.tmp_path, "postBuild")
+    postBuild_path = os.path.join(git_path, "postBuild")
     assert os.path.exists(postBuild_path), (
         "Missing postBuild file in %s" % postBuild_path
     )
