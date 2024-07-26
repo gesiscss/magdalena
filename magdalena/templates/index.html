@@ -80,6 +80,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
   </body>
   <script>
     async function submit(event) {
+      event.preventDefault();
+
+      document.getElementById("submit").disabled = true;
+
       console.debug("Preparing request ...");
       let html_form = document.getElementById("form");
       let form_data = new FormData(html_form);
@@ -97,7 +101,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
       keycloak.updateToken(-1).then((data) => {
         console.debug(`JWT: ${keycloak.token}`);
 
-        fetch("{{ url_for('tasks.build') }}", {
+        const tasks_build_domain_relative_url_string =
+          "{{ url_for('tasks.build') }}";
+        const tasks_build_sub_resources_url_string =
+          tasks_build_domain_relative_url_string.replace("/", "");
+
+        fetch(tasks_build_sub_resources_url_string, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -110,14 +119,26 @@ SPDX-License-Identifier: AGPL-3.0-or-later
               return res.json();
             }
 
+            document.getElementById("submit").disabled = false;
             throw new Error(`${res.status} - ${res.statusText}`);
           })
           .then((data) => {
             console.debug("Starting server-sent event ...");
 
-            const evtSource = new EventSource(`/sse/result/${data.id}`);
+            const tasks_result_sse_domain_relative_url_string =
+              "{{ url_for('tasks.result_sse', id='ID') }}";
+            const tasks_result_sse_sub_resources_url_string =
+              tasks_result_sse_domain_relative_url_string
+                .replace("/", "")
+                .replace("ID", data.id);
+
+            const evtSource = new EventSource(
+              tasks_result_sse_sub_resources_url_string
+            );
 
             evtSource.onerror = (err) => {
+              document.getElementById("submit").disabled = false;
+
               console.debug("Closing Server Sent Events connection!", err);
 
               // We might close the connection here on the bases that the connection ended because no more data will be send.
@@ -130,17 +151,26 @@ SPDX-License-Identifier: AGPL-3.0-or-later
               if (message.state === "SUCCESS") {
                 console.debug(`Result: ${message.result}`);
 
-                console.info(`/download/${data.id}`);
-
                 // We must close the connection here!
                 evtSource.close();
+
+                const tasks_download_domain_relative_url_string =
+                  "{{ url_for('tasks.download', id='ID') }}";
+                const tasks_donwload_sub_resources_url_string =
+                  tasks_download_domain_relative_url_string
+                    .replace("/", "")
+                    .replace("ID", data.id);
+
+                const download_url = `${window.location.href}${tasks_donwload_sub_resources_url_string}`;
+
+                console.info(`Redirecting to ${download_url}`);
+                window.location.href = download_url;
               } else {
                 console.debug(`State: ${message.state}`);
               }
             };
           });
       });
-      event.preventDefault();
     }
 
     let html_form = document.getElementById("form");
