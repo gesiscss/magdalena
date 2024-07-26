@@ -145,10 +145,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
               if (message.state === "SUCCESS") {
                 console.debug(`Result: ${message.result}`);
 
-                console.info(`/download/${data.id}`);
-
                 // We must close the connection here!
                 evtSource.close();
+
+                const tasks_download_domain_relative_url_string =
+                  "{{ url_for('tasks.download', id='ID') }}";
+                const tasks_donwload_sub_resources_url_string =
+                  tasks_download_domain_relative_url_string
+                    .replace("/", "")
+                    .replace("ID", data.id);
+
+                const download_url = `${window.location.href}${tasks_donwload_sub_resources_url_string}`;
+
+                console.info(`Redirecting to ${download_url}`);
+                window.location.href = download_url;
               } else {
                 console.debug(`State: ${message.state}`);
               }
