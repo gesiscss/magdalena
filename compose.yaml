@@ -61,8 +61,8 @@ services:
       target: dev
     environment:
       # Celery
-      CELERY_BROKER_URL: "redis:redis"
-      CELERY_BACKEND_URL: "redis:redis"
+      CELERY_BROKER_URL: "redis://redis"
+      CELERY_BACKEND_URL: "redis://redis"
 
       # Flask
       LOG_LEVEL: debug
@@ -119,9 +119,9 @@ services:
       target: dev
     environment:
       # Celery
-      CELERY_BROKER_URL: "redis:redis"
-      CELERY_BACKEND_URL: "redis:redis"
-      
+      CELERY_BROKER_URL: "redis://redis"
+      CELERY_BACKEND_URL: "redis://redis"
+
       # Flask
       LOG_LEVEL: debug
 
