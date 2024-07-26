@@ -56,7 +56,7 @@ def check_input_file(git_path, file_relative_path):
     """
     Check if postBuild file exists in Git repository.
     """
-    file_path = os.path.join(self.tmp_path, "file_relative_path")
+    file_path = os.path.join(git_path, file_relative_path)
     assert os.path.exists(file_path), "Missing input file in %s" % file_path
     assert os.path.isfile(file_path), "Input file in %s is not a file" % file_path
 
