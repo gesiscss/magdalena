@@ -39,6 +39,28 @@ if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
     os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
 
 
+def check_postBuild(git_path):
+    """
+    Check if postBuild file exists in Git repository.
+    """
+    postBuild_path = os.path.join(self.tmp_path, "postBuild")
+    assert os.path.exists(postBuild_path), (
+        "Missing postBuild file in %s" % postBuild_path
+    )
+    assert os.path.isfile(postBuild_path), (
+        "postBuild file in %s is not a file" % postBuild_path
+    )
+
+
+def check_input_file(git_path, file_relative_path):
+    """
+    Check if postBuild file exists in Git repository.
+    """
+    file_path = os.path.join(self.tmp_path, "file_relative_path")
+    assert os.path.exists(file_path), "Missing input file in %s" % file_path
+    assert os.path.isfile(file_path), "Input file in %s is not a file" % file_path
+
+
 def extract_content_from_html(raw_html):
     """
     Extract content from html created by Quarto.
@@ -488,6 +510,10 @@ class MethodsHubGitContent(MethodsHubContent):
             )
             assert git_clone_subprocess.returncode == 0, "Fail to clone Git repository"
 
+        check_postBuild(self.tmp_path)
+
+        check_input_file(self.tmp_path, self.filename)
+
         if self.git_commit_id is None:
             logger.warning("Git Commit ID is None. Using most recent commit.")
             git_get_id_subprocess = subprocess.run(
@@ -514,6 +540,10 @@ class MethodsHubGitContent(MethodsHubContent):
             assert (
                 self.git_commit_id is not None
             ), "Can NOT create Docker container if Git commit ID is None"
+
+        check_postBuild(self.tmp_path)
+
+        check_input_file(self.tmp_path, self.filename)
 
         if self.domain == "github.com":
             self.docker_image_name = mybinder.create_container_from_github(
