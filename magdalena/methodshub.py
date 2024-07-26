@@ -433,6 +433,9 @@ class MethodsHubGitContent(MethodsHubContent):
 
         assert len(filename), "filename can NOT be empty"
 
+        # Remove leading /
+        source_url = re.sub("/$", "", source_url)
+
         if not source_url.endswith(".git"):
             logger.info("Git repository URL does NOT ends with '.git'")
             source_url = f"{source_url}.git"
