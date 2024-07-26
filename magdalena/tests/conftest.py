@@ -20,8 +20,8 @@ os.environ["KEYCLOAK_SCHEME"] = "http"
 os.environ["KEYCLOAK_DOMAIN"] = "localhost"
 os.environ["KEYCLOAK_REALM"] = "pytest"
 os.environ["JWT_ISSUER"] = "http://localhost/realms/pytest"
-os.environ["RABBITMQ_DEFAULT_USER"] = "celery"
-os.environ["RABBITMQ_DEFAULT_PASS"] = "123"
+os.environ["CELERY_BROKER_URL"] = "redis://redis"
+os.environ["CELERY_BACKEND_URL"] = "redis://redis"
 
 from .. import pem
 

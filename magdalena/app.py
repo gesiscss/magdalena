@@ -10,11 +10,11 @@ from celery import Celery
 from celery import Task
 from flask import Flask
 
-RABBITMQ_DEFAULT_USER = os.getenv("RABBITMQ_DEFAULT_USER", None)
-RABBITMQ_DEFAULT_PASS = os.getenv("RABBITMQ_DEFAULT_PASS", None)
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", None)
+CELERY_BACKEND_URL = os.getenv("CELERY_BACKEND_URL", None)
 
-assert RABBITMQ_DEFAULT_USER is not None, "RABBITMQ_DEFAULT_USER can't be None"
-assert RABBITMQ_DEFAULT_PASS is not None, "KEYCLOAK_REALM can't be None"
+assert CELERY_BROKER_URL is not None, "CELERY_BROKER_URL can't be None"
+assert CELERY_BACKEND_URL is not None, "CELERY_BACKEND_URL can't be None"
 
 # Define the logging level
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
@@ -71,10 +71,13 @@ def create_app():
 
     app = Flask(__name__)
 
+    app.logger.info("Celery broker URL: %s", CELERY_BROKER_URL)
+    app.logger.info("Celery backend URL: %s", CELERY_BACKEND_URL)
+
     app.config.from_mapping(
         CELERY=dict(
-            broker_url=f"pyamqp://{RABBITMQ_DEFAULT_USER}:{RABBITMQ_DEFAULT_PASS}@rabbitmq/",
-            result_backend="redis://redis",
+            broker_url=CELERY_BROKER_URL,
+            result_backend=CELERY_BACKEND_URL,
             # task_ignore_result=True,
         ),
     )
