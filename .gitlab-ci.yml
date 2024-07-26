@@ -60,7 +60,7 @@ pages:
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == "main"
   script:
-    - mv demo/build/html public
+    - mv docs/build/html public
   artifacts:
     paths:
       - public
