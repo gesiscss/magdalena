@@ -81,6 +81,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
   <script>
     async function submit(event) {
       event.preventDefault();
+
+      document.getElementById("submit").disabled = true;
+
       console.debug("Preparing request ...");
       let html_form = document.getElementById("form");
       let form_data = new FormData(html_form);
@@ -116,6 +119,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
               return res.json();
             }
 
+            document.getElementById("submit").disabled = false;
             throw new Error(`${res.status} - ${res.statusText}`);
           })
           .then((data) => {
@@ -133,6 +137,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             );
 
             evtSource.onerror = (err) => {
+              document.getElementById("submit").disabled = false;
+
               console.debug("Closing Server Sent Events connection!", err);
 
               // We might close the connection here on the bases that the connection ended because no more data will be send.
