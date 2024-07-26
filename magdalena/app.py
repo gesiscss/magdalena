@@ -71,6 +71,9 @@ def create_app():
 
     app = Flask(__name__)
 
+    app.logger.info("Celery broker URL: %s", CELERY_BROKER_URL)
+    app.logger.info("Celery backend URL: %s", CELERY_BACKEND_URL)
+
     app.config.from_mapping(
         CELERY=dict(
             broker_url=CELERY_BROKER_URL,
