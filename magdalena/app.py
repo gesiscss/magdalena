@@ -10,6 +10,12 @@ from celery import Celery
 from celery import Task
 from flask import Flask
 
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", None)
+CELERY_BACKEND_URL = os.getenv("CELERY_BACKEND_URL", None)
+
+assert CELERY_BROKER_URL is not None, "CELERY_BROKER_URL can't be None"
+assert CELERY_BACKEND_URL is not None, "CELERY_BACKEND_URL can't be None"
+
 # Define the logging level
 LOGGING_LEVEL = os.getenv("LOGGING_LEVEL", "INFO")
 LOGGING_LEVEL = LOGGING_LEVEL.upper()
@@ -67,8 +73,8 @@ def create_app():
 
     app.config.from_mapping(
         CELERY=dict(
-            broker_url=f"redis://redis",
-            result_backend="redis://redis",
+            broker_url=CELERY_BROKER_URL,
+            result_backend=CELERY_BACKEND_URL,
             # task_ignore_result=True,
         ),
     )
