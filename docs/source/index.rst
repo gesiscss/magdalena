@@ -23,10 +23,10 @@ The follow sequence diagram illustrates how ``magdalena`` works.
       actor user as User
       participant flask as Web App (Flask)
       participant broker as Broker (RabbitMQ)
-      participant worker as Worker (Celery)
+      participant worker as Worker (Redis)
       participant backend as Backend (Redis)
 
-      user->>flask: POST
+      user->>flask: POST /
       flask->>flask: Validate JWT
       flask->>flask: Validate JSON
       flask->>broker: Enqueue new task
