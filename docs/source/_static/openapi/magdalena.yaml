@@ -33,6 +33,7 @@ paths:
             security:
                 -
                     gesis: []
+            summary: Convert Git repository into desired format.
             description: Convert Git repository into HTML.
     '/result/{id}':
         get:
@@ -41,7 +42,7 @@ paths:
                     schema:
                         $ref: '#/definitions/result-response'
                 '404': {}
-            summary: Result of the request.
+            summary: Get result of request.
             description: Get JSON information of the result.
         parameters:
             -
@@ -55,7 +56,8 @@ paths:
             responses:
                 '200': {}
                 '404': {}
-            summary: Server-sent event with result of task
+            summary: Get result of request as server-sent event.
+            description: Server-sent event with result of task.
         parameters:
             -
                 name: id
@@ -73,7 +75,7 @@ paths:
                 '200': {}
                 '404': {}
             summary: Download resource created.
-            description: 'Download ZIP, HTML or plain text file.'
+            description: 'Download ZIP, HTML or plain text file depending of the request.'
         parameters:
             -
                 name: id
