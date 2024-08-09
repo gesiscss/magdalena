@@ -10,3 +10,7 @@ Frequently Asked Questions
 
    This is a tribute to `Magdalena
    Morhart <https://en.wikipedia.org/wiki/Magdalena_Morhart>`__.
+
+#. Why build the container image is delegated to https://notebooks.gesis.org?
+
+   Because we want to garantee that when the user launch the Git repository on https://notebooks.gesis.org, the user will have access to exactly the same container image that we used to create the HTML.
