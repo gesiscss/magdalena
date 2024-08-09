@@ -54,7 +54,7 @@ The follow sequence diagram illustrates how ``magdalena`` works.
    :maxdepth: 2
    :caption: Developer Documentation
 
-   user/architecture
+   dev/architecture
    dev/contributing
    dev/unit-tests
    dev/integration-tests

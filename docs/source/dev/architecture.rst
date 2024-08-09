@@ -22,7 +22,7 @@ container (sometimes called Docker outside of Docker or Dood that should
 not be mistake by Docker in Docker or DinD). The container created by ``repo2docker`` running
 `Quarto <https://quarto.org/>`__ is a sibling to the ``magdalena`` container.
 
-.. figure:: img/magdalena.drawio.png
+.. figure:: ../img/magdalena.drawio.png
    :alt: Diagram of containers on the network.
 
    Containers are siblings.
