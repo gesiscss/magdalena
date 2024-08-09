@@ -8,31 +8,25 @@ services:
   sphinx:
     profiles:
       - docs
-    image: docker-private-releases.gesis.intra/gesis/methods-hub/sphinx/sphinx:7.2.6-make
-    command: sphinx-autobuild --host 0.0.0.0 source build
+    image: docker-private.gesis.intra/rse/docker/images/sphinx-doc:2.2.0
+    command: sphinx-autobuild --host 0.0.0.0 /mnt/docs/source /mnt/docs/build
     volumes:
       - type: bind
-        source: docs/source
-        target: /docs/source
+        source: docs
+        target: /mnt/docs
+        read_only: true
+      - sphinx-doc-build:/mnt/docs/build
     expose:
       - "8000"
     ports:
       - "8000:8000"
 
-  swagger-editor:
+  apicurito-ui:
     profiles:
       - docs
-    image: swaggerapi/swagger-editor:v4.12.1
-    environment:
-      SWAGGER_FILE: /var/magdalena/openapi/magdalena.yaml
-    volumes:
-      - type: bind
-        source: docs/source/_static/openapi
-        target: /var/magdalena/openapi
-    expose:
-      - "8800"
+    image: apicurio/apicurito-ui:1.2.4
     ports:
-      - "8800:8080"
+      - "8008:8080"
 
   reverse-proxy:
     depends_on:
@@ -191,3 +185,4 @@ services:
 
 volumes:
   keycloak-data:
+  sphinx-doc-build:

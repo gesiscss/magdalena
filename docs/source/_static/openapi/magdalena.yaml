@@ -1,96 +1,151 @@
-# SPDX-FileCopyrightText: 2023 - 2024 GESIS - Leibniz-Institut für Sozialwissenschaften
-# SPDX-FileContributor: Raniere Gaia Costa da Silva <Raniere.CostadaSilva@gesis.org>
-#
-# SPDX-License-Identifier: AGPL-3.0-or-later
-
-swagger: "2.0"
+swagger: '2.0'
 info:
-  title: magdalena - OpenAPI 3.0
-  description: |-
-    magdalena OpenAPI 3.0 specification.
-  contact:
-    email: Raniere.CostadaSilva@gesis.org
-  license:
-    name: Creative Commons Attribution 4.0 International
-    url: https://creativecommons.org/licenses/by/4.0/legalcode
-  version: 9.0.0
-
-host: methodshub.gesis.org
-basePath: /magdalena
-schemes:
-  - https
-
+    title: magdalena
+    version: 1.0.0
+    description: magdalena OpenAPI 2.0 specification.
+    contact:
+        name: Raniere Gaia Costa da Silva
+        email: Raniere.CostadaSilva@gesis.org
+    license:
+        name: GNU AGPLv3
+        url: 'https://www.gnu.org/licenses/agpl.txt'
+consumes:
+    - application/json
+produces:
+    - application/json
 paths:
-  /:
-    post:
-      summary: Render a document
-      description: Render a user provided document to the user defined target format.
-      parameters:
-        - name: evidence
-          in: body
-          schema:
-            $ref: '#/definitions/Document'
-      responses:
-        '200':
-          description: Successful operation
-          schema:
-            type: object
-            properties:
-              status:
+    /:
+        post:
+            parameters:
+                -
+                    name: body
+                    description: Git repository details.
+                    schema:
+                        $ref: '#/definitions/build-request'
+                    in: body
+                    required: true
+            responses:
+                '201':
+                    description: Task to build page was created.
+                    schema:
+                        $ref: '#/definitions/task'
+                    examples: {}
+            security:
+                -
+                    gesis: []
+            summary: Convert Git repository into desired format.
+            description: Convert Git repository into HTML.
+    '/result/{id}':
+        get:
+            responses:
+                '200':
+                    schema:
+                        $ref: '#/definitions/result-response'
+                '404': {}
+            summary: Get result of request.
+            description: Get JSON information of the result.
+        parameters:
+            -
+                name: id
+                description: ID of the task.
+                in: path
+                required: true
                 type: string
-                description: The status of the render request.
-                enum:
-                  - OK
-                  - FAIL
-        '400':
-          description: Invalid input
-        '401':
-          description: Unauthorized
-        '500':
-          description: Internal Server Error
-          schema:
-            type: object
-            properties:
-              type:
+    '/sse/result/{id}/':
+        get:
+            responses:
+                '200': {}
+                '404': {}
+            summary: Get result of request as server-sent event.
+            description: Server-sent event with result of task.
+        parameters:
+            -
+                name: id
+                description: ID of the task.
+                in: path
+                required: true
                 type: string
-                description: The type of error.
-              message:
+    '/download/{id}':
+        get:
+            produces:
+                - application/zip
+                - text/html
+                - text/plain
+            responses:
+                '200': {}
+                '404': {}
+            summary: Download resource created.
+            description: 'Download ZIP, HTML or plain text file depending of the request.'
+        parameters:
+            -
+                name: id
+                description: ID of the task.
+                in: path
+                required: true
                 type: string
-                description: Human description of the error.
 definitions:
-  Document:
-    type: object
-    required:
-      - source_url
-    properties:
-      id:
-        type: integer
-        format: int64
-        description: Identifier of Document.
-      source_url:
-        type: string
-        description: Source URL
-        example: https://github.com/GESIS-Methods-Hub/minimal-example-ipynb-python
-      git_commit_id:
-        type: string
-        description: Git Commit ID
-        example: c4add962323f877758bd679bfc94b6d26400d14c
-      filename:
-        type: string
-        description: File in source
-        example: index.ipynb
-      target_format:
-        type: array
-        description: Target formats
-        items:
-          type: string
+    build-request:
+        title: Root Type for build-request
+        description: ''
+        required:
+            - target_format
+            - response
+            - source_url
+        type: object
+        properties:
+            source_url:
+                description: Git repository URL.
+                type: string
+            filename:
+                description: Filename of the file to convert. Default to README.md.
+                type: string
+            git_commit_id:
+                description: Git commit ID.
+                type: string
+            target_format:
+                type: array
+                items:
+                    type: string
+            response:
+                enum:
+                    - download
+                    - forward
+                type: string
         example:
-          - md
-          - ipynb
-      response:
-        type: string
-        description: Type of response
-        example: download
-        enum:
-          - download
-          - forward
+            source_url: 'https://github.com/GESIS-Methods-Hub/minimal-example-qmd-rstats-units'
+            filename: index.qmd
+            git_commit_id: 996dbe13501f6cf3f2811843bee68cc5295dd0ff
+            target_format:
+                - html
+            response: download
+    task:
+        title: Root Type for task
+        description: ''
+        type: object
+        properties:
+            id:
+                type: string
+        example:
+            id: '123'
+    result-response:
+        title: Root Type for result-response
+        description: Result of a request.
+        type: object
+        properties:
+            ready:
+                type: boolean
+            successful:
+                type: boolean
+            value:
+                type: string
+        example:
+            ready: true
+            successful: true
+            value: Hello world
+securityDefinitions:
+    gesis:
+        flow: implicit
+        authorizationUrl: 'https://login.gesis.org/'
+        scopes: {}
+        type: oauth2
+        description: GESIS Keycloak Single-Sing On
