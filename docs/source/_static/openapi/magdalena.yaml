@@ -37,8 +37,12 @@ paths:
     '/result/{id}':
         get:
             responses:
-                '200': {}
+                '200':
+                    schema:
+                        $ref: '#/definitions/result-response'
                 '404': {}
+            summary: Result of the request.
+            description: Get JSON information of the result.
         parameters:
             -
                 name: id
@@ -61,9 +65,15 @@ paths:
                 type: string
     '/download/{id}':
         get:
+            produces:
+                - application/zip
+                - text/html
+                - text/plain
             responses:
                 '200': {}
                 '404': {}
+            summary: Download resource created.
+            description: 'Download ZIP, HTML or plain text file.'
         parameters:
             -
                 name: id
@@ -85,6 +95,7 @@ definitions:
                 description: Git repository URL.
                 type: string
             filename:
+                description: Filename of the file to convert. Default to README.md.
                 type: string
             git_commit_id:
                 description: Git commit ID.
@@ -114,6 +125,21 @@ definitions:
                 type: string
         example:
             id: '123'
+    result-response:
+        title: Root Type for result-response
+        description: Result of a request.
+        type: object
+        properties:
+            ready:
+                type: boolean
+            successful:
+                type: boolean
+            value:
+                type: string
+        example:
+            ready: true
+            successful: true
+            value: Hello world
 securityDefinitions:
     gesis:
         flow: implicit
