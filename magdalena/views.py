@@ -36,6 +36,9 @@ if isinstance(authorization_required_from_env, str):
         AUTHORIZATION_REQUIRED = True
     else:
         AUTHORIZATION_REQUIRED = True
+else:
+    AUTHORIZATION_REQUIRED = authorization_required_from_env
+
 
 bp = Blueprint("tasks", __name__)
 
