@@ -138,10 +138,8 @@ def index():
             keycloak_realm=KEYCLOAK_REALM,
             keycloak_client=KEYCLOAK_CLIENT,
         )
-    
-    return render_template(
-        "index.html"
-    )
+
+    return render_template("index.html")
 
 
 @bp.post("/")

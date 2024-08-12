@@ -85,9 +85,6 @@ class MethodsHubContent:
             "html": "ipynb2html.sh",
             "ipynb": "ipynb2ipynb.sh",
         },
-        "docx": {
-            "html": "docx2html.sh",
-        },
     }
 
     def __init__(self, source_url, id_for_graphql=None):
@@ -329,96 +326,6 @@ class MethodsHubContent:
 
         for target_format in formats:
             self._push_rendered_format(target_format, token)
-
-
-class MethodsHubHTTPContent(MethodsHubContent):
-    def __init__(self, source_url, id_for_graphql=None, filename=None):
-        MethodsHubContent.__init__(self, source_url, id_for_graphql)
-
-        regex_match_http = re.match("https?://(.+?)/(.+)", self.source_url)
-
-        assert regex_match_http is not None, "Source URL is invalid!"
-        self.domain = regex_match_http.group(1)
-
-        if self.domain == "gesisev.sharepoint.com" or "sharepoint" in self.domain:
-            self.source_url = (
-                self.source_url
-                if self.source_url.endswith("&download=1")
-                else f"{self.source_url}&download=1"
-            )
-
-        if (
-            self.domain == "gesisbox.gesis.org"
-            or "nextcloud" in self.domain
-            or "ownCloud" in self.domain
-        ):
-            self.source_url = (
-                self.source_url
-                if self.source_url.endswith("/download")
-                else f"{self.source_url}/download"
-            )
-
-        if filename is None:
-            with requests.get(self.source_url, stream=True) as response:
-                assert response.status_code == 200, "Fail to stablish connection"
-                assert (
-                    "Content-Disposition" in response.headers
-                ), "HTTP response header missing Content-Disposition"
-                regex_match_filename = re.search(
-                    r'filename="(.+)"', response.headers["Content-Disposition"]
-                )
-                assert (
-                    regex_match_filename is not None
-                ), "Unable to extract filename from HTTP request"
-                filename = regex_match_filename.group(1)
-        assert len(filename), "filename can NOT be empty"
-
-        self.filename = filename
-        self.environment_for_container["file2render"] = self.filename
-
-        self.tmp_path = os.path.join(
-            os.getenv("MAGDALENA_TMP", "/tmp"), self.domain, uuid.uuid4().hex
-        )
-
-        self.filename_extension = self.filename.split(".")[-1]
-        assert (
-            self.filename_extension in self.RENDER_MATRIX
-        ), "File format not supported!"
-
-        self.output_location = f"{self.docker_shared_dir}/{self.domain}/{self.filename}"
-        os.makedirs(self.output_location, exist_ok=True)
-
-        self.zip_file_path = (
-            f"{self.docker_shared_dir}/{self.domain}-{self.filename}.zip"
-        )
-
-    def clone_or_pull(self):
-        os.makedirs(self.tmp_path, exist_ok=True)
-
-        with requests.get(self.source_url, stream=True) as response:
-            assert response.status_code == 200, "Fail to stablish connection"
-            with open(os.path.join(self.tmp_path, self.filename), "wb") as _file:
-                _file.write(response.raw.read())
-
-    def create_container(self):
-        self.docker_repository = f"magdalena/{self.domain}/{self.filename}"
-        self.docker_repository = self.docker_repository.lower().replace(" ", "")
-
-        with open(os.path.join(self.tmp_path, self.filename), "rb") as _file:
-            hash = hashlib.md5(_file.read())
-
-        self.docker_image_name = f"{self.docker_repository}:{hash.hexdigest()}"
-        logger.info("Defined Docker image name: %s", self.docker_image_name)
-
-        # Check if container already exists
-        docker_client = docker.from_env()
-        for docker_image in docker_client.images.list():
-            for docker_image_tag in docker_image.tags:
-                if docker_image_tag == self.docker_image_name:
-                    logger.info("Docker image found. Skipping build.")
-                    return
-
-        self._start_repo2docker(self.tmp_path)
 
 
 class MethodsHubGitContent(MethodsHubContent):

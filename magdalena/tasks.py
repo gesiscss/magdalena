@@ -10,7 +10,7 @@ from celery import shared_task
 from celery.signals import celeryd_after_setup
 from celery.utils.log import get_task_logger
 
-from .methodshub import MethodsHubHTTPContent, MethodsHubGitContent
+from .methodshub import MethodsHubGitContent
 
 logger = get_task_logger(__name__)
 
@@ -67,43 +67,34 @@ def build(self, request_json):
     else:
         forward_id = None
 
-    if (
-        "github.com" in request_json["source_url"]
-        or "gitlab.com" in request_json["source_url"]
-    ):
-        # assert "filename" in request_json, "Field filename missing in form"
-        if "filename" not in request_json or len(request_json["filename"]) == 0:
-            logger.warning("filename is not defined or empty! Using 'README.md'")
-            filename = "README.md"
-        else:
-            filename = request_json["filename"]
-
-        # assert "git_commit_id" in request_json, "Field git_commit_id missing in form"
-        if (
-            "git_commit_id" not in request_json
-            or len(request_json["git_commit_id"]) == 0
-        ):
-            logger.warning("git_commit_id is not defined or empty!")
-            git_commit_id = None
-        else:
-            git_commit_id = request_json["git_commit_id"]
-
-        methods_hub_content = MethodsHubGitContent(
-            request_json["source_url"],
-            id_for_graphql=forward_id,
-            git_commit_id=git_commit_id,
-            filename=filename,
-        )
+    if "github.com" in request_json["source_url"]:
+        source_url = request_json["source_url"]
+    elif "gitlab.com" in request_json["source_url"]:
+        source_url = request_json["source_url"]
     else:
-        methods_hub_content = MethodsHubHTTPContent(
-            request_json["source_url"],
-            id_for_graphql=forward_id,
-            filename=(
-                request_json["filename"]
-                if ("filename" in request_json and len(request_json["filename"]))
-                else None
-            ),
-        )
+        source_url = None
+    assert source_url is None, "Source URL cannot be None"
+
+    # assert "filename" in request_json, "Field filename missing in form"
+    if "filename" not in request_json or len(request_json["filename"]) == 0:
+        logger.warning("filename is not defined or empty! Using 'README.md'")
+        filename = "README.md"
+    else:
+        filename = request_json["filename"]
+
+    # assert "git_commit_id" in request_json, "Field git_commit_id missing in form"
+    if "git_commit_id" not in request_json or len(request_json["git_commit_id"]) == 0:
+        logger.warning("git_commit_id is not defined or empty!")
+        git_commit_id = None
+    else:
+        git_commit_id = request_json["git_commit_id"]
+
+    methods_hub_content = MethodsHubGitContent(
+        source_url,
+        id_for_graphql=forward_id,
+        git_commit_id=git_commit_id,
+        filename=filename,
+    )
 
     task.update_state(state="CLONING")
     methods_hub_content.clone_or_pull()
