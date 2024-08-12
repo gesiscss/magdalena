@@ -1,14 +1,22 @@
 openapi: 3.0.2
 info:
     title: magdalena
-    version: 1.0.0
-    description: magdalena OpenAPI 2.0 specification.
+    version: 0.3.1
+    description: magdalena OpenAPI 3.0 specification.
     contact:
         name: Raniere Gaia Costa da Silva
+        url: 'http://methods-hub.git.gesis.org/magdalena/'
         email: Raniere.CostadaSilva@gesis.org
     license:
         name: GNU AGPLv3
         url: 'https://www.gnu.org/licenses/agpl.txt'
+servers:
+    -
+        url: 'https://methodshubtest.gesis.org/magdalena'
+        description: Test server of Methods Hub.
+    -
+        url: 'https://methodshub.gesis.org/magdalena'
+        description: Production server of Methods Hub.
 paths:
     /:
         post:
@@ -147,3 +155,6 @@ components:
                     authorizationUrl: 'https://login.gesis.org/'
             type: oauth2
             description: GESIS Keycloak Single-Sing On
+security:
+    -
+        gesis: []
