@@ -120,22 +120,27 @@ def result_sse(id):
 
 @bp.get("/")
 def index():
-    keycloak_scheme = os.getenv("FRONTEND_KEYCLOAK_SCHEME", None)
-    if keycloak_scheme is None:
-        keycloak_scheme = os.getenv("KEYCLOAK_SCHEME", None)
-    current_app.logger.debug("keycloak_scheme = %s", keycloak_scheme)
+    if AUTHORIZATION_REQUIRED:
+        keycloak_scheme = os.getenv("FRONTEND_KEYCLOAK_SCHEME", None)
+        if keycloak_scheme is None:
+            keycloak_scheme = os.getenv("KEYCLOAK_SCHEME", None)
+        current_app.logger.debug("keycloak_scheme = %s", keycloak_scheme)
 
-    keycloak_domain = os.getenv("FRONTEND_KEYCLOAK_DOMAIN", None)
-    if keycloak_domain is None:
-        keycloak_domain = os.getenv("KEYCLOAK_DOMAIN", None)
-    current_app.logger.debug("keycloak_domain = %s", keycloak_domain)
+        keycloak_domain = os.getenv("FRONTEND_KEYCLOAK_DOMAIN", None)
+        if keycloak_domain is None:
+            keycloak_domain = os.getenv("KEYCLOAK_DOMAIN", None)
+        current_app.logger.debug("keycloak_domain = %s", keycloak_domain)
 
+        return render_template(
+            "index-authorization-required.html",
+            keycloak_scheme=keycloak_scheme,
+            keycloak_domain=keycloak_domain,
+            keycloak_realm=KEYCLOAK_REALM,
+            keycloak_client=KEYCLOAK_CLIENT,
+        )
+    
     return render_template(
-        "index.html",
-        keycloak_scheme=keycloak_scheme,
-        keycloak_domain=keycloak_domain,
-        keycloak_realm=KEYCLOAK_REALM,
-        keycloak_client=KEYCLOAK_CLIENT,
+        "index.html"
     )
 
 
