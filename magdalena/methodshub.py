@@ -392,6 +392,19 @@ class MethodsHubGitContent(MethodsHubContent):
             )
             assert git_clone_subprocess.returncode == 0, "Fail to clone Git repository"
 
+        # repo2docker define possible locations for the configuration files
+        # https://github.com/jupyterhub/repo2docker/blob/afaa6e39f5c978fa7faf9c7db37b5a3886f1a6a6/repo2docker/buildpacks/base.py#L451
+        possible_post_build_dir = [".binder", "binder", "."]
+        has_post_build_file = False
+        for post_build_dir in possible_post_build_dir:
+            post_build_path = os.path.join(self.tmp_path, post_build_dir, "postBuild")
+            if os.path.exists(post_build_path):
+                logger.info("Located postBuild file at %s", post_build_path)
+                has_post_build_file = True
+        assert (
+            has_post_build_file
+        ), "Fail to locate required postBuild configuration file"
+
         if self.git_commit_id is None:
             logger.warning("Git Commit ID is None. Using most recent commit.")
             git_get_id_subprocess = subprocess.run(
