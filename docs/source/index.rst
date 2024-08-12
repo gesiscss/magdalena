@@ -52,6 +52,12 @@ The follow sequence diagram illustrates how ``magdalena`` works.
 
 .. toctree::
    :maxdepth: 2
+   :caption: Container Image Documentation
+
+   docker/env
+
+.. toctree::
+   :maxdepth: 2
    :caption: Developer Documentation
 
    dev/architecture
