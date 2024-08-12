@@ -9,34 +9,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <html>
   <head>
     <title>magdalena</title>
-
-    <script src="{{ url_for('tasks.send_keycloak_adapter') }}"></script>
-    <script>
-      const keycloak = new Keycloak({
-        url: "{{keycloak_scheme}}://{{keycloak_domain}}",
-        realm: "{{keycloak_realm}}",
-        clientId: "{{keycloak_client}}",
-      });
-
-      async function main() {
-        try {
-          const authenticated = await keycloak.init({
-            onLoad: "login-required",
-          });
-          console.debug(
-            `User is ${authenticated ? "authenticated" : "not authenticated"}`
-          );
-
-          if (keycloak.authenticated) {
-            console.debug(keycloak.token);
-          }
-        } catch (error) {
-          console.error("Failed to initialize adapter:", error);
-        }
-      }
-
-      main();
-    </script>
   </head>
   <body>
     <h1>magdalena</h1>
@@ -98,80 +70,72 @@ SPDX-License-Identifier: AGPL-3.0-or-later
       }
       console.debug("Preparing request completed!");
 
-      keycloak.updateToken(-1).then((data) => {
-        console.debug(`JWT: ${keycloak.token}`);
+      let tasks_build_domain_relative_url_string =
+        "{{ url_for('tasks.build') }}";
 
-        let tasks_build_domain_relative_url_string =
-          "{{ url_for('tasks.build') }}";
+      fetch(tasks_build_domain_relative_url_string, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${keycloak.token}`,
+        },
+        body: JSON.stringify(form_json),
+      })
+        .then((res) => {
+          if (res.ok) {
+            return res.json();
+          }
 
-        fetch(tasks_build_domain_relative_url_string, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${keycloak.token}`,
-          },
-          body: JSON.stringify(form_json),
+          document.getElementById("submit").disabled = false;
+          throw new Error(`${res.status} - ${res.statusText}`);
         })
-          .then((res) => {
-            if (res.ok) {
-              return res.json();
-            }
+        .then((data) => {
+          console.debug("Starting server-sent event ...");
 
+          let tasks_result_sse_domain_relative_url_string =
+            "{{ url_for('tasks.result_sse', id='ID') }}";
+          tasks_result_sse_domain_relative_url_string =
+            tasks_result_sse_domain_relative_url_string.replace("ID", data.id);
+
+          const evtSource = new EventSource(
+            tasks_result_sse_domain_relative_url_string
+          );
+
+          evtSource.onerror = (err) => {
             document.getElementById("submit").disabled = false;
-            throw new Error(`${res.status} - ${res.statusText}`);
-          })
-          .then((data) => {
-            console.debug("Starting server-sent event ...");
 
-            let tasks_result_sse_domain_relative_url_string =
-              "{{ url_for('tasks.result_sse', id='ID') }}";
-            tasks_result_sse_domain_relative_url_string =
-              tasks_result_sse_domain_relative_url_string.replace(
-                "ID",
-                data.id
-              );
+            console.debug("Closing Server Sent Events connection!", err);
 
-            const evtSource = new EventSource(
-              tasks_result_sse_domain_relative_url_string
-            );
+            // We might close the connection here on the bases that the connection ended because no more data will be send.
+            evtSource.close();
+          };
 
-            evtSource.onerror = (err) => {
-              document.getElementById("submit").disabled = false;
+          evtSource.onmessage = (event) => {
+            console.debug(event);
+            message = JSON.parse(event.data);
+            if (message.state === "SUCCESS") {
+              console.debug(`Result: ${message.result}`);
 
-              console.debug("Closing Server Sent Events connection!", err);
-
-              // We might close the connection here on the bases that the connection ended because no more data will be send.
+              // We must close the connection here!
               evtSource.close();
-            };
 
-            evtSource.onmessage = (event) => {
-              console.debug(event);
-              message = JSON.parse(event.data);
-              if (message.state === "SUCCESS") {
-                console.debug(`Result: ${message.result}`);
-
-                // We must close the connection here!
-                evtSource.close();
-
-                let tasks_download_domain_relative_url_string =
-                  "{{ url_for('tasks.download', id='ID') }}";
-                tasks_download_domain_relative_url_string =
-                  tasks_download_domain_relative_url_string.replace(
-                    "ID",
-                    data.id
-                  );
-
-                console.info(
-                  `Redirecting to ${tasks_download_domain_relative_url_string}`
+              let tasks_download_domain_relative_url_string =
+                "{{ url_for('tasks.download', id='ID') }}";
+              tasks_download_domain_relative_url_string =
+                tasks_download_domain_relative_url_string.replace(
+                  "ID",
+                  data.id
                 );
-                window.location.href =
-                  tasks_download_domain_relative_url_string;
-              } else {
-                console.debug(`State: ${message.state}`);
-              }
-            };
-          });
-      });
+
+              console.info(
+                `Redirecting to ${tasks_download_domain_relative_url_string}`
+              );
+              window.location.href = tasks_download_domain_relative_url_string;
+            } else {
+              console.debug(`State: ${message.state}`);
+            }
+          };
+        });
     }
 
     let html_form = document.getElementById("form");
