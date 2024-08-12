@@ -8,6 +8,6 @@ REST API
 
 The REST API is available as a `OpenAPI <https://www.openapis.org/>`_ document, see :download:`magdalena OpenAPI document <../_static/openapi/magdalena.yaml>`.
 
-The follow documentation was generated from ``magdalena`` OpenAPI document.
+You can visualize and interact with the REST API using `RapiDoc <../_static/rapidoc.html>`_ or `Swagger UI <../_static/swagger.html>`_.
 
-.. openapi:: ../_static/openapi/magdalena.yaml
+`Postman <https://www.postman.com>`_, an REST API platform, supports OpenAPI out of the box. Read their `Integrate Postman with OpenAPI <https://learning.postman.com/docs/integrations/available-integrations/working-with-openAPI/>`_ instructions.
