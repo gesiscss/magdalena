@@ -26,6 +26,17 @@ from .pem import (
 
 from . import tasks
 
+authorization_required_from_env = os.getenv("AUTHORIZATION_REQUIRED", True)
+if isinstance(authorization_required_from_env, str):
+
+    authorization_required_from_env = authorization_required_from_env.lower()
+    if authorization_required_from_env == "false":
+        AUTHORIZATION_REQUIRED = False
+    elif authorization_required_from_env == "true":
+        AUTHORIZATION_REQUIRED = True
+    else:
+        AUTHORIZATION_REQUIRED = True
+
 bp = Blueprint("tasks", __name__)
 
 
@@ -130,27 +141,28 @@ def index():
 
 @bp.post("/")
 def build():
-    JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
+    if AUTHORIZATION_REQUIRED:
+        JWT_ISSUER = os.getenv("JWT_ISSUER", KEYCLOAK_ISSUER)
 
-    PUBLIC_KEY = retrieve_public_key()
+        PUBLIC_KEY = retrieve_public_key()
 
-    authorization = request.headers.get("Authorization")
-    assert authorization, "Authorization is missing in header"
+        authorization = request.headers.get("Authorization")
+        assert authorization, "Authorization is missing in header"
 
-    authorization_scheme, authorization_token = authorization.split()
-    assert authorization_scheme == "Bearer", "Authorization is missing in header"
+        authorization_scheme, authorization_token = authorization.split()
+        assert authorization_scheme == "Bearer", "Authorization is missing in header"
 
-    current_app.logger.debug("Validating JWT")
-    current_app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
-    current_app.logger.debug("\tJWT: %s", authorization_token)
+        current_app.logger.debug("Validating JWT")
+        current_app.logger.debug("\tExpected issuer: %s", JWT_ISSUER)
+        current_app.logger.debug("\tJWT: %s", authorization_token)
 
-    jwt.decode(
-        authorization_token,
-        key=PUBLIC_KEY,
-        algorithms=["RS256"],
-        options={"verify_aud": False},
-        issuer=JWT_ISSUER,
-    )
+        jwt.decode(
+            authorization_token,
+            key=PUBLIC_KEY,
+            algorithms=["RS256"],
+            options={"verify_aud": False},
+            issuer=JWT_ISSUER,
+        )
 
     celery_result = tasks.build.delay(request.json)
     return {"id": celery_result.id}

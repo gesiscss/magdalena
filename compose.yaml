@@ -85,6 +85,7 @@ services:
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
+      AUTHORIZATION_REQUIRED: True
       MAGDALENA_GRAPHQL_TARGET_URL: http://localhost/graphql
       MAGDALENA_GRAPHQL_TARGET_TOKEN: 123456
     volumes:
@@ -143,6 +144,7 @@ services:
       # magdalena
       MYBINDER_URL: https://notebooks.gesis.org/binder
       MAGDALENA_SHARED_DIR: /tmp/magdalena-shared-volume
+      AUTHORIZATION_REQUIRED: True
       MAGDALENA_GRAPHQL_TARGET_URL: http://localhost/graphql
       MAGDALENA_GRAPHQL_TARGET_TOKEN: 123456
     volumes:
