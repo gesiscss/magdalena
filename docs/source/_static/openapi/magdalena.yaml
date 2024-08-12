@@ -19,6 +19,8 @@ servers:
         description: Production server of Methods Hub.
 paths:
     /:
+        summary: Convert Git repository into desired format.
+        description: Convert Git repository into HTML.
         post:
             requestBody:
                 description: Git repository details.
@@ -37,9 +39,11 @@ paths:
             security:
                 -
                     gesis: []
-            summary: Convert Git repository into desired format.
+            summary: Make request to convert Git repository into desired format.
             description: Convert Git repository into HTML.
     '/result/{id}':
+        summary: Get result of request.
+        description: Get JSON information of the result.
         get:
             responses:
                 '200':
@@ -59,6 +63,8 @@ paths:
                 in: path
                 required: true
     '/sse/result/{id}/':
+        summary: Get result of request as server-sent event.
+        description: Server-sent event with result of task.
         get:
             responses:
                 '200': {}
@@ -74,6 +80,8 @@ paths:
                 in: path
                 required: true
     '/download/{id}':
+        summary: Download resource created.
+        description: 'Download ZIP, HTML or plain text file depending of the request.'
         get:
             responses:
                 '200': {}
