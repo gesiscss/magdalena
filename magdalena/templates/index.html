@@ -40,13 +40,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
           <option value="ipynb">Jupyter Notebook</option>
         </select>
       </div>
-      <div>
-        <label for="response">Select response format:</label><br />
-        <select id="response" name="response" multiple size="2" required>
-          <option value="download" selected>Download</option>
-          <option value="forward" disabled>Forward</option>
-        </select>
-      </div>
       <input type="submit" value="Submit" id="submit" />
     </form>
   </body>
@@ -63,7 +56,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
         source_url: form_data.get("source_url"),
         git_commit_id: form_data.get("git_commit_id"),
         filename: form_data.get("filename"),
-        response: form_data.get("response"),
       };
       for (let key of ["target_format"]) {
         form_json[key] = form_data.getAll(key);

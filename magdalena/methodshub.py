@@ -34,38 +34,6 @@ os.umask(0)
 
 logger = logging.getLogger(__name__)
 
-if "MAGDALENA_GRAPHQL_TARGET_URL" not in os.environ:
-    logger.warning("MAGDALENA_GRAPHQL_TARGET_URL is not defined! Using localhost.")
-    os.environ["MAGDALENA_GRAPHQL_TARGET_URL"] = "https://localhost"
-
-
-def extract_content_from_html(raw_html):
-    """
-    Extract content from html created by Quarto.
-    """
-    html = lxml.html.fromstring(raw_html)
-    selector = CSSSelector("main")
-    selection = selector(html)
-
-    if len(selection) <= 0:
-        logger.info("<main> was not found. Using <body> instead.")
-        selector = CSSSelector("body")
-        selection = selector(html)
-
-    assert (
-        len(selection) > 0
-    ), "Selection from HTML document is empty. HTML document does NOT have <main> or <body>!"
-
-    selection = selection[0]
-    selection.tag = "div"
-
-    header_selector = CSSSelector("header")
-    header_selection = header_selector(selection)
-    if len(header_selection) > 0:
-        header_selection[0].drop_tree()
-
-    return lxml.html.tostring(selection, with_tail=False)
-
 
 class MethodsHubContent:
     RENDER_MATRIX = {
@@ -87,12 +55,10 @@ class MethodsHubContent:
         },
     }
 
-    def __init__(self, source_url, id_for_graphql=None):
+    def __init__(self, source_url):
         assert source_url is not None, "Source URL can NOT be None"
         assert len(source_url), "Source URL can NOT be empty string"
         self.source_url = source_url
-
-        self.id_for_graphql = id_for_graphql
 
         self.http_to_git_repository = None
         self.user_name = None
@@ -264,75 +230,10 @@ class MethodsHubContent:
                     arcname=filename2zip,
                 )
 
-    def _push_rendered_format(self, target_format, token):
-        graphql_transport = RequestsHTTPTransport(
-            url=os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"),
-            verify=True,
-            retries=3,
-            headers={"Authorization": f"Bearer {token}"},
-        )
-
-        graphql_client = Client(transport=graphql_transport)
-
-        mutation = gql(
-            """
-            mutation Mutation($input: CreateFileInput!) {
-                createFile(input: $input) {
-                    id
-                }
-            }
-        """
-        )
-
-        logger.debug("Preparing content to push ...")
-
-        filename = f"index.{target_format}"
-        file_path = os.path.join(self.output_location, filename)
-
-        logger.debug("Loading file %s ...", file_path)
-        with open(file_path, "rb") as _file:
-            file_as_binary = b"".join(_file.readlines())
-
-        if target_format != "html":
-            file_base64 = base64.b64encode(file_as_binary)
-        else:
-            file_base64 = base64.b64encode(extract_content_from_html(file_as_binary))
-
-        variables = {
-            "input": {
-                "binary": file_base64.decode("utf-8"),
-                "fileExtension": target_format.upper(),
-                "name": filename,
-                "content": {"id": self.id_for_graphql},
-            }
-        }
-
-        logger.debug("GraphQL variables:\n%s" % pformat(variables))
-        result = graphql_client.execute(mutation, variable_values=variables)
-        logger.info("GraphQL call resulted in %s", result)
-
-    def push_all_rendered_formats(self, token):
-        assert (
-            self.filename_extension in self.RENDER_MATRIX
-        ), "File extension not supported!"
-
-        for target_format in self.RENDER_MATRIX[self.filename_extension]:
-            self._push_rendered_format(target_format, token)
-
-    def push_rendered_formats(self, formats, token):
-        assert (
-            self.filename_extension in self.RENDER_MATRIX
-        ), "File extension not supported!"
-
-        for target_format in formats:
-            self._push_rendered_format(target_format, token)
-
 
 class MethodsHubGitContent(MethodsHubContent):
-    def __init__(
-        self, source_url, id_for_graphql=None, git_commit_id=None, filename=None
-    ):
-        MethodsHubContent.__init__(self, source_url, id_for_graphql)
+    def __init__(self, source_url, git_commit_id=None, filename=None):
+        MethodsHubContent.__init__(self, source_url)
 
         if filename is None:
             logger.warning("Filename is None. Using README.md.")

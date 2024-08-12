@@ -51,22 +51,6 @@ def build(self, request_json):
 
     assert "response" in request_json, "Field response missing in form"
 
-    assert request_json["response"] in [
-        "download",
-        "forward",
-    ], "Field response is invalid"
-
-    response_type = request_json["response"]
-
-    if response_type == "forward":
-        assert "forward_id" in request_json, "Field forward_id missing in form"
-
-        assert request_json["forward_id"], "Field forward_id is invalid"
-
-        forward_id = request_json["forward_id"]
-    else:
-        forward_id = None
-
     if "github.com" in request_json["source_url"]:
         source_url = request_json["source_url"]
     elif "gitlab.com" in request_json["source_url"]:
@@ -91,7 +75,6 @@ def build(self, request_json):
 
     methods_hub_content = MethodsHubGitContent(
         source_url,
-        id_for_graphql=forward_id,
         git_commit_id=git_commit_id,
         filename=filename,
     )
@@ -105,23 +88,11 @@ def build(self, request_json):
     task.update_state(state="RENDERING")
     methods_hub_content.render_formats(request_json["target_format"])
 
-    if response_type == "download":
-        task.update_state(state="STORING")
-        logger.info("Storing response for user")
-        if len(request_json["target_format"]) == 1:
-            return methods_hub_content.rendered_file(request_json["target_format"][0])
-        else:
-            assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
+    task.update_state(state="STORING")
+    logger.info("Storing response for user")
+    if len(request_json["target_format"]) == 1:
+        return methods_hub_content.rendered_file(request_json["target_format"][0])
+    else:
+        assert methods_hub_content.zip_all_formats() is None, "Fail on zip formats"
 
-            return methods_hub_content.zip_file_path
-
-    if response_type == "forward":
-        task.update_state(state="FORWARDING")
-        logger.info("Sending response to %s", os.getenv("MAGDALENA_GRAPHQL_TARGET_URL"))
-
-        if len(request_json["target_format"]) == 1:
-            methods_hub_content.push_rendered_formats(
-                request_json["target_format"], authorization_token
-            )
-        else:
-            methods_hub_content.push_all_rendered_formats(authorization_token)
+        return methods_hub_content.zip_file_path
