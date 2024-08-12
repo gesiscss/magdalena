@@ -231,19 +231,3 @@ data: {"phase": "ready", "message": "server running at https://notebooks.gesis.o
 #     )
 
 #     assert response.status_code == 200
-
-
-# def test_post_docx_to_html(client):
-#     response = client.post(
-#         "/",
-#         headers={
-#             "Authorization": f"Bearer {generate_jwt()}",
-#         },
-#         json={
-#             "source_url": "https://gesisbox.gesis.org/index.php/s/tPbi9bXiHfXAHR4",
-#             "target_format": ["html"],
-#             "response": "download",
-#         },
-#     )
-
-#     assert response.status_code == 201, "New document was not created!"
