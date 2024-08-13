@@ -68,12 +68,15 @@ def build(self, request_json):
         forward_id = None
 
     if "github.com" in request_json["source_url"]:
+        logger.info("GitHub")
         source_url = request_json["source_url"]
     elif "gitlab.com" in request_json["source_url"]:
+        logger.info("GitLab")
         source_url = request_json["source_url"]
     else:
+        logger.info("None")
         source_url = None
-    assert source_url is None, "Source URL cannot be None"
+    assert source_url, "Source URL cannot be None"
 
     # assert "filename" in request_json, "Field filename missing in form"
     if "filename" not in request_json or len(request_json["filename"]) == 0:
@@ -82,6 +85,7 @@ def build(self, request_json):
     else:
         filename = request_json["filename"]
 
+    logger.info("git commit")
     # assert "git_commit_id" in request_json, "Field git_commit_id missing in form"
     if "git_commit_id" not in request_json or len(request_json["git_commit_id"]) == 0:
         logger.warning("git_commit_id is not defined or empty!")
@@ -89,6 +93,7 @@ def build(self, request_json):
     else:
         git_commit_id = request_json["git_commit_id"]
 
+    logger.info("class")
     methods_hub_content = MethodsHubGitContent(
         source_url,
         id_for_graphql=forward_id,
@@ -96,6 +101,7 @@ def build(self, request_json):
         filename=filename,
     )
 
+    logger.info("cloning")
     task.update_state(state="CLONING")
     methods_hub_content.clone_or_pull()
 
