@@ -90,7 +90,16 @@ def create_app():
 
 
 def celery_init_app(app):
+    from celery.utils.log import get_task_logger
+
     class FlaskTask(Task):
+        def on_failure(self, exc, task_id, args, kwargs, einfo):
+            logger = get_task_logger(__name__)
+
+            logger.exception("Celery task failure!!!", exc_info=exc)
+
+            super(FlaskTask, self).on_failure(exc, task_id, args, kwargs, einfo)
+
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return self.run(*args, **kwargs)
