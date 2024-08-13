@@ -81,10 +81,21 @@ def download(id):
 def result(id):
     result = AsyncResult(id)
     ready = result.ready()
+    current_app.logger.debug("Async Task ready() is %s", ready)
+
+    successful = None
+    if ready:
+        successful = result.successful()
+        current_app.logger.debug("Async Task successful() is %s", successful)
+
+    payload = None
+    if ready and successful:
+        payload = result.result
+
     return {
         "ready": ready,
-        "successful": result.successful() if ready else None,
-        "value": result.result if ready else None,
+        "successful": successful,
+        "value": payload,
     }
 
 
