@@ -7,8 +7,6 @@ variables:
   MYBINDER_URL: https://notebooks.gesis.org/binder
 
 stages:
-  - config
-  - prepare
   - test
   - release
   - update-integration
@@ -17,35 +15,6 @@ stages:
   - deploy-acceptance
   - update-production
   - deploy-production
-
-Assign Docker image tag:
-  stage: config
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
-      variables:
-        DOCKER_IMAGE_TAG: $CI_COMMIT_TAG
-        DOCKER_REGISTRY: docker-private-releases.gesis.intra/gesis
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
-      variables:
-        DOCKER_IMAGE_TAG: $CI_COMMIT_SHA
-        DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      changes:
-        - Dockerfile
-      variables:
-        DOCKER_IMAGE_TAG: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-        DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      variables:
-        DOCKER_IMAGE_TAG: latest
-        DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
-  script:
-    - rm -f docker.env
-    - echo "DOCKER_IMAGE_TAG=${DOCKER_IMAGE_TAG}" >> docker.env
-    - echo "DOCKER_REGISTRY=${DOCKER_REGISTRY}" >> docker.env
-  artifacts:
-    reports:
-      dotenv: docker.env
 
 # Build documentation
 include:
@@ -69,14 +38,23 @@ pages:
     paths:
       - public
 
-.Build container:
+Build container:
+  stage: release
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
+      variables:
+        DOCKER_REGISTRY: docker-private-releases.gesis.intra/gesis
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
+      variables:
+        DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
   image: docker-private.gesis.intra/gesis/dc:5.7
   services:
     - name: docker-private.gesis.intra/gesis/dind:5.5
       alias: docker
   variables:
-    DOCKER_TARGET: target
+    DOCKER_TARGET: prod
     DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
+    DOCKER_IMAGE_TAG: $CI_COMMIT_SHA
   script:
     - |
       docker \
@@ -85,30 +63,11 @@ pages:
       --pull \
       --target ${DOCKER_TARGET} \
       --tag ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG} \
-      --tag ${DOCKER_CONTAINER_NAME}:latest \
       .
     - |
-      if [ -z "$CI_COMMIT_TAG" ]
-      then
-      docker \
-      push \
-      --all-tags \
-      ${DOCKER_CONTAINER_NAME}
-      else
       docker \
       push \
       ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG}
-      fi
-
-Build prod container:
-  extends: .Build container
-  stage: release
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
-  variables:
-    DOCKER_TARGET: prod
-    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
 
 Verify code style:
   stage: test
