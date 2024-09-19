@@ -155,6 +155,17 @@ Run test:
       -o log_cli_level=INFO \
       .
 
+Release new version:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "running release_job"
+  release:
+    tag_name: '$CI_COMMIT_TAG'
+    description: '$CI_COMMIT_TAG'
+
 .Deploy new version downstream:
   trigger:
     project: methods-hub/methodshub.gesis.org
@@ -165,7 +176,6 @@ Deploy new version downstream into integration environment:
   extends: .Deploy new version downstream
   stage: deploy-integration
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
   variables:
     UPSTREAM_PROJECT_NAMESPACE: $CI_PROJECT_NAMESPACE
@@ -176,7 +186,6 @@ Deploy new version downstream into acceptance environment:
   extends: .Deploy new version downstream
   stage: deploy-acceptance
   rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
   variables:
     UPSTREAM_PROJECT_NAMESPACE: $CI_PROJECT_NAMESPACE
@@ -188,8 +197,6 @@ Deploy new version downstream into production environment:
   stage: deploy-production
   rules:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
-      when: manual
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       when: manual
   variables:
     UPSTREAM_PROJECT_NAMESPACE: $CI_PROJECT_NAMESPACE
