@@ -90,11 +90,11 @@ pages:
       docker \
       push \
       --all-tags \
-      ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG}
+      ${DOCKER_CONTAINER_NAME}
       else
       docker \
       push \
-      ${DOCKER_CONTAINER_NAME}
+      ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG}
       fi
 
 Build prod container:
