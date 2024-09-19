@@ -89,11 +89,11 @@ pages:
       then
       docker \
       push \
+      --all-tags \
       ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG}
       else
       docker \
       push \
-      --all-tags \
       ${DOCKER_CONTAINER_NAME}
       fi
 
