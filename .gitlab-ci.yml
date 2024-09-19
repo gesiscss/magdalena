@@ -24,7 +24,7 @@ Assign Docker image tag:
         DOCKER_REGISTRY: docker-private-releases.gesis.intra/gesis
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
       variables:
-        DOCKER_IMAGE_TAG: latest
+        DOCKER_IMAGE_TAG: $CI_COMMIT_SHA
         DOCKER_REGISTRY: docker-private-snapshots.gesis.intra/gesis
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -73,7 +73,7 @@ pages:
       alias: docker
   variables:
     DOCKER_TARGET: target
-    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/target
+    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
   script:
     - |
       docker \
@@ -85,29 +85,17 @@ pages:
       --tag ${DOCKER_CONTAINER_NAME}:latest \
       .
     - |
+      if [ -z "$CI_COMMIT_TAG" ]
+      then
+      docker \
+      push \
+      ${DOCKER_CONTAINER_NAME}:${DOCKER_IMAGE_TAG}
+      else
       docker \
       push \
       --all-tags \
       ${DOCKER_CONTAINER_NAME}
-
-Build dev container:
-  extends: .Build container
-  stage: prepare
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_TAG
-    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - poetry.lock
-    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
-      changes:
-        - Dockerfile
-        - pyproject.toml
-        - poetry.lock
-  variables:
-    DOCKER_TARGET: dev
-    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/dev
+      fi
 
 Build prod container:
   extends: .Build container
@@ -117,7 +105,7 @@ Build prod container:
     - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == 'main'
   variables:
     DOCKER_TARGET: prod
-    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}/prod
+    DOCKER_CONTAINER_NAME: ${DOCKER_REGISTRY}/${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}
 
 Verify code style:
   stage: test
@@ -127,7 +115,18 @@ Verify code style:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
       changes:
         - "**/*.py"
-  image: ${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/dev:${DOCKER_IMAGE_TAG}
+  image: python:3.12.6-alpine3.20
+  variables:
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  cache:
+    paths:
+      - .cache/pip
+  before_script:
+    - python -V
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - python -m pip install black
   script:
     - black .
 
