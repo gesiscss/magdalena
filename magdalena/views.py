@@ -17,18 +17,8 @@ from flask import stream_with_context
 
 import jwt
 
-from .pem import (
-    KEYCLOAK_REALM,
-    KEYCLOAK_CLIENT,
-    KEYCLOAK_ISSUER,
-    retrieve_public_key,
-)
-
-from . import tasks
-
 authorization_required_from_env = os.getenv("AUTHORIZATION_REQUIRED", True)
 if isinstance(authorization_required_from_env, str):
-
     authorization_required_from_env = authorization_required_from_env.lower()
     if authorization_required_from_env == "false":
         AUTHORIZATION_REQUIRED = False
@@ -39,6 +29,15 @@ if isinstance(authorization_required_from_env, str):
 else:
     AUTHORIZATION_REQUIRED = authorization_required_from_env
 
+if AUTHORIZATION_REQUIRED:
+    from .pem import (
+        KEYCLOAK_REALM,
+        KEYCLOAK_CLIENT,
+        KEYCLOAK_ISSUER,
+        retrieve_public_key,
+    )
+
+from . import tasks
 
 bp = Blueprint("tasks", __name__)
 
