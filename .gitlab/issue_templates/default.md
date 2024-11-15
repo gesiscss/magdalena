@@ -12,8 +12,9 @@
 
 /assign @costadre
 
-/milestone %"Q3/2024"
+/milestone %"25.01"
 
 /label ~"Technical Publishing System"
 /label ~"Environment::Stage"
 /label ~"Environment::Production"
+/label ~"v2025.01"
